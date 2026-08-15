@@ -1,26 +1,175 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Local Urbanist Variable Font (from uploaded text/ folder) ─── */
+@font-face {
+  font-family: "Urbanist";
+  src: url("/fonts/Urbanist-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@font-face {
+  font-family: "Urbanist";
+  src: url("/fonts/Urbanist-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
 }
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --font-urbanist: "Urbanist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "Urbanist", sans-serif;
+    --font-space-grotesk: "Urbanist", sans-serif;
+    
+    /* ── Palette Tokens: Exact Reference Values ───────────────── */
+    --color-matcha-lime: #A9C632;  /* RGB: 169, 198, 50 - Accent / Action */
+    --color-forest-brew: #1D2E1B;  /* RGB: 29, 46, 27 - Primary Text Only */
+    --color-tea-mist: #C8D2A6;     /* RGB: 200, 210, 166 - Subtle / Borders */
+    --color-bamboo-beige: #E6D4A6; /* RGB: 230, 212, 166 - Warm Accents */
+    
+    /* ── Light Mode High-Contrast Semantic Mapping ────────────── */
+    --bg-canvas: #F7F9F2;
+    --bg-surface: #FFFFFF;
+    --bg-surface-elevated: #FFFFFF;
+    --bg-subtle: #F0F4E8;
+    
+    --text-primary: #1D2E1B;
+    --text-secondary: #2D442A;
+    --text-muted: #546E50;
+    
+    --border-subtle: #C8D2A6;
+    --border-strong: #8A9F78;
+    
+    --accent-matcha: #A9C632;
+    --accent-matcha-hover: #96B228;
+    --accent-matcha-light: rgba(169, 198, 50, 0.15);
+    
+    --accent-bamboo: #E6D4A6;
+  }
+
+  .dark {
+    /* ── Dark Mode Fallback Mapping ────────────────────────────── */
+    --bg-canvas: #131E12;
+    --bg-surface: #1D2E1B;
+    --bg-surface-elevated: #243822;
+    --bg-subtle: #2D442A;
+    
+    --text-primary: #FFFFFF;
+    --text-secondary: #C8D2A6;
+    --text-muted: #A0B28C;
+    
+    --border-subtle: rgba(200, 210, 166, 0.25);
+    --border-strong: rgba(200, 210, 166, 0.45);
+    
+    --accent-matcha: #A9C632;
+    --accent-matcha-hover: #BBD646;
+    --accent-matcha-light: rgba(169, 198, 50, 0.25);
+  }
+
+  *, *::before, *::after, html, body, input, button, textarea, select {
+    font-family: var(--font-urbanist) !important;
+  }
+
+  body {
+    font-family: var(--font-urbanist) !important;
+    letter-spacing: -0.02em; /* visual tracking */
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Global Custom Cursor: Hide default system cursor on desktop ── */
+@media (pointer: fine) {
+  html, body, *, *::before, *::after {
+    cursor: none !important;
+  }
+  input, textarea {
+    cursor: text !important;
+  }
+}
+
+/* Force Urbanist everywhere */
+.font-urbanist,
+.font-sans,
+.font-mono,
+.font-space-grotesk {
+  font-family: "Urbanist", -apple-system, BlinkMacSystemFont, sans-serif !important;
+  letter-spacing: -0.02em;
+}
+
+/* Scribble Drawing Keyframes */
+@keyframes drawScribble {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-scribble {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: drawScribble 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Glass Floating Island Shadows */
+.glass-island {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* ── Apple Squircle & Icon Curvature Utilities ───────────────── */
+.apple-squircle {
+  border-radius: 22.37%;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04), inset 0 1px 1px 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .apple-squircle {
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.35), 0 2px 6px -1px rgba(0, 0, 0, 0.2), inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.apple-icon-tile {
+  border-radius: 22.37%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.06), 0 1px 3px -1px rgba(0, 0, 0, 0.04);
+}
+
+.apple-icon-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 65%);
+}
+
+.dark .apple-icon-tile::before {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 65%);
+}
+
+/* Minimal Custom Scrollbar with Palette Colors */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(200, 210, 166, 0.6);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A9C632;
 }
