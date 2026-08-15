@@ -183,7 +183,7 @@ export default function TopBar({
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div className="w-6 h-6 rounded-lg bg-black/5 dark:bg-white/10 p-0.5 flex items-center justify-center shrink-0 overflow-hidden">
                             <img
-                              src={getCompanyLogoUrl(c.logo_url, c.name, c.website_url)}
+                              src={getCompanyLogoUrl(c.logo_url || undefined, c.name, c.website_url)}
                               alt={c.name}
                               onError={(e) => handleImageError(e, c.name)}
                               className="w-full h-full object-contain"

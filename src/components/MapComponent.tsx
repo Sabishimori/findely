@@ -115,8 +115,10 @@ export default function MapComponent({
   isDarkMode = false,
   onToggleDarkMode,
   focusedCompany = null,
+  focusedArea = null,
   isListDrawerOpen = false,
   onToggleListDrawer,
+  onMapDoubleClick,
 }: {
   companies: CompanyMapItem[];
   searchQuery?: string;
