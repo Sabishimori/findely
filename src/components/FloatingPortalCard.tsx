@@ -218,8 +218,8 @@ export default function FloatingPortalCard({
       })
     : (null as any);
 
-  const rawJobs = data?.jobs || [];
-  const filteredJobs = rawJobs.filter((job) => {
+  const rawJobs: any[] = data?.jobs || [];
+  const filteredJobs = rawJobs.filter((job: any) => {
     let matchesDept = true;
     if (selectedDepartment) {
       matchesDept =

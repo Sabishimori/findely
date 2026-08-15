@@ -15,13 +15,15 @@ export interface FallbackCompany {
   activeJobCount: number;
   jobTitles: string[];
   roles: any[];
+  jobs: any[];
+  sources: any[];
   founders: any[];
   hrLeads: any[];
   techStack: string[];
   latestPostDate?: Date | null;
 }
 
-export const FALLBACK_COMPANIES: FallbackCompany[] = [
+const RAW_FALLBACK_COMPANIES: Array<Omit<FallbackCompany, "jobs" | "sources">> = [
   {
     id: "stripe-fallback-1",
     name: "Stripe",
@@ -321,3 +323,9 @@ export const FALLBACK_COMPANIES: FallbackCompany[] = [
     ],
   },
 ];
+
+export const FALLBACK_COMPANIES: FallbackCompany[] = RAW_FALLBACK_COMPANIES.map((c) => ({
+  ...c,
+  jobs: c.roles || [],
+  sources: [],
+}));
