@@ -7,7 +7,7 @@
   <p align="center">
     <a href="https://github.com/Sabishimori/findely/stargazers"><img src="https://img.shields.io/github/stars/Sabishimori/findely?color=A9C632&style=flat-square" alt="Stars" /></a>
     <a href="https://github.com/Sabishimori/findely/network/members"><img src="https://img.shields.io/github/forks/Sabishimori/findely?color=546E50&style=flat-square" alt="Forks" /></a>
-    <a href="https://github.com/Sabishimori/findely/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License" /></a>
+    <img src="https://img.shields.io/badge/License-Proprietary%20%7C%20All%20Rights%20Reserved-red.svg?style=flat-square" alt="Proprietary" />
   </p>
 </div>
 
@@ -103,6 +103,9 @@ Findely is 100% configured for instant one-click deployment:
 
 ---
 
-## 📄 License
+## 📄 License & Intellectual Property Notice
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+**Proprietary Software — All Rights Reserved.**  
+Copyright © 2026 Findely / Sabishimori.
+
+Unauthorized copying, cloning, scraping, reproduction, or distribution of this code, design architecture, or assets is strictly prohibited. See the [LICENSE](LICENSE) file for complete terms.
