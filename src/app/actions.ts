@@ -5,6 +5,7 @@ import { users, profiles, companies, jobs, scrape_sources, applications, company
 import { eq, and, or, isNull, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { isDisposableEmail } from "@/lib/disposableEmailBlocker";
+import { sanitizeText, sanitizeUrl, sanitizeObject } from "@/lib/security/xssSanitizer";
 
 // ── User Authentication & Profile Management ────────────────────────────
 
@@ -118,31 +119,48 @@ export async function updateUserProfile(data: {
     .limit(1)
     .get();
 
-  const skillsJson = JSON.stringify(data.skills || []);
+  const sanitizedName = sanitizeText(data.name);
+  const sanitizedUsername = sanitizeText(data.username);
+  const sanitizedEmail = sanitizeText(effectiveEmail);
+  const sanitizedPhone = data.phone ? sanitizeText(data.phone) : null;
+  const sanitizedLocation = data.location ? sanitizeText(data.location) : null;
+  const sanitizedBio = data.bio ? sanitizeText(data.bio) : null;
+  const sanitizedSkills = (data.skills || []).map((s) => sanitizeText(s));
+  const sanitizedResumeFilename = data.resume_filename ? sanitizeText(data.resume_filename) : "Resume_2026.pdf";
+  const sanitizedResumeUrl = data.resume_url ? sanitizeUrl(data.resume_url) : null;
+  const sanitizedLinkedin = data.linkedin_url ? sanitizeUrl(data.linkedin_url) : null;
+  const sanitizedGithub = data.github_url ? sanitizeUrl(data.github_url) : null;
+  const sanitizedBehance = data.behance_url ? sanitizeUrl(data.behance_url) : null;
+  const sanitizedInstagram = data.instagram_url ? sanitizeUrl(data.instagram_url) : null;
+  const sanitizedWebsite = data.website_url ? sanitizeUrl(data.website_url) : null;
+  const sanitizedProject = data.project_url ? sanitizeUrl(data.project_url) : null;
+  const sanitizedAvatar = data.avatar_url ? sanitizeUrl(data.avatar_url) : null;
+
+  const skillsJson = JSON.stringify(sanitizedSkills);
 
   if (existing) {
     await db
       .update(profiles)
       .set({
-        name: data.name,
-        username: data.username,
-        email: effectiveEmail,
-        phone: data.phone || null,
-        location: data.location || null,
+        name: sanitizedName,
+        username: sanitizedUsername,
+        email: sanitizedEmail,
+        phone: sanitizedPhone,
+        location: sanitizedLocation,
         employment_status: data.employment_status || "actively_looking",
         experience_level: data.experience_level || "Senior (5+ yrs)",
         availability: data.availability || "immediate",
-        resume_filename: data.resume_filename || "Resume_2026.pdf",
-        resume_url: data.resume_url || null,
-        bio: data.bio || null,
+        resume_filename: sanitizedResumeFilename,
+        resume_url: sanitizedResumeUrl,
+        bio: sanitizedBio,
         skills_json: skillsJson,
-        linkedin_url: data.linkedin_url || null,
-        github_url: data.github_url || null,
-        behance_url: data.behance_url || null,
-        instagram_url: data.instagram_url || null,
-        website_url: data.website_url || null,
-        project_url: data.project_url || null,
-        avatar_url: data.avatar_url || existing.avatar_url,
+        linkedin_url: sanitizedLinkedin,
+        github_url: sanitizedGithub,
+        behance_url: sanitizedBehance,
+        instagram_url: sanitizedInstagram,
+        website_url: sanitizedWebsite,
+        project_url: sanitizedProject,
+        avatar_url: sanitizedAvatar || existing.avatar_url,
         updated_at: new Date(),
       })
       .where(eq(profiles.id, existing.id));
@@ -150,25 +168,25 @@ export async function updateUserProfile(data: {
     await db.insert(profiles).values({
       id: crypto.randomUUID(),
       user_id: effectiveUserId || null,
-      name: data.name,
-      username: data.username,
-      email: effectiveEmail,
-      phone: data.phone || null,
-      location: data.location || null,
+      name: sanitizedName,
+      username: sanitizedUsername,
+      email: sanitizedEmail,
+      phone: sanitizedPhone,
+      location: sanitizedLocation,
       employment_status: data.employment_status || "actively_looking",
       experience_level: data.experience_level || "Senior (5+ yrs)",
       availability: data.availability || "immediate",
-      resume_filename: data.resume_filename || "Resume_2026.pdf",
-      resume_url: data.resume_url || null,
-      bio: data.bio || null,
+      resume_filename: sanitizedResumeFilename,
+      resume_url: sanitizedResumeUrl,
+      bio: sanitizedBio,
       skills_json: skillsJson,
-      linkedin_url: data.linkedin_url || null,
-      github_url: data.github_url || null,
-      behance_url: data.behance_url || null,
-      instagram_url: data.instagram_url || null,
-      website_url: data.website_url || null,
-      project_url: data.project_url || null,
-      avatar_url: data.avatar_url || null,
+      linkedin_url: sanitizedLinkedin,
+      github_url: sanitizedGithub,
+      behance_url: sanitizedBehance,
+      instagram_url: sanitizedInstagram,
+      website_url: sanitizedWebsite,
+      project_url: sanitizedProject,
+      avatar_url: sanitizedAvatar,
       created_at: new Date(),
       updated_at: new Date(),
     });
@@ -338,16 +356,16 @@ export async function trackJobApplication(data: {
   await db.insert(applications).values({
     id,
     user_id: sessionUser?.id || null,
-    job_id: data.job_id || null,
-    company_id: data.company_id || null,
-    job_title: data.job_title,
-    company_name: data.company_name,
-    company_logo: data.company_logo || null,
-    location_text: data.location_text || null,
-    salary_range: data.salary_range || null,
-    apply_url: data.apply_url || null,
-    status: data.status || "applied",
-    notes: data.notes || null,
+    job_id: data.job_id ? sanitizeText(data.job_id) : null,
+    company_id: data.company_id ? sanitizeText(data.company_id) : null,
+    job_title: sanitizeText(data.job_title),
+    company_name: sanitizeText(data.company_name),
+    company_logo: data.company_logo ? sanitizeUrl(data.company_logo) : null,
+    location_text: data.location_text ? sanitizeText(data.location_text) : null,
+    salary_range: data.salary_range ? sanitizeText(data.salary_range) : null,
+    apply_url: data.apply_url ? sanitizeUrl(data.apply_url) : null,
+    status: sanitizeText(data.status || "applied"),
+    notes: data.notes ? sanitizeText(data.notes) : null,
     applied_at: new Date(),
     updated_at: new Date(),
   });
@@ -448,7 +466,7 @@ export async function updateApplicationNotes(
   await db
     .update(applications)
     .set({
-      notes,
+      notes: sanitizeText(notes),
       updated_at: new Date(),
     })
     .where(whereCondition);
@@ -535,19 +553,24 @@ export async function submitCompanyRequest(data: {
     summary: `AI verified corporate domain: ${data.name}. Careers portal authenticated for legitimate hiring.`,
   });
 
+  const sanitizedName = sanitizeText(data.name);
+  const sanitizedLocation = data.location_text ? sanitizeText(data.location_text) : null;
+  const sanitizedDescription = data.description ? sanitizeText(data.description) : null;
+  const sanitizedEmail = data.submitted_by_email ? sanitizeText(data.submitted_by_email) : null;
+
   const requestId = crypto.randomUUID();
 
   await db.insert(company_requests).values({
     id: requestId,
-    name: data.name,
-    website_url: data.website_url,
-    careers_url: data.careers_url,
-    location_text: data.location_text || null,
+    name: sanitizedName,
+    website_url: sanitizedWebsiteUrl,
+    careers_url: sanitizedCareersUrl,
+    location_text: sanitizedLocation,
     latitude: lat,
     longitude: lng,
-    description: data.description || null,
+    description: sanitizedDescription,
     logo_url: logoUrl,
-    submitted_by_email: data.submitted_by_email || null,
+    submitted_by_email: sanitizedEmail,
     status: safetyScore >= 95 ? "verified" : "pending_scan",
     ai_safety_score: safetyScore,
     ai_analysis: aiAnalysis,
@@ -566,17 +589,17 @@ export async function submitCompanyRequest(data: {
       }
     }
 
-    const companyName = scrapedResult?.name || data.name;
-    const companyDesc = scrapedResult?.description || data.description || `Frontier technology team at ${data.name}`;
-    const companyLogo = scrapedResult?.logoUrl || logoUrl;
+    const companyName = scrapedResult?.name ? sanitizeText(scrapedResult.name) : sanitizedName;
+    const companyDesc = scrapedResult?.description ? sanitizeText(scrapedResult.description) : (sanitizedDescription || `Frontier technology team at ${sanitizedName}`);
+    const companyLogo = scrapedResult?.logoUrl ? sanitizeUrl(scrapedResult.logoUrl) : logoUrl;
     const companyLat = scrapedResult?.primaryLocation?.lat || lat || 37.7749;
     const companyLng = scrapedResult?.primaryLocation?.lng || lng || -122.4194;
-    const companyCity = scrapedResult?.primaryLocation?.city || data.location_text || "San Francisco";
+    const companyCity = scrapedResult?.primaryLocation?.city ? sanitizeText(scrapedResult.primaryLocation.city) : (sanitizedLocation || "San Francisco");
 
     await db.insert(companies).values({
       id: companyId,
       name: companyName,
-      website_url: data.website_url,
+      website_url: sanitizedWebsiteUrl,
       description: companyDesc,
       location_text: companyCity,
       latitude: companyLat,
@@ -706,11 +729,11 @@ export async function submitCompanyReport(data: {
     const id = crypto.randomUUID();
     await db.insert(company_reports).values({
       id,
-      company_id: data.company_id || null,
-      company_name: data.company_name,
-      reason: data.reason,
-      comment: data.comment || null,
-      reported_by_email: data.reported_by_email || null,
+      company_id: data.company_id ? sanitizeText(data.company_id) : null,
+      company_name: sanitizeText(data.company_name),
+      reason: sanitizeText(data.reason),
+      comment: data.comment ? sanitizeText(data.comment) : null,
+      reported_by_email: data.reported_by_email ? sanitizeText(data.reported_by_email) : null,
       status: "pending_review",
       created_at: new Date(),
     });
