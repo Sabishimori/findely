@@ -177,8 +177,8 @@ function WarpSpearIcon({ className = "w-4 h-4" }: { className?: string }) {
 
 export default function LandingPage({
   onLaunchWorkspace,
-  totalJobsCount = 2278,
-  totalCompaniesCount = 76,
+  totalJobsCount = 176,
+  totalCompaniesCount = 850,
   isDarkMode = false,
   onToggleDarkMode,
 }: {
@@ -225,6 +225,10 @@ export default function LandingPage({
 
   const handleLaunchClick = (e?: React.MouseEvent | string) => {
     playTapSound();
+    if (!user) {
+      openAuthModal();
+      return;
+    }
     if (typeof e === "string") {
       onLaunchWorkspace(e);
     } else {

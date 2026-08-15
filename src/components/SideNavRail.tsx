@@ -156,15 +156,20 @@ export default function SideNavRail({
           </button>
 
           {/* Sign Out / Back to Landing Page */}
-          {user && (
-            <button
-              onClick={logout}
-              className="w-10 h-10 apple-squircle flex items-center justify-center text-red-500/70 hover:text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all cursor-pointer group"
-              title="Sign Out to Landing Page"
-            >
-              <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
-            </button>
-          )}
+          <button
+            onClick={() => {
+              if (user) {
+                logout();
+              }
+              if (onOpenLandingPage) {
+                onOpenLandingPage();
+              }
+            }}
+            className="w-10 h-10 apple-squircle flex items-center justify-center text-red-500/80 hover:text-red-500 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/40 transition-all cursor-pointer group"
+            title={user ? "Sign Out" : "Exit to Landing Page"}
+          >
+            <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
+          </button>
         </div>
       </aside>
 

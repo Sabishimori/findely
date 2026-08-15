@@ -13,6 +13,7 @@ import {
   SlidersHorizontal,
   RotateCw,
   Command,
+  LogOut,
 } from "lucide-react";
 import { useAuth } from "@/lib/authContext";
 
@@ -23,6 +24,7 @@ export default function TopBar({
   onOpenFilterDrawer,
   onSelectTab,
   onRefresh,
+  onExitToLanding,
   isDarkMode = false,
   onToggleDarkMode,
 }: {
@@ -32,6 +34,7 @@ export default function TopBar({
   onOpenFilterDrawer?: () => void;
   onSelectTab: (tab: any) => void;
   onRefresh?: () => Promise<void> | void;
+  onExitToLanding?: () => void;
   isDarkMode?: boolean;
   onToggleDarkMode?: () => void;
 }) {
@@ -172,6 +175,22 @@ export default function TopBar({
             title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
             {isDarkMode ? <Sun className="w-4 h-4 text-[#A9C632]" /> : <Moon className="w-4 h-4 text-[#1D2E1B]" />}
+          </button>
+
+          {/* Sign Out / Exit to Landing Page */}
+          <button
+            onClick={() => {
+              if (user) {
+                logout();
+              }
+              if (onExitToLanding) {
+                onExitToLanding();
+              }
+            }}
+            className="p-2.5 apple-squircle border border-red-500/30 hover:bg-red-500/10 text-red-500/80 hover:text-red-500 transition-colors cursor-pointer"
+            title={user ? "Log Out" : "Exit to Landing Page"}
+          >
+            <LogOut className="w-4 h-4" />
           </button>
 
           {/* Primary Action: + Add company */}
