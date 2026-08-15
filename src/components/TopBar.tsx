@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { 
   Search, 
   Bell, 
@@ -16,6 +16,7 @@ import {
   LogOut,
   MapPin,
   Building2,
+  Briefcase,
   ArrowRight,
   Sparkles,
 } from "lucide-react";
@@ -72,28 +73,80 @@ export default function TopBar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Filter top 2-3 matched companies
-  const matchedCompanies = searchQuery.trim()
-    ? companies
-        .filter((c) => {
-          const q = searchQuery.toLowerCase().trim();
-          return (
-            c.name.toLowerCase().includes(q) ||
-            (c.location_text && c.location_text.toLowerCase().includes(q)) ||
-            (c.jobTitles && c.jobTitles.some((t) => t.toLowerCase().includes(q)))
-          );
-        })
-        .slice(0, 3)
-    : [];
+  // Filter matched specific open roles / jobs across all companies
+  const matchedJobs = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase().trim();
+    const results: Array<{
+      id: string;
+      title: string;
+      salary_range?: string | null;
+      location_text: string;
+      company: CompanyMapItem;
+    }> = [];
 
-  // Filter top 2-3 matched tech areas / cities
-  const matchedAreas = searchQuery.trim() ? searchTechAreas(searchQuery, 3) : [];
+    for (const comp of companies) {
+      if (comp.roles && comp.roles.length > 0) {
+        for (const role of comp.roles) {
+          if (
+            role.title.toLowerCase().includes(q) ||
+            (role.location_text && role.location_text.toLowerCase().includes(q)) ||
+            (role.salary_range && role.salary_range.toLowerCase().includes(q))
+          ) {
+            results.push({
+              id: role.id,
+              title: role.title,
+              salary_range: role.salary_range,
+              location_text: role.location_text || comp.location_text || "Global",
+              company: comp,
+            });
+          }
+        }
+      } else if (comp.jobTitles && comp.jobTitles.length > 0) {
+        for (const title of comp.jobTitles) {
+          if (title.toLowerCase().includes(q)) {
+            results.push({
+              id: `${comp.id}_${title}`,
+              title,
+              salary_range: null,
+              location_text: comp.location_text || "Global",
+              company: comp,
+            });
+          }
+        }
+      }
+    }
+    return results.slice(0, 10);
+  }, [companies, searchQuery]);
 
-  const hasMatches = searchQuery.trim().length > 0 && (matchedCompanies.length > 0 || matchedAreas.length > 0);
+  // Filter matched companies
+  const matchedCompanies = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase().trim();
+    return companies
+      .filter((c) => {
+        return (
+          c.name.toLowerCase().includes(q) ||
+          (c.location_text && c.location_text.toLowerCase().includes(q))
+        );
+      })
+      .slice(0, 4);
+  }, [companies, searchQuery]);
+
+  // Filter top matched tech areas / cities
+  const matchedAreas = useMemo(() => {
+    return searchQuery.trim() ? searchTechAreas(searchQuery, 3) : [];
+  }, [searchQuery]);
+
+  const hasMatches = searchQuery.trim().length > 0 && (matchedJobs.length > 0 || matchedCompanies.length > 0 || matchedAreas.length > 0);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      if (matchedCompanies.length > 0 && onSelectCompany) {
+      if (matchedJobs.length > 0 && onSelectCompany) {
+        playTapSound();
+        onSelectCompany(matchedJobs[0].company);
+        setIsSearchFocused(false);
+      } else if (matchedCompanies.length > 0 && onSelectCompany) {
         playTapSound();
         onSelectCompany(matchedCompanies[0]);
         setIsSearchFocused(false);
@@ -145,7 +198,7 @@ export default function TopBar({
               setIsSearchFocused(true);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Search companies, areas (e.g. London, Tokyo), roles (e.g. Designer, ML)..."
+            placeholder="Search roles (e.g. UI/UX, Frontend), companies, or cities..."
             className={`w-full pl-11 pr-14 py-2.5 text-xs rounded-2xl border transition-all focus:outline-none focus:border-[#A9C632] ${
               isDarkMode
                 ? "bg-[#243822] border-[#3D543A] text-white placeholder:text-[#A0B28C]"
@@ -157,16 +210,72 @@ export default function TopBar({
             <span>K</span>
           </div>
 
-          {/* ── Autocomplete Dropdown (Top 2-3 matched companies & areas) ── */}
+          {/* ── Autocomplete Scrollable Dropdown (Roles, Companies & Areas) ── */}
           {isSearchFocused && hasMatches && (
-            <div className="absolute left-2 right-0 top-full mt-2.5 rounded-[24px] p-2.5 shadow-2xl border backdrop-blur-3xl z-50 bg-white/95 dark:bg-[#1D2E1B]/95 border-[#C8D2A6] dark:border-[#3D543A] space-y-2 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="absolute left-2 right-0 top-full mt-2.5 max-h-[380px] overflow-y-auto custom-scrollbar rounded-[24px] p-3 shadow-2xl border backdrop-blur-3xl z-50 bg-white/95 dark:bg-[#1D2E1B]/95 border-[#C8D2A6] dark:border-[#3D543A] space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
               
-              {/* Companies Section */}
+              {/* 1. Matched Open Roles / Jobs Section */}
+              {matchedJobs.length > 0 && (
+                <div>
+                  <div className="px-2.5 py-1 text-[9px] font-mono font-bold uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6] flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Briefcase className="w-3 h-3 text-[#A9C632]" />
+                      <span>Open Roles & Positions ({matchedJobs.length})</span>
+                    </span>
+                    <span className="text-[9px] text-[#A9C632] font-semibold">Click to Teleport ↗</span>
+                  </div>
+                  <div className="space-y-1 mt-1">
+                    {matchedJobs.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          playTapSound();
+                          if (onSelectCompany) onSelectCompany(item.company);
+                          setIsSearchFocused(false);
+                        }}
+                        className="w-full px-3 py-2 rounded-xl text-left flex items-center justify-between gap-3 hover:bg-[#A9C632]/15 transition-all cursor-pointer group border border-transparent hover:border-[#A9C632]/30"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-7 h-7 rounded-lg bg-black/5 dark:bg-white/10 p-0.5 flex items-center justify-center shrink-0 overflow-hidden border border-[#C8D2A6]/40 dark:border-white/10">
+                            <img
+                              src={getCompanyLogoUrl(item.company.logo_url || undefined, item.company.name, item.company.website_url)}
+                              alt={item.company.name}
+                              onError={(e) => handleImageError(e, item.company.name)}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold truncate text-[#1D2E1B] dark:text-white group-hover:text-[#A9C632] transition-colors leading-tight flex items-center gap-1.5">
+                              <span>{item.title}</span>
+                              <span className="text-[10px] text-[#A9C632] font-medium">• {item.company.name}</span>
+                            </p>
+                            <p className="text-[10px] text-[#546E50] dark:text-[#C8D2A6] truncate leading-tight mt-0.5">
+                              📍 {item.location_text}
+                            </p>
+                          </div>
+                        </div>
+                        {item.salary_range ? (
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#A9C632]/20 text-[#1D2E1B] dark:text-[#A9C632] shrink-0 border border-[#A9C632]/30 whitespace-nowrap">
+                            {item.salary_range}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#A9C632]/20 text-[#1D2E1B] dark:text-[#A9C632] shrink-0 border border-[#A9C632]/30 whitespace-nowrap">
+                            Active Role
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 2. Companies Section */}
               {matchedCompanies.length > 0 && (
                 <div>
-                  <div className="px-2.5 py-1 text-[9px] font-mono font-bold uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6] flex items-center gap-1.5">
+                  <div className="px-2.5 py-1 text-[9px] font-mono font-bold uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6] flex items-center gap-1.5 pt-1.5 border-t border-black/5 dark:border-white/5">
                     <Building2 className="w-3 h-3 text-[#A9C632]" />
-                    <span>Companies</span>
+                    <span>Companies ({matchedCompanies.length})</span>
                   </div>
                   <div className="space-y-0.5 mt-0.5">
                     {matchedCompanies.map((c) => (
@@ -207,12 +316,12 @@ export default function TopBar({
                 </div>
               )}
 
-              {/* Areas / Cities Section */}
+              {/* 3. Areas / Cities Section */}
               {matchedAreas.length > 0 && (
                 <div>
                   <div className="px-2.5 py-1 text-[9px] font-mono font-bold uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6] flex items-center gap-1.5 pt-1.5 border-t border-black/5 dark:border-white/5">
                     <MapPin className="w-3 h-3 text-[#A9C632]" />
-                    <span>Areas & Hubs</span>
+                    <span>Areas & Hubs ({matchedAreas.length})</span>
                   </div>
                   <div className="space-y-0.5 mt-0.5">
                     {matchedAreas.map((area) => (
@@ -240,7 +349,7 @@ export default function TopBar({
                           </div>
                         </div>
                         <span className="text-[10px] font-medium text-[#546E50] dark:text-[#C8D2A6] group-hover:text-[#A9C632] flex items-center gap-1">
-                          <span>Zoom</span>
+                          <span>Zoom Area</span>
                           <ArrowRight className="w-2.5 h-2.5" />
                         </span>
                       </button>

@@ -282,10 +282,10 @@ export default function MapComponent({
           const isHovered = hoveredCompanyId === company.id;
 
           // Check if company has matching role for the search query
-          const matchingRole = searchQuery.trim()
+          const matchingRole = searchQuery.trim().length >= 2
             ? company.jobTitles?.find((t) =>
-                t.toLowerCase().includes(searchQuery.toLowerCase())
-              )
+                t.toLowerCase().includes(searchQuery.toLowerCase().trim())
+              ) || company.roles?.find((r) => r.title.toLowerCase().includes(searchQuery.toLowerCase().trim()))?.title
             : null;
 
           return (
@@ -365,6 +365,14 @@ export default function MapComponent({
                       onError={(e) => handleImageError(e, company.name)}
                     />
                   </div>
+
+                  {/* Clean Search Query Role Highlight Pill */}
+                  {matchingRole && (
+                    <div className="mt-1 px-2.5 py-0.5 rounded-full bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] text-[9.5px] font-bold shadow-md border border-[#A9C632]/50 whitespace-nowrap max-w-[125px] truncate flex items-center gap-1">
+                      <span>💼</span>
+                      <span className="truncate">{matchingRole}</span>
+                    </div>
+                  )}
                 </motion.div>
 
                 {/* Pin Tip Extrusion */}
