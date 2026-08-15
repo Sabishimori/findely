@@ -455,6 +455,20 @@ export default function AuthModal({
                     <span>{isDisposableEmail(email) ? "Temporary Email Blocked" : "Send 6-Digit Verification Code"}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
+
+                  {/* 1-Click Instant Preview / Demo Login */}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      playTapSound();
+                      await loginWithWorkEmail("Founder / Builder", "builder@findely.app");
+                      if (onSuccess) onSuccess();
+                    }}
+                    className="w-full py-2.5 px-4 rounded-2xl border border-dashed border-[#A9C632]/60 hover:bg-[#A9C632]/10 text-xs font-bold text-[#546E50] dark:text-[#C8D2A6] hover:text-[#1D2E1B] dark:hover:text-white flex items-center justify-center gap-2 transition-all cursor-pointer mt-2"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-[#A9C632]" />
+                    <span>⚡ 1-Click Instant Demo Login</span>
+                  </button>
                 </form>
               </div>
             </div>
