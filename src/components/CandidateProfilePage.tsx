@@ -133,16 +133,24 @@ export default function CandidateProfilePage({
     setTimeout(() => setUploadToast(null), 3000);
   };
 
+import { validateUploadFile } from "@/lib/security/fileUploadSecurity";
+
   const handleAvatarFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const validation = validateUploadFile(file, "AVATAR");
+      if (!validation.valid) {
+        triggerToast(`⚠️ Security Block: ${validation.error}`);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (event) => {
         const result = event.target?.result as string;
         if (result) {
           setAvatarSrc(result);
           setProfile((prev: any) => ({ ...prev, avatar_url: result }));
-          triggerToast("Profile photo uploaded successfully!");
+          triggerToast("Profile photo validated & uploaded securely!");
         }
       };
       reader.readAsDataURL(file);
@@ -152,30 +160,42 @@ export default function CandidateProfilePage({
   const handleVideoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const validation = validateUploadFile(file, "VIDEO");
+      if (!validation.valid) {
+        triggerToast(`⚠️ Security Block: ${validation.error}`);
+        return;
+      }
+
       const blobUrl = URL.createObjectURL(file);
       const sizeMb = (file.size / (1024 * 1024)).toFixed(1) + " MB";
       setVideoData({
-        name: file.name,
+        name: validation.sanitizedFilename || file.name,
         url: blobUrl,
         size: sizeMb,
         duration: "0:45",
       });
-      triggerToast(`Video "${file.name}" uploaded successfully!`);
+      triggerToast(`Video pitch validated & uploaded securely!`);
     }
   };
 
   const handleResumeFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const validation = validateUploadFile(file, "RESUME");
+      if (!validation.valid) {
+        triggerToast(`⚠️ Security Block: ${validation.error}`);
+        return;
+      }
+
       const blobUrl = URL.createObjectURL(file);
       const sizeKb = Math.round(file.size / 1024) + " KB";
       setResumeData({
-        name: file.name,
+        name: validation.sanitizedFilename || file.name,
         url: blobUrl,
         size: sizeKb,
         uploadedAt: "Just now",
       });
-      triggerToast(`Resume "${file.name}" uploaded successfully!`);
+      triggerToast(`Resume validated & attached securely!`);
     }
   };
 
@@ -553,21 +573,21 @@ export default function CandidateProfilePage({
       <input
         type="file"
         ref={avatarInputRef}
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         className="hidden"
         onChange={handleAvatarFileUpload}
       />
       <input
         type="file"
         ref={videoInputRef}
-        accept="video/*"
+        accept="video/mp4,video/webm,video/quicktime"
         className="hidden"
         onChange={handleVideoFileUpload}
       />
       <input
         type="file"
         ref={resumeInputRef}
-        accept=".pdf,.doc,.docx"
+        accept=".pdf,.doc,.docx,application/pdf"
         className="hidden"
         onChange={handleResumeFileUpload}
       />
