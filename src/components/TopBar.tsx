@@ -1,21 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { 
   Search, 
   Bell, 
   Archive, 
   Link as LinkIcon, 
   Check, 
-  Sun,
-  Moon,
-  Plus,
-  SlidersHorizontal,
-  RotateCw,
-  Command,
+  Sun, 
+  Moon, 
+  Plus, 
+  SlidersHorizontal, 
+  RotateCw, 
+  Command, 
   LogOut,
+  MapPin,
+  Building2,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/authContext";
+import { CompanyMapItem } from "./MapComponent";
+import { searchTechAreas, StartupTechHub } from "@/lib/geoUtils";
+import { handleImageError, getCompanyLogoUrl } from "@/lib/logoResolver";
+import { playTapSound } from "@/lib/soundFx";
 
 export default function TopBar({
   searchQuery,
@@ -27,6 +35,9 @@ export default function TopBar({
   onExitToLanding,
   isDarkMode = false,
   onToggleDarkMode,
+  companies = [],
+  onSelectCompany,
+  onFlyToArea,
 }: {
   searchQuery: string;
   onSearchChange: (q: string) => void;
@@ -37,12 +48,62 @@ export default function TopBar({
   onExitToLanding?: () => void;
   isDarkMode?: boolean;
   onToggleDarkMode?: () => void;
+  companies?: CompanyMapItem[];
+  onSelectCompany?: (company: CompanyMapItem) => void;
+  onFlyToArea?: (area: StartupTechHub) => void;
 }) {
   const { user, logout } = useAuth();
   const [copiedLink, setCopiedLink] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showRefreshToast, setShowRefreshToast] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Close search dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Filter top 2-3 matched companies
+  const matchedCompanies = searchQuery.trim()
+    ? companies
+        .filter((c) => {
+          const q = searchQuery.toLowerCase().trim();
+          return (
+            c.name.toLowerCase().includes(q) ||
+            (c.location_text && c.location_text.toLowerCase().includes(q)) ||
+            (c.jobTitles && c.jobTitles.some((t) => t.toLowerCase().includes(q)))
+          );
+        })
+        .slice(0, 3)
+    : [];
+
+  // Filter top 2-3 matched tech areas / cities
+  const matchedAreas = searchQuery.trim() ? searchTechAreas(searchQuery, 3) : [];
+
+  const hasMatches = searchQuery.trim().length > 0 && (matchedCompanies.length > 0 || matchedAreas.length > 0);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      if (matchedCompanies.length > 0 && onSelectCompany) {
+        playTapSound();
+        onSelectCompany(matchedCompanies[0]);
+        setIsSearchFocused(false);
+      } else if (matchedAreas.length > 0 && onFlyToArea) {
+        playTapSound();
+        onFlyToArea(matchedAreas[0]);
+        setIsSearchFocused(false);
+      }
+    }
+  };
 
   const handleRefreshClick = async () => {
     if (isRefreshing) return;
@@ -72,14 +133,19 @@ export default function TopBar({
     <header className="fixed top-4 left-22 md:left-26 right-6 z-40 select-none pointer-events-none font-sans">
       <div className="w-full p-2.5 rounded-[28px] border shadow-2xl backdrop-blur-2xl pointer-events-auto flex items-center justify-between gap-4 transition-all bg-white/90 dark:bg-[#1D2E1B]/95 border-[#C8D2A6] dark:border-[#3D543A] text-[#1D2E1B] dark:text-white">
         
-        {/* ── Left: Search Bar (Spacious with 6px inset padding) ─ */}
-        <div className="flex items-center gap-3 flex-1 max-w-2xl relative pl-2">
+        {/* ── Left: Search Bar with Autocomplete Dropdown ────── */}
+        <div ref={searchContainerRef} className="flex items-center gap-3 flex-1 max-w-2xl relative pl-2">
           <Search className="w-4 h-4 text-[#546E50] dark:text-[#C8D2A6] absolute left-5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search companies, roles (e.g. UI/UX Designer, Full-Stack), locations..."
+            onFocus={() => setIsSearchFocused(true)}
+            onChange={(e) => {
+              onSearchChange(e.target.value);
+              setIsSearchFocused(true);
+            }}
+            onKeyDown={handleKeyDown}
+            placeholder="Search companies, areas (e.g. London, Tokyo), roles (e.g. Designer, ML)..."
             className={`w-full pl-11 pr-14 py-2.5 text-xs rounded-2xl border transition-all focus:outline-none focus:border-[#A9C632] ${
               isDarkMode
                 ? "bg-[#243822] border-[#3D543A] text-white placeholder:text-[#A0B28C]"
@@ -90,6 +156,100 @@ export default function TopBar({
             <Command className="w-2.5 h-2.5" />
             <span>K</span>
           </div>
+
+          {/* ── Autocomplete Dropdown (Top 2-3 matched companies & areas) ── */}
+          {isSearchFocused && hasMatches && (
+            <div className="absolute left-2 right-0 top-full mt-2 rounded-2xl p-2 shadow-2xl border backdrop-blur-2xl z-50 bg-white/95 dark:bg-[#1D2E1B]/95 border-[#C8D2A6] dark:border-[#3D543A] space-y-2 animate-in fade-in slide-in-from-top-2 duration-150">
+              
+              {/* Companies Section */}
+              {matchedCompanies.length > 0 && (
+                <div>
+                  <div className="px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6] flex items-center gap-1.5">
+                    <Building2 className="w-3 h-3 text-[#A9C632]" />
+                    <span>Companies ({matchedCompanies.length})</span>
+                  </div>
+                  <div className="space-y-1">
+                    {matchedCompanies.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          playTapSound();
+                          if (onSelectCompany) onSelectCompany(c);
+                          setIsSearchFocused(false);
+                        }}
+                        className="w-full px-3 py-2 rounded-xl text-left flex items-center justify-between gap-3 hover:bg-[#A9C632]/15 transition-all cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-6 h-6 rounded-lg bg-black/5 dark:bg-white/10 p-0.5 flex items-center justify-center shrink-0 overflow-hidden">
+                            <img
+                              src={getCompanyLogoUrl(c.logo_url, c.name, c.website_url)}
+                              alt={c.name}
+                              onError={(e) => handleImageError(e, c.name)}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold truncate text-[#1D2E1B] dark:text-white group-hover:text-[#A9C632] transition-colors">
+                              {c.name}
+                            </p>
+                            <p className="text-[10px] text-[#546E50] dark:text-[#C8D2A6] truncate">
+                              {c.location_text || "Global"}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#A9C632]/20 text-[#1D2E1B] dark:text-[#A9C632] shrink-0">
+                          {c.activeJobCount} {c.activeJobCount === 1 ? "Role" : "Roles"}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Areas / Cities Section */}
+              {matchedAreas.length > 0 && (
+                <div>
+                  <div className="px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6] flex items-center gap-1.5 pt-1 border-t border-black/5 dark:border-white/5">
+                    <MapPin className="w-3 h-3 text-[#A9C632]" />
+                    <span>Areas & Hubs ({matchedAreas.length})</span>
+                  </div>
+                  <div className="space-y-1">
+                    {matchedAreas.map((area) => (
+                      <button
+                        key={area.name}
+                        type="button"
+                        onClick={() => {
+                          playTapSound();
+                          if (onFlyToArea) onFlyToArea(area);
+                          setIsSearchFocused(false);
+                        }}
+                        className="w-full px-3 py-2 rounded-xl text-left flex items-center justify-between gap-3 hover:bg-[#A9C632]/15 transition-all cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-6 h-6 rounded-lg bg-[#A9C632]/20 flex items-center justify-center shrink-0 text-[#A9C632]">
+                            <MapPin className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold truncate text-[#1D2E1B] dark:text-white group-hover:text-[#A9C632] transition-colors">
+                              {area.name}
+                            </p>
+                            <p className="text-[10px] text-[#546E50] dark:text-[#C8D2A6] truncate">
+                              {area.region}, {area.country}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-mono text-[#546E50] dark:text-[#C8D2A6] group-hover:text-[#A9C632] flex items-center gap-1">
+                          <span>Zoom Area</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ── Right: Action Toolbar (6px gap alignment) ──────── */}
@@ -123,7 +283,7 @@ export default function TopBar({
                 <div className="space-y-2">
                   <div className="p-2 rounded-xl bg-[#F7F9F2] dark:bg-white/[0.03] space-y-0.5">
                     <p className="font-semibold text-xs text-[#1D2E1B] dark:text-white">AI Scan Completed</p>
-                    <p className="text-[10px] text-[#546E50] dark:text-[#C8D2A6]">Vercel careers endpoint verified (100/100)</p>
+                    <p className="text-[10px] text-[#546E50] dark:text-[#C8D2A6]">Verified careers endpoint authenticated (100/100)</p>
                   </div>
                 </div>
               </div>

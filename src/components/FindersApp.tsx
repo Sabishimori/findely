@@ -9,7 +9,7 @@ import CandidateProfilePage from "./CandidateProfilePage";
 import UnifiedTrackerView from "./UnifiedTrackerView";
 import VerificationQueueView from "./VerificationQueueView";
 import FilterDrawer, { FilterOptions } from "./FilterDrawer";
-import RequestCompanyModal from "./RequestCompanyModal";
+import RequestCompanyModal, { SpatialLocationInfo } from "./RequestCompanyModal";
 import AuthModal from "./AuthModal";
 import LandingPage from "./LandingPage";
 import JobListDrawer from "./JobListDrawer";
@@ -21,6 +21,9 @@ import { NavTab } from "./Navigation";
 import { getAllMapData } from "@/app/actions";
 import { CompanyMapItem } from "./MapComponent";
 import { useAuth } from "@/lib/authContext";
+import { StartupTechHub, reverseGeocodeLocation } from "@/lib/geoUtils";
+import { playTapSound } from "@/lib/soundFx";
+import { MapPin, Navigation } from "lucide-react";
 
 // Dynamic import for WebGL/MapLibre map
 const MapComponent = dynamic(() => import("./MapComponent"), { ssr: false });
@@ -41,6 +44,9 @@ export default function FindersApp({
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showSplashScreen, setShowSplashScreen] = useState(true);
   const [showLandingPage, setShowLandingPage] = useState(true);
+  const [focusedArea, setFocusedArea] = useState<StartupTechHub | null>(null);
+  const [spatialPinLocation, setSpatialPinLocation] = useState<SpatialLocationInfo | null>(null);
+  const [geoToast, setGeoToast] = useState<string | null>(null);
 
   // Return to Landing Page automatically when user logs out, enter workspace when user logs in
   useEffect(() => {
@@ -250,6 +256,33 @@ export default function FindersApp({
   );
   const totalCompaniesCount = allCompanies.length;
 
+  // ── Spatial Double-Click/Tap Map Handler (Capture Land Coordinates & Address) ──
+  const handleMapDoubleClick = async (coords: { lat: number; lng: number }) => {
+    playTapSound();
+    setGeoToast("📍 Resolving Land Coordinates & Address...");
+    try {
+      const geo = await reverseGeocodeLocation(coords.lat, coords.lng);
+      setSpatialPinLocation({
+        address: geo.fullAddress,
+        city: geo.city,
+        lat: geo.latitude,
+        lng: geo.longitude,
+      });
+      setGeoToast(null);
+      setShowRequestModal(true);
+    } catch (err) {
+      console.warn("Geocoding notice:", err);
+      setSpatialPinLocation({
+        address: `Spatial Land Coordinates (${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)})`,
+        city: "Global Tech Hub",
+        lat: coords.lat,
+        lng: coords.lng,
+      });
+      setGeoToast(null);
+      setShowRequestModal(true);
+    }
+  };
+
   if (showLandingPage) {
     return (
       <div className={`w-full h-full relative overflow-hidden font-urbanist ${isDarkMode ? "dark bg-[#131E12]" : "bg-[#F7F9F2]"}`}>
@@ -296,6 +329,16 @@ export default function FindersApp({
         )}
       </AnimatePresence>
 
+      {/* ── 0.1 Spatial Geocoding Toast ───────────────────────── */}
+      <AnimatePresence>
+        {geoToast && (
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-[#1D2E1B] dark:bg-[#A9C632] text-[#A9C632] dark:text-[#1D2E1B] text-xs font-bold shadow-2xl border border-[#A9C632]/50 flex items-center gap-2 animate-bounce">
+            <Navigation className="w-3.5 h-3.5 animate-spin" />
+            <span>{geoToast}</span>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* ── 1. Floating Left Vertical Navigation Rail ──────── */}
       <SideNavRail
         currentTab={currentTab}
@@ -323,13 +366,24 @@ export default function FindersApp({
         <TopBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          onOpenAddCompany={() => setShowRequestModal(true)}
+          onOpenAddCompany={() => {
+            setSpatialPinLocation(null);
+            setShowRequestModal(true);
+          }}
           onOpenFilterDrawer={() => setShowFilterDrawer(true)}
           onSelectTab={setCurrentTab}
           onRefresh={loadCompanies}
           onExitToLanding={() => setShowLandingPage(true)}
           isDarkMode={isDarkMode}
           onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+          companies={allCompanies}
+          onSelectCompany={(comp) => {
+            setFocusedFlyCompany(comp);
+            handleOpenPortal(comp);
+          }}
+          onFlyToArea={(area) => {
+            setFocusedArea(area);
+          }}
         />
       )}
 
@@ -345,6 +399,8 @@ export default function FindersApp({
                 onSelectCompany={handleOpenPortal}
                 isDarkMode={isDarkMode}
                 focusedCompany={focusedFlyCompany}
+                focusedArea={focusedArea}
+                onMapDoubleClick={handleMapDoubleClick}
                 isListDrawerOpen={showListDrawer}
                 onToggleListDrawer={() => setShowListDrawer(!showListDrawer)}
               />
@@ -412,7 +468,15 @@ export default function FindersApp({
 
       <RequestCompanyModal
         isOpen={showRequestModal}
-        onClose={() => setShowRequestModal(false)}
+        onClose={() => {
+          setShowRequestModal(false);
+          setSpatialPinLocation(null);
+        }}
+        onSubmitted={() => {
+          loadCompanies();
+          setSpatialPinLocation(null);
+        }}
+        spatialLocation={spatialPinLocation}
         isDarkMode={isDarkMode}
       />
 

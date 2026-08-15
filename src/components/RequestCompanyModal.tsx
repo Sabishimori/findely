@@ -1,24 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { submitCompanyRequest } from "@/app/actions";
-import { X, Loader2, Bot, ShieldCheck, Sparkles, Building2 } from "lucide-react";
+import { X, Loader2, Bot, ShieldCheck, Sparkles, Building2, MapPin, Navigation, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { playTapSound } from "@/lib/soundFx";
+
+export interface SpatialLocationInfo {
+  address: string;
+  city: string;
+  lat: number;
+  lng: number;
+}
 
 export default function RequestCompanyModal({
   isOpen,
   onClose,
   onSubmitted,
   isDarkMode = false,
+  spatialLocation = null,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onSubmitted?: () => void;
   isDarkMode?: boolean;
+  spatialLocation?: SpatialLocationInfo | null;
 }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [locationInput, setLocationInput] = useState("");
+
+  useEffect(() => {
+    if (spatialLocation) {
+      setLocationInput(spatialLocation.city || spatialLocation.address);
+    } else {
+      setLocationInput("");
+    }
+  }, [spatialLocation, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,13 +49,16 @@ export default function RequestCompanyModal({
       name: formData.get("name") as string,
       website_url: formData.get("website_url") as string,
       careers_url: formData.get("careers_url") as string,
-      location_text: formData.get("location_text") as string,
+      location_text: (formData.get("location_text") as string) || locationInput,
       description: formData.get("description") as string,
       submitted_by_email: formData.get("email") as string,
+      latitude: spatialLocation ? spatialLocation.lat : undefined,
+      longitude: spatialLocation ? spatialLocation.lng : undefined,
     };
 
     try {
       await submitCompanyRequest(data);
+      playTapSound();
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
@@ -71,11 +93,15 @@ export default function RequestCompanyModal({
             }`}>
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-[#A9C632]/20 border border-[#A9C632]/40 flex items-center justify-center text-[#A9C632]">
-                  <Bot className="w-4 h-4" />
+                  {spatialLocation ? <MapPin className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                 </div>
                 <div>
-                  <h2 className="text-base font-bold font-space-grotesk text-[#1D2E1B] dark:text-white">Request / Ingest Company</h2>
-                  <p className="text-xs text-[#546E50] dark:text-[#C8D2A6]">Automated AI verification & careers scanner</p>
+                  <h2 className="text-base font-bold font-space-grotesk text-[#1D2E1B] dark:text-white">
+                    {spatialLocation ? "Pin Company to Map Location" : "Request / Ingest Company"}
+                  </h2>
+                  <p className="text-xs text-[#546E50] dark:text-[#C8D2A6]">
+                    {spatialLocation ? "Double-tapped coordinates captured" : "Automated AI verification & careers scanner"}
+                  </p>
                 </div>
               </div>
               <button
@@ -100,6 +126,27 @@ export default function RequestCompanyModal({
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* 📍 Spatial Address Card (Appears if double-tapped on map) */}
+                  {spatialLocation && (
+                    <div className="p-3.5 rounded-2xl border bg-[#A9C632]/10 border-[#A9C632]/40 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#A9C632] flex items-center gap-1.5">
+                          <Navigation className="w-3.5 h-3.5 animate-pulse" />
+                          <span>Spatial Land Pin Detected</span>
+                        </span>
+                        <span className="text-[10px] font-mono text-[#546E50] dark:text-[#C8D2A6]">
+                          {spatialLocation.lat.toFixed(4)}, {spatialLocation.lng.toFixed(4)}
+                        </span>
+                      </div>
+                      <p className="text-xs font-semibold text-[#1D2E1B] dark:text-white leading-snug">
+                        {spatialLocation.address}
+                      </p>
+                      <p className="text-[10px] text-[#546E50] dark:text-[#C8D2A6]">
+                        This company will be geo-anchored precisely to this location on the 2.5D globe.
+                      </p>
+                    </div>
+                  )}
+
                   {error && (
                     <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-600 dark:text-red-400 text-xs">
                       {error}
@@ -115,7 +162,7 @@ export default function RequestCompanyModal({
                       type="text"
                       name="name"
                       placeholder="e.g. Anthropic, Linear, Cohere"
-                      className={`w-full px-3.5 py-2 rounded-xl border focus:outline-none focus:border-[#A9C632] ${
+                      className={`w-full px-3.5 py-2.5 rounded-xl border focus:outline-none focus:border-[#A9C632] text-xs ${
                         isDarkMode
                           ? "bg-[#243822] text-white border-[#3D543A]"
                           : "bg-white text-[#1D2E1B] border-[#C8D2A6]"
@@ -133,7 +180,7 @@ export default function RequestCompanyModal({
                         type="url"
                         name="website_url"
                         placeholder="https://example.com"
-                        className={`w-full px-3.5 py-2 rounded-xl border focus:outline-none focus:border-[#A9C632] ${
+                        className={`w-full px-3.5 py-2.5 rounded-xl border focus:outline-none focus:border-[#A9C632] text-xs ${
                           isDarkMode
                             ? "bg-[#243822] text-white border-[#3D543A]"
                             : "bg-white text-[#1D2E1B] border-[#C8D2A6]"
@@ -149,7 +196,7 @@ export default function RequestCompanyModal({
                         type="url"
                         name="careers_url"
                         placeholder="https://example.com/careers"
-                        className={`w-full px-3.5 py-2 rounded-xl border focus:outline-none focus:border-[#A9C632] ${
+                        className={`w-full px-3.5 py-2.5 rounded-xl border focus:outline-none focus:border-[#A9C632] text-xs ${
                           isDarkMode
                             ? "bg-[#243822] text-white border-[#3D543A]"
                             : "bg-white text-[#1D2E1B] border-[#C8D2A6]"
@@ -160,14 +207,16 @@ export default function RequestCompanyModal({
 
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6] font-mono mb-1.5">
-                      Headquarters / City <span className="text-[#A9C632]">*</span>
+                      Headquarters / Address <span className="text-[#A9C632]">*</span>
                     </label>
                     <input
                       required
                       type="text"
                       name="location_text"
+                      value={locationInput}
+                      onChange={(e) => setLocationInput(e.target.value)}
                       placeholder="e.g. San Francisco, CA or London, UK"
-                      className={`w-full px-3.5 py-2 rounded-xl border focus:outline-none focus:border-[#A9C632] ${
+                      className={`w-full px-3.5 py-2.5 rounded-xl border focus:outline-none focus:border-[#A9C632] text-xs ${
                         isDarkMode
                           ? "bg-[#243822] text-white border-[#3D543A]"
                           : "bg-white text-[#1D2E1B] border-[#C8D2A6]"
@@ -183,7 +232,7 @@ export default function RequestCompanyModal({
                       name="description"
                       rows={2}
                       placeholder="Brief overview of product, mission, and hiring focus..."
-                      className={`w-full p-3 rounded-xl border focus:outline-none focus:border-[#A9C632] resize-none leading-relaxed ${
+                      className={`w-full p-3 rounded-xl border focus:outline-none focus:border-[#A9C632] resize-none leading-relaxed text-xs ${
                         isDarkMode
                           ? "bg-[#243822] text-white border-[#3D543A]"
                           : "bg-white text-[#1D2E1B] border-[#C8D2A6]"
@@ -214,9 +263,9 @@ export default function RequestCompanyModal({
                     <button
                       type="submit"
                       disabled={loading}
-                      className="px-6 py-2 text-xs font-bold text-white bg-[#1D2E1B] hover:bg-[#2D442A] dark:bg-[#A9C632] dark:text-[#1D2E1B] dark:hover:bg-[#96B228] rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                      className="px-6 py-2.5 text-xs font-bold text-white bg-[#1D2E1B] hover:bg-[#2D442A] dark:bg-[#A9C632] dark:text-[#1D2E1B] dark:hover:bg-[#96B228] rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
                     >
-                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit for AI Scan"}
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit & Pin to Map"}
                     </button>
                   </div>
                 </form>

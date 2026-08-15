@@ -125,8 +125,10 @@ export default function MapComponent({
   isDarkMode?: boolean;
   onToggleDarkMode?: () => void;
   focusedCompany?: CompanyMapItem | null;
+  focusedArea?: { coordinates: [number, number]; zoom?: number } | null;
   isListDrawerOpen?: boolean;
   onToggleListDrawer?: () => void;
+  onMapDoubleClick?: (coords: { lat: number; lng: number }) => void;
 }) {
   const mapRef = useRef<MapRef | null>(null);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
@@ -182,8 +184,8 @@ export default function MapComponent({
       }
       mapRef.current?.flyTo({
         center: [company.longitude, company.latitude],
-        zoom: 9.5,
-        pitch: 38,
+        zoom: 11,
+        pitch: 42,
         duration: 1500,
         essential: true,
       });
@@ -197,13 +199,39 @@ export default function MapComponent({
       setSelectedCompanyId(focusedCompany.id);
       mapRef.current?.flyTo({
         center: [focusedCompany.longitude, focusedCompany.latitude],
-        zoom: 9.5,
-        pitch: 38,
-        duration: 1200,
+        zoom: 11,
+        pitch: 42,
+        duration: 1400,
         essential: true,
       });
     }
   }, [focusedCompany]);
+
+  // Auto fly when focused area / city changes
+  useEffect(() => {
+    if (focusedArea && focusedArea.coordinates) {
+      setSelectedCompanyId(null);
+      mapRef.current?.flyTo({
+        center: focusedArea.coordinates,
+        zoom: focusedArea.zoom || 10.5,
+        pitch: 36,
+        duration: 1500,
+        essential: true,
+      });
+    }
+  }, [focusedArea]);
+
+  // When user is typing a search query, gently zoom out to overview if previously zoomed in close
+  useEffect(() => {
+    if (searchQuery.trim().length > 0 && viewState.zoom > 5 && !focusedCompany) {
+      mapRef.current?.flyTo({
+        zoom: 2.8,
+        pitch: 28,
+        duration: 1200,
+        essential: false,
+      });
+    }
+  }, [searchQuery, focusedCompany]);
 
   const handleZoomIn = () => {
     setViewState((prev) => ({ ...prev, zoom: Math.min(prev.zoom + 1, 18) }));
@@ -234,8 +262,14 @@ export default function MapComponent({
         {...viewState}
         maxZoom={18}
         minZoom={1.5}
+        doubleClickZoom={false}
         renderWorldCopies={true}
         onMove={(e) => setViewState(e.viewState)}
+        onDblClick={(e) => {
+          if (onMapDoubleClick && e.lngLat) {
+            onMapDoubleClick({ lat: e.lngLat.lat, lng: e.lngLat.lng });
+          }
+        }}
         mapStyle={activeMapStyle}
         style={{ width: "100%", height: "100%" }}
         attributionControl={false}
