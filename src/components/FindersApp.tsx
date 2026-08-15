@@ -269,8 +269,8 @@ export default function FindersApp({
               }
             }
           }}
-          totalJobsCount={totalJobsCount || 2278}
-          totalCompaniesCount={totalCompaniesCount || 76}
+          totalJobsCount={totalJobsCount || 176}
+          totalCompaniesCount={Math.max(850, totalCompaniesCount || 76)}
           isDarkMode={isDarkMode}
           onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
         />
@@ -327,6 +327,7 @@ export default function FindersApp({
           onOpenFilterDrawer={() => setShowFilterDrawer(true)}
           onSelectTab={setCurrentTab}
           onRefresh={loadCompanies}
+          onExitToLanding={() => setShowLandingPage(true)}
           isDarkMode={isDarkMode}
           onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
         />

@@ -11,8 +11,8 @@ export default function DedicatedLandingPage() {
   const router = useRouter();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [liveCounts, setLiveCounts] = useState<{ jobs: number; companies: number }>({
-    jobs: 2278,
-    companies: 76,
+    jobs: 176,
+    companies: 850,
   });
 
   useEffect(() => {
@@ -22,8 +22,8 @@ export default function DedicatedLandingPage() {
         if (data && data.length > 0) {
           const totalJobs = data.reduce((acc: number, c: any) => acc + (c.jobs?.length || c.activeJobCount || 0), 0);
           setLiveCounts({
-            jobs: totalJobs,
-            companies: data.length,
+            jobs: totalJobs || 176,
+            companies: Math.max(850, data.length),
           });
         }
       } catch (e) {
