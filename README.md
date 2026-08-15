@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <img src="public/main-logo.png" alt="Findely Logo" width="90" height="90" style="border-radius: 20px;" />
+  <h1 align="center">Findely — Spatial Startup & High-Signal Job Discovery</h1>
+  <p align="center">
+    <strong>Explore verified venture-backed startups and open engineering roles on an interactive 3D spatial map.</strong>
+  </p>
+  <p align="center">
+    <a href="https://github.com/Sabishimori/findely/stargazers"><img src="https://img.shields.io/github/stars/Sabishimori/findely?color=A9C632&style=flat-square" alt="Stars" /></a>
+    <a href="https://github.com/Sabishimori/findely/network/members"><img src="https://img.shields.io/github/forks/Sabishimori/findely?color=546E50&style=flat-square" alt="Forks" /></a>
+    <a href="https://github.com/Sabishimori/findely/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License" /></a>
+  </p>
+</div>
 
-## Getting Started
+---
 
-First, run the development server:
+## 🌟 What is Findely?
 
+**Findely** is a high-signal discovery platform designed for founders, engineers, and tech talents. Instead of wading through recruiter spam and generic job boards, Findely provides an **interactive 3D spatial globe and map** with real-time verified company intelligence, active open roles, founder socials, and direct ATS application links.
+
+---
+
+## ✨ Key Features
+
+- 🌍 **Interactive 3D / 2.5D GPU Spatial Map**: Powered by MapLibre GL and WebGL with responsive pitch/bearing tilt controls, custom radar markers, and dark/light modes.
+- 🪟 **Multi-Window Floating Portals**: Drag, minimize, cascade, and compare up to 5 company profiles side-by-side on top of the live map without losing your place.
+- ⚡ **Zero-Latency Event-Driven Job Tracker**: Instant optimistic UI saving (`<1ms`) with real-time cross-window synchronization and full Kanban stage tracking (Saved, Applied, Interviewing, Offered).
+- 🚩 **Community Moderation & Reporting**: Integrated flag/report system on every single job card and company dossier with dedicated verification moderation queue.
+- 🤖 **AgentReach & Gemini Pro Scraping Engine**: Automated discovery pipeline that crawls founder socials, careers pages, and ATS boards (Greenhouse, Lever, Ashby, Workable).
+- 💌 **AI Email Outreach Generator**: Generates customized pitch emails for candidates directly to founders and hiring teams.
+- 🌓 **Day & Night Spatial Themes**: Smooth transition between Tactical Dark Mode (`#131E12`) and Crisp Minimalist Light Mode (`#F7F9F2`).
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technologies |
+|---|---|
+| **Framework** | [Next.js 15 (App Router)](https://nextjs.org/) + [React 19](https://react.dev/) |
+| **Language** | [TypeScript](https://www.typescriptlang.org/) |
+| **Styling & UI** | [Tailwind CSS](https://tailwindcss.com/) + [Motion](https://motion.dev/) |
+| **Mapping Engine** | [MapLibre GL](https://maplibre.org/) + Carto Voyager / Dark Matter Vector Tiles |
+| **Database & ORM** | [Drizzle ORM](https://orm.drizzle.team/) + SQLite / Better-SQLite3 |
+| **Authentication** | [NextAuth.js](https://next-auth.js.org/) (Google OAuth & Guest Mode) |
+| **Icons & Assets** | [Lucide React](https://lucide.dev/) |
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Sabishimori/findely.git
+cd findely
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install Dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Setup Environment Variables
+Copy `.env.example` to `.env.local`:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Fill in your configuration:
+```env
+# Google OAuth (Optional for guest mode)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+NEXTAUTH_SECRET=your_nextauth_secret
+NEXTAUTH_URL=http://localhost:3000
 
-## Learn More
+# Gemini AI (For scraper pipeline)
+GEMINI_API_KEY=your_gemini_api_key
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Initialize Database & Seed Startups
+```bash
+npx drizzle-kit push
+npm run db:seed
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 5. Run the Local Development Server
+```bash
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000) in your browser to explore the map!
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🌐 Deploy to Vercel / v0
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Findely is 100% configured for instant one-click deployment:
+
+1. Push your code to your GitHub repository: `https://github.com/Sabishimori/findely`
+2. Go to [Vercel](https://vercel.com/new) or **v0 Project Import**.
+3. Select your repository `Sabishimori/findely`.
+4. Add your Environment Variables (`NEXTAUTH_SECRET`, etc.).
+5. Click **Deploy**! 🚀
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
