@@ -127,6 +127,14 @@ try {
       status TEXT NOT NULL DEFAULT 'pending_review',
       created_at INTEGER
     );
+
+    CREATE INDEX IF NOT EXISTS idx_companies_status ON companies(status);
+    CREATE INDEX IF NOT EXISTS idx_jobs_company_id ON jobs(company_id);
+    CREATE INDEX IF NOT EXISTS idx_jobs_is_active ON jobs(is_active);
+    CREATE INDEX IF NOT EXISTS idx_applications_user_id ON applications(user_id);
+    CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
+    CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON profiles(user_id);
+    CREATE INDEX IF NOT EXISTS idx_profiles_email ON profiles(email);
   `);
 } catch (e) {
   console.warn("Table auto-migration notice:", e);
