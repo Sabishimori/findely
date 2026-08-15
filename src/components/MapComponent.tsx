@@ -342,49 +342,68 @@ export default function MapComponent({
                   )}
                 </AnimatePresence>
 
-                {/* 2.5D Apple Squircle Marker Body */}
+                {/* 2.5D Apple Squircle Marker Body with Beacon Pulse */}
                 <motion.div
                   whileHover={{ scale: 1.18, y: -3 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`apple-squircle p-1.5 shadow-xl flex flex-col items-center transition-all ${
-                    isDarkMode ? "bg-[#1D2E1B] text-white" : "bg-white text-[#1D2E1B]"
-                  } ${
-                    isSelected
-                      ? "ring-4 ring-[#A9C632]/40 scale-115 shadow-2xl border-2 border-[#A9C632]"
-                      : hasJobs
-                      ? "border-2 border-[#A9C632]/80 ring-2 ring-[#A9C632]/20"
-                      : "border border-[#C8D2A6] dark:border-white/20 opacity-80"
-                  }`}
+                  className="relative flex flex-col items-center"
                 >
-                  {/* Apple Squircle Logo Tile */}
-                  <div className="w-9 h-9 apple-icon-tile bg-[#F7F9F2] dark:bg-white/10 flex items-center justify-center p-1.5 overflow-hidden">
-                    <img
-                      src={getCompanyLogoUrl(company.website_url, company.name, company.logo_url || undefined)}
-                      alt={company.name}
-                      className="w-full h-full object-contain"
-                      onError={(e) => handleImageError(e, company.name)}
-                    />
+                  {/* Radar Beacon / Blink Pulse Effect when matched */}
+                  {matchingRole && (
+                    <span className="absolute -inset-1.5 rounded-2xl bg-[#A9C632] animate-ping opacity-40 pointer-events-none" />
+                  )}
+
+                  {/* Clean Fixed-Size Apple Squircle Logo Tile */}
+                  <div
+                    className={`w-11 h-11 apple-squircle p-1.5 shadow-xl flex items-center justify-center transition-all ${
+                      isDarkMode ? "bg-[#1D2E1B] text-white" : "bg-white text-[#1D2E1B]"
+                    } ${
+                      isSelected
+                        ? "ring-4 ring-[#A9C632]/40 scale-115 shadow-2xl border-2 border-[#A9C632]"
+                        : matchingRole
+                        ? "border-2 border-[#A9C632] ring-2 ring-[#A9C632]/50 shadow-[0_0_15px_rgba(169,198,50,0.4)]"
+                        : hasJobs
+                        ? "border-2 border-[#A9C632]/80 ring-2 ring-[#A9C632]/20"
+                        : "border border-[#C8D2A6] dark:border-white/20 opacity-80"
+                    }`}
+                  >
+                    <div className="w-full h-full apple-icon-tile bg-[#F7F9F2] dark:bg-white/10 flex items-center justify-center p-1 overflow-hidden">
+                      <img
+                        src={getCompanyLogoUrl(company.website_url, company.name, company.logo_url || undefined)}
+                        alt={company.name}
+                        className="w-full h-full object-contain"
+                        onError={(e) => handleImageError(e, company.name)}
+                      />
+                    </div>
                   </div>
 
-                  {/* Clean Search Query Role Highlight Pill */}
-                  {matchingRole && (
-                    <div className="mt-1 px-2.5 py-0.5 rounded-full bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] text-[9.5px] font-bold shadow-md border border-[#A9C632]/50 whitespace-nowrap max-w-[125px] truncate flex items-center gap-1">
-                      <span>💼</span>
-                      <span className="truncate">{matchingRole}</span>
-                    </div>
-                  )}
-                </motion.div>
+                  {/* Pin Tip Extrusion */}
+                  <div
+                    className={`w-2 h-2 rotate-45 -mt-1 shadow-md ${
+                      isSelected || matchingRole
+                        ? "bg-[#A9C632]"
+                        : isDarkMode
+                        ? "bg-[#1D2E1B]"
+                        : "bg-white"
+                    }`}
+                  />
 
-                {/* Pin Tip Extrusion */}
-                <div
-                  className={`w-2 h-2 rotate-45 -mt-1 shadow-md ${
-                    isSelected
-                      ? "bg-[#A9C632]"
-                      : isDarkMode
-                      ? "bg-[#1D2E1B]"
-                      : "bg-white"
-                  }`}
-                />
+                  {/* ── Slide-Down Under-Drawer / Keyword Match Badge (Blink Effect) ── */}
+                  <AnimatePresence>
+                    {matchingRole && (
+                      <motion.div
+                        initial={{ y: -6, opacity: 0, scale: 0.8 }}
+                        animate={{ y: 2, opacity: 1, scale: 1 }}
+                        exit={{ y: -6, opacity: 0, scale: 0.8 }}
+                        transition={{ type: "spring", stiffness: 450, damping: 28 }}
+                        className="mt-1 px-2.5 py-0.5 rounded-full bg-[#1D2E1B]/95 text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] text-[9px] font-mono font-bold tracking-tight shadow-xl border border-[#A9C632]/60 flex items-center gap-1.5 backdrop-blur-md whitespace-nowrap max-w-[130px] z-10"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#A9C632] dark:bg-[#1D2E1B] animate-ping shrink-0" />
+                        <span className="truncate">{matchingRole}</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
               </div>
             </Marker>
           );
