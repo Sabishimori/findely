@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/scrape-jobs",
-      "schedule": "30 11,12,13,14,15,16 * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
