@@ -92,7 +92,8 @@ export function validateUploadFile(
   }
 
   // 2. Check MIME type against strict whitelist
-  if (!config.allowedMimes.includes(file.type as any)) {
+  const allowedMimes: readonly string[] = config.allowedMimes;
+  if (!allowedMimes.includes(file.type)) {
     return {
       valid: false,
       error: `Invalid file format (${file.type || "unknown"}). Allowed formats: ${config.allowedExtensions.join(", ")}.`,
@@ -101,7 +102,8 @@ export function validateUploadFile(
 
   // 3. Check file extension
   const ext = "." + file.name.split(".").pop()?.toLowerCase();
-  if (!config.allowedExtensions.includes(ext as any)) {
+  const allowedExtensions: readonly string[] = config.allowedExtensions;
+  if (!allowedExtensions.includes(ext)) {
     return {
       valid: false,
       error: `Invalid file extension (${ext}). Allowed extensions: ${config.allowedExtensions.join(", ")}.`,

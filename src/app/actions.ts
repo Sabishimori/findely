@@ -554,8 +554,6 @@ export async function submitCompanyRequest(data: {
   });
 
   const sanitizedName = sanitizeText(data.name);
-  const sanitizedWebsiteUrl = sanitizeUrl(data.website_url) || data.website_url;
-  const sanitizedCareersUrl = sanitizeUrl(data.careers_url) || data.careers_url;
   const sanitizedLocation = data.location_text ? sanitizeText(data.location_text) : null;
   const sanitizedDescription = data.description ? sanitizeText(data.description) : null;
   const sanitizedEmail = data.submitted_by_email ? sanitizeText(data.submitted_by_email) : null;

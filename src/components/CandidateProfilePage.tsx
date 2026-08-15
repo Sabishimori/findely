@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { getUserProfile, updateUserProfile } from "@/app/actions";
+import { validateUploadFile } from "@/lib/security/fileUploadSecurity";
 import { 
   GraduationCap, 
   Briefcase, 
@@ -132,8 +133,6 @@ export default function CandidateProfilePage({
     setUploadToast(msg);
     setTimeout(() => setUploadToast(null), 3000);
   };
-
-import { validateUploadFile } from "@/lib/security/fileUploadSecurity";
 
   const handleAvatarFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
