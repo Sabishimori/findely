@@ -365,13 +365,6 @@ export default function MapComponent({
                       onError={(e) => handleImageError(e, company.name)}
                     />
                   </div>
-
-                  {/* Search Query Role Highlight Pill */}
-                  {matchingRole && (
-                    <div className="mt-1 px-2 py-0.5 rounded-full bg-[#A9C632] text-[#1D2E1B] text-[9px] font-bold shadow-xs whitespace-nowrap max-w-[90px] truncate">
-                      {matchingRole}
-                    </div>
-                  )}
                 </motion.div>
 
                 {/* Pin Tip Extrusion */}
