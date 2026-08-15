@@ -178,115 +178,146 @@ export async function updateUserProfile(data: {
   return { success: true };
 }
 
+import { FALLBACK_COMPANIES } from "@/lib/fallbackData";
+
 // ── Map Data & Deep Company Intelligence ────────────────────
 
 export async function getAllMapData() {
-  const allCompanies = await db
-    .select()
-    .from(companies)
-    .where(eq(companies.status, "verified"));
+  try {
+    const allCompanies = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.status, "verified"));
 
-  const activeJobs = await db
-    .select()
-    .from(jobs)
-    .where(eq(jobs.is_active, true))
-    .orderBy(desc(jobs.posted_at));
+    if (!allCompanies || allCompanies.length === 0) {
+      return FALLBACK_COMPANIES;
+    }
 
-  const jobMap = new Map<string, Array<typeof activeJobs[0]>>();
-  for (const j of activeJobs) {
-    const list = jobMap.get(j.company_id) || [];
-    list.push(j);
-    jobMap.set(j.company_id, list);
+    const activeJobs = await db
+      .select()
+      .from(jobs)
+      .where(eq(jobs.is_active, true))
+      .orderBy(desc(jobs.posted_at));
+
+    const jobMap = new Map<string, Array<typeof activeJobs[0]>>();
+    for (const j of activeJobs) {
+      const list = jobMap.get(j.company_id) || [];
+      list.push(j);
+      jobMap.set(j.company_id, list);
+    }
+
+    return allCompanies.map((c) => {
+      const companyJobs = jobMap.get(c.id) || [];
+      
+      let founders = [];
+      let hrLeads = [];
+      let techStack = [];
+      try { if (c.founders_json) founders = JSON.parse(c.founders_json); } catch (_) {}
+      try { if (c.hr_leads_json) hrLeads = JSON.parse(c.hr_leads_json); } catch (_) {}
+      try { if (c.tech_stack_json) techStack = JSON.parse(c.tech_stack_json); } catch (_) {}
+
+      // Find the latest posted job date
+      const latestPostDate = companyJobs.length > 0
+        ? companyJobs.reduce((latest, j) => {
+            const d = j.posted_at ? new Date(j.posted_at).getTime() : 0;
+            return d > latest ? d : latest;
+          }, 0)
+        : null;
+
+      return {
+        ...c,
+        activeJobCount: companyJobs.length,
+        jobTitles: companyJobs.map((j) => j.title),
+        roles: companyJobs,
+        founders,
+        hrLeads,
+        techStack,
+        latestPostDate: latestPostDate ? new Date(latestPostDate) : null,
+      };
+    });
+  } catch (err) {
+    console.warn("getAllMapData database fallback invoked:", err);
+    return FALLBACK_COMPANIES;
   }
-
-  return allCompanies.map((c) => {
-    const companyJobs = jobMap.get(c.id) || [];
-    
-    let founders = [];
-    let hrLeads = [];
-    let techStack = [];
-    try { if (c.founders_json) founders = JSON.parse(c.founders_json); } catch (_) {}
-    try { if (c.hr_leads_json) hrLeads = JSON.parse(c.hr_leads_json); } catch (_) {}
-    try { if (c.tech_stack_json) techStack = JSON.parse(c.tech_stack_json); } catch (_) {}
-
-    // Find the latest posted job date
-    const latestPostDate = companyJobs.length > 0
-      ? companyJobs.reduce((latest, j) => {
-          const d = j.posted_at ? new Date(j.posted_at).getTime() : 0;
-          return d > latest ? d : latest;
-        }, 0)
-      : null;
-
-    return {
-      ...c,
-      activeJobCount: companyJobs.length,
-      jobTitles: companyJobs.map((j) => j.title),
-      roles: companyJobs,
-      founders,
-      hrLeads,
-      techStack,
-      latestPostDate: latestPostDate ? new Date(latestPostDate) : null,
-    };
-  });
 }
 
 // ── Company Details ─────────────────────────────────────────
 
 export async function getCompanyWithJobs(companyId: string) {
-  const company = await db
-    .select()
-    .from(companies)
-    .where(eq(companies.id, companyId))
-    .get();
+  try {
+    const company = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.id, companyId))
+      .get();
 
-  if (!company) return null;
+    if (!company) {
+      const fallback = FALLBACK_COMPANIES.find(
+        (c) => c.id === companyId || c.name.toLowerCase() === companyId.toLowerCase()
+      );
+      if (fallback) return { ...fallback, sources: [] };
+      return null;
+    }
 
-  const companyJobs = await db
-    .select()
-    .from(jobs)
-    .where(and(eq(jobs.company_id, companyId), eq(jobs.is_active, true)))
-    .orderBy(desc(jobs.posted_at));
+    const companyJobs = await db
+      .select()
+      .from(jobs)
+      .where(and(eq(jobs.company_id, companyId), eq(jobs.is_active, true)))
+      .orderBy(desc(jobs.posted_at));
 
-  const sources = await db
-    .select()
-    .from(scrape_sources)
-    .where(eq(scrape_sources.company_id, companyId));
+    const sources = await db
+      .select()
+      .from(scrape_sources)
+      .where(eq(scrape_sources.company_id, companyId));
 
-  let founders = [];
-  let hrLeads = [];
-  let techStack = [];
-  try { if (company.founders_json) founders = JSON.parse(company.founders_json); } catch (_) {}
-  try { if (company.hr_leads_json) hrLeads = JSON.parse(company.hr_leads_json); } catch (_) {}
-  try { if (company.tech_stack_json) techStack = JSON.parse(company.tech_stack_json); } catch (_) {}
+    let founders = [];
+    let hrLeads = [];
+    let techStack = [];
+    try { if (company.founders_json) founders = JSON.parse(company.founders_json); } catch (_) {}
+    try { if (company.hr_leads_json) hrLeads = JSON.parse(company.hr_leads_json); } catch (_) {}
+    try { if (company.tech_stack_json) techStack = JSON.parse(company.tech_stack_json); } catch (_) {}
 
-  return {
-    ...company,
-    jobs: companyJobs,
-    sources,
-    founders,
-    hrLeads,
-    techStack,
-  };
+    return {
+      ...company,
+      jobs: companyJobs,
+      sources,
+      founders,
+      hrLeads,
+      techStack,
+    };
+  } catch (err) {
+    console.warn("getCompanyWithJobs fallback invoked:", err);
+    const fallback = FALLBACK_COMPANIES.find(
+      (c) => c.id === companyId || c.name.toLowerCase() === companyId.toLowerCase()
+    );
+    if (fallback) return { ...fallback, sources: [] };
+    return null;
+  }
 }
 
 // ── Unified Applications & Saved Jobs Tracker (Strict User Isolation) ───────
 
 export async function getAppliedJobs() {
-  const sessionUser = await getSessionUser();
-  if (sessionUser) {
+  try {
+    const sessionUser = await getSessionUser();
+    if (sessionUser) {
+      return await db
+        .select()
+        .from(applications)
+        .where(eq(applications.user_id, sessionUser.id))
+        .orderBy(desc(applications.applied_at));
+    }
+
+    // For guest users, return guest records
     return await db
       .select()
       .from(applications)
-      .where(eq(applications.user_id, sessionUser.id))
+      .where(isNull(applications.user_id))
       .orderBy(desc(applications.applied_at));
+  } catch (err) {
+    console.warn("getAppliedJobs fallback invoked:", err);
+    return [];
   }
-
-  // For guest users, return guest records
-  return await db
-    .select()
-    .from(applications)
-    .where(isNull(applications.user_id))
-    .orderBy(desc(applications.applied_at));
 }
 
 export async function trackJobApplication(data: {
