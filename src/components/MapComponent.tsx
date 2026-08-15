@@ -153,11 +153,25 @@ export default function MapComponent({
     bearing: 0,
   });
 
-  // Filter companies with coordinates + freshness filter
+  // Filter companies with coordinates + strict search match + freshness filter
   const validCompanies = useMemo(() => {
     let list = companies.filter(
       (c) => c.latitude !== null && c.longitude !== null
     ) as (CompanyMapItem & { latitude: number; longitude: number })[];
+
+    // If there's an active search query, ONLY show matching companies on the map!
+    if (searchQuery && searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter((c) => {
+        const nameMatch = c.name.toLowerCase().includes(q);
+        const descMatch = c.description?.toLowerCase().includes(q);
+        const locationMatch = c.location_text?.toLowerCase().includes(q);
+        const roleMatch =
+          c.jobTitles?.some((t) => t.toLowerCase().includes(q)) ||
+          c.roles?.some((r) => r.title.toLowerCase().includes(q));
+        return nameMatch || descMatch || locationMatch || roleMatch;
+      });
+    }
 
     if (dateFilter !== "all") {
       const now = Date.now();
@@ -176,7 +190,7 @@ export default function MapComponent({
     }
 
     return list;
-  }, [companies, dateFilter]);
+  }, [companies, searchQuery, dateFilter]);
 
   const flyToCompany = useCallback(
     (company: CompanyMapItem & { latitude: number; longitude: number }) => {

@@ -19,6 +19,7 @@ import {
   Briefcase,
   ArrowRight,
   Sparkles,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/lib/authContext";
 import { CompanyMapItem } from "./MapComponent";
@@ -426,10 +427,25 @@ export default function TopBar({
                 : "bg-[#F7F9F2] border-[#C8D2A6] text-[#1D2E1B] placeholder:text-[#546E50]"
             }`}
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-black/5 dark:bg-white/10 text-[10px] font-mono text-[#546E50] pointer-events-none">
-            <Command className="w-2.5 h-2.5" />
-            <span>K</span>
-          </div>
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                playTapSound();
+                onSearchChange("");
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/10 dark:bg-white/15 text-[#546E50] dark:text-[#C8D2A6] hover:text-[#1D2E1B] dark:hover:text-white hover:bg-black/20 dark:hover:bg-white/25 transition-all cursor-pointer flex items-center justify-center"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
+          ) : (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-black/5 dark:bg-white/10 text-[10px] font-mono text-[#546E50] pointer-events-none">
+              <Command className="w-2.5 h-2.5" />
+              <span>K</span>
+            </div>
+          )}
 
           {/* ── Dynamic Context-Ordered Dropdown ── */}
           {isSearchFocused && hasMatches && (
