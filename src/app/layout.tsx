@@ -48,6 +48,7 @@ export const metadata: Metadata = {
 };
 
 import { AuthProvider } from "@/lib/authContext";
+import CustomCursor from "@/components/CustomCursor";
 
 export default function RootLayout({
   children,
@@ -62,6 +63,7 @@ export default function RootLayout({
       <body className="h-full w-full overflow-hidden font-urbanist tracking-[-0.02em] bg-[#F7F9F2] text-[#1D2E1B] dark:bg-[#131E12] dark:text-white">
         <AuthProvider>
           {children}
+          <CustomCursor />
         </AuthProvider>
       </body>
     </html>

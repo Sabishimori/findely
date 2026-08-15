@@ -52,7 +52,6 @@ export default function DedicatedLandingPage() {
         isDarkMode={isDarkMode} 
         onSuccess={() => router.push("/")} 
       />
-      <CustomCursor isDarkMode={isDarkMode} />
     </div>
   );
 }

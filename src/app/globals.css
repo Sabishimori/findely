@@ -84,13 +84,13 @@
   }
 }
 
-/* ── Global Custom Cursor: Hide default system cursor on desktop ── */
+/* ── Global Cursor Rules ── */
 @media (pointer: fine) {
-  html, body, *, *::before, *::after {
-    cursor: none !important;
+  button, a, [role="button"], select, label {
+    cursor: pointer;
   }
   input, textarea {
-    cursor: text !important;
+    cursor: text;
   }
 }
 
