@@ -434,7 +434,7 @@ export default function LandingPage({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A9C632] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#A9C632]"></span>
             </span>
-            <span><strong className="text-[#1D2E1B] dark:text-[#A9C632] font-black">+24 Startups</strong> Scraped Today</span>
+            <span><strong className="text-[#1D2E1B] dark:text-[#A9C632] font-black">+24 Startups</strong> Found Today</span>
             <span className="text-[#C8D2A6] dark:text-[#3D543A]">•</span>
             <span className="font-mono text-[11px] text-[#546E50] dark:text-[#C8D2A6]">Next Sync: <strong className="text-[#A9C632]">{countdown}</strong></span>
           </motion.div>

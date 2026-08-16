@@ -142,12 +142,12 @@ export default function ScrapeTelemetryFloater({
 
           <div className="text-left text-xs font-bold leading-tight">
             <span className="flex items-center gap-1.5 text-[11px] font-black text-[#1D2E1B] dark:text-white">
-              <span>Scrape Engine Live</span>
+              <span>Live Discovery Radar</span>
               <span className="text-[#A9C632]">•</span>
-              <span className="text-[#A9C632]">+{data.companiesScrapedToday} Startups Today</span>
+              <span className="text-[#A9C632]">+{data.companiesScrapedToday} Startups Found Today</span>
             </span>
             <span className="text-[10px] text-[#546E50] dark:text-[#C8D2A6] block mt-0.5">
-              +{data.newJobsToday} direct ATS roles ingested
+              +{data.newJobsToday} direct roles discovered
             </span>
           </div>
 
@@ -198,7 +198,7 @@ export default function ScrapeTelemetryFloater({
                   </div>
                   <div>
                     <h2 className="text-lg font-black text-[#1D2E1B] dark:text-white flex items-center gap-2">
-                      <span>Live Scraping Telemetry</span>
+                      <span>Live Discovery Activity</span>
                       <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-[#A9C632]/20 text-[#1D2E1B] dark:text-[#A9C632] border border-[#A9C632]/40">
                         Active
                       </span>
@@ -224,7 +224,7 @@ export default function ScrapeTelemetryFloater({
               <div className="grid grid-cols-3 gap-3 my-5">
                 <div className="p-4 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-[#C8D2A6] dark:border-[#3D543A] space-y-1">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6] block">
-                    Scraped Today
+                    Found Today
                   </span>
                   <span className="text-2xl font-black text-[#1D2E1B] dark:text-[#A9C632]">
                     +{data.companiesScrapedToday}
@@ -236,7 +236,7 @@ export default function ScrapeTelemetryFloater({
 
                 <div className="p-4 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-[#C8D2A6] dark:border-[#3D543A] space-y-1">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6] block">
-                    Roles Added Today
+                    Roles Found Today
                   </span>
                   <span className="text-2xl font-black text-[#1D2E1B] dark:text-[#A9C632]">
                     +{data.newJobsToday}
@@ -248,7 +248,7 @@ export default function ScrapeTelemetryFloater({
 
                 <div className="p-4 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-[#C8D2A6] dark:border-[#3D543A] space-y-1">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6] block">
-                    Next Auto Crawl
+                    Next Auto Sync
                   </span>
                   <span className="text-sm sm:text-base font-black font-mono text-[#1D2E1B] dark:text-white truncate block pt-1">
                     {countdown}
@@ -259,10 +259,10 @@ export default function ScrapeTelemetryFloater({
                 </div>
               </div>
 
-              {/* Scraped Companies Feed */}
+              {/* Found Companies Feed */}
               <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[220px]">
                 <div className="flex items-center justify-between text-xs font-black text-[#546E50] dark:text-[#C8D2A6] pb-1 uppercase tracking-wider">
-                  <span>Recently Verified Startups (Today's Batch)</span>
+                  <span>Recently Verified Startups (Found Today)</span>
                   <span>ATS Pipeline</span>
                 </div>
 

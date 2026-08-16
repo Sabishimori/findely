@@ -133,7 +133,7 @@ export default function BuilderSupportModal({
                   </span>
                 </div>
                 <p className="text-[#546E50] dark:text-[#C8D2A6] leading-relaxed">
-                  Findely is built with 60fps mechanical shaders, live ATS scrapers, and multi-tenant telemetry. If Findely helped you find interviews or build your startup, any contribution helps fuel server infrastructure and database costs!
+                  Findely is built with 60fps mechanical shaders, live startup discovery engines, and multi-tenant telemetry. If Findely helped you find interviews or build your startup, any contribution helps fuel server infrastructure and database costs!
                 </p>
 
                 {/* Fun Open-to-Work Callout */}

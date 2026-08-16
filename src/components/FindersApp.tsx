@@ -17,7 +17,6 @@ import ListView from "./ListView";
 import SplashScreen from "./SplashScreen";
 import CustomCursor from "./CustomCursor";
 import FloatingJobPortalsManager, { OpenPortal } from "./FloatingJobPortalsManager";
-import ScrapeTelemetryFloater from "./ScrapeTelemetryFloater";
 import { NavTab } from "./Navigation";
 import { getAllMapData } from "@/app/actions";
 import { CompanyMapItem } from "./MapComponent";
@@ -487,10 +486,7 @@ export default function FindersApp({
 
       <AuthModal isDarkMode={isDarkMode} onSuccess={() => setShowLandingPage(false)} />
 
-      {/* ── 6. Live Scraper Telemetry Floater Widget ───────── */}
-      <ScrapeTelemetryFloater isDarkMode={isDarkMode} />
-
-      {/* ── 7. iPad-Style ASMR Custom Cursor ───────────────── */}
+      {/* ── 6. iPad-Style ASMR Custom Cursor ───────────────── */}
       <CustomCursor isDarkMode={isDarkMode} />
     </div>
   );
