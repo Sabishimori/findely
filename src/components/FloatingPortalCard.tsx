@@ -267,8 +267,8 @@ export default function FloatingPortalCard({
       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.15 } }}
       onMouseDown={onBringToFront}
       style={{ zIndex }}
-      className={`fixed top-0 left-0 ${
-        isExpanded ? "w-[640px] h-[780px]" : "w-[520px] h-[680px]"
+      className={`fixed top-0 left-0 w-[94vw] max-w-[calc(100vw-24px)] max-h-[calc(100vh-32px)] ${
+        isExpanded ? "sm:w-[640px] h-[780px]" : "sm:w-[520px] h-[680px]"
       } rounded-[28px] border shadow-2xl backdrop-blur-2xl flex flex-col font-urbanist select-none overflow-hidden ${
         isDarkMode 
           ? "bg-[#1D2E1B]/95 border-[#3D543A] text-white" 
@@ -309,6 +309,7 @@ export default function FloatingPortalCard({
               e.stopPropagation();
               onMinimize();
             }}
+            aria-label="Minimize company portal"
             className="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 text-[#546E50] hover:text-[#1D2E1B] dark:hover:text-white transition-colors cursor-pointer"
             title="Minimize to bottom dock"
           >
@@ -320,6 +321,7 @@ export default function FloatingPortalCard({
               e.stopPropagation();
               setIsExpanded(!isExpanded);
             }}
+            aria-label={isExpanded ? "Restore portal size" : "Expand portal window"}
             className="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 text-[#546E50] hover:text-[#1D2E1B] dark:hover:text-white transition-colors cursor-pointer"
             title={isExpanded ? "Restore standard size" : "Expand window"}
           >
@@ -331,6 +333,7 @@ export default function FloatingPortalCard({
               e.stopPropagation();
               onClose();
             }}
+            aria-label="Close company portal"
             className="p-1.5 rounded-lg hover:bg-red-500/15 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
             title="Close portal"
           >

@@ -84,7 +84,7 @@
   }
 }
 
-/* ── Global Cursor Rules ── */
+/* ── Global Cursor & Accessibility Focus Rules ── */
 @media (pointer: fine) {
   button, a, [role="button"], select, label {
     cursor: pointer;
@@ -92,6 +92,18 @@
   input, textarea {
     cursor: text;
   }
+}
+
+/* WCAG 2.1 AA Keyboard Focus Outlines */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid #A9C632 !important;
+  outline-offset: 2px !important;
+  border-radius: inherit;
 }
 
 /* Force Urbanist everywhere */

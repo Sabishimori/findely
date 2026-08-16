@@ -231,6 +231,7 @@ export default function CompanySheet({
                 <div className="absolute top-4 right-4 z-40 flex items-center gap-1.5">
                   <button
                     onClick={() => setShowReportModal(true)}
+                    aria-label="Report or flag this company"
                     className="p-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-red-500/10 text-[#546E50] hover:text-red-500 dark:text-[#C8D2A6] dark:hover:text-red-400 transition-colors cursor-pointer"
                     title="Report or flag this company"
                   >
@@ -238,6 +239,7 @@ export default function CompanySheet({
                   </button>
                   <button
                     onClick={onClose}
+                    aria-label="Close company drawer"
                     className="p-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 text-[#546E50] hover:text-[#1D2E1B] dark:hover:text-white transition-colors cursor-pointer"
                   >
                     <X className="w-4 h-4" />

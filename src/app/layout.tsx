@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXTAUTH_URL || "https://findely.app"),
   title: "Findely — Spatial Job Discovery & Candidate Portfolio",
   description:
     "Spatial career exploration engine for frontier startups, verified tech hubs, and modern candidate portfolios with zero arbitrary layout shifts.",

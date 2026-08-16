@@ -458,14 +458,44 @@ export default function TopBar({
               })}
             </div>
           )}
+
+          {/* ── Search Empty State (No Matches Found) ── */}
+          {isSearchFocused && searchQuery.trim().length > 0 && !hasMatches && (
+            <div className="absolute left-2 right-0 top-full mt-2.5 rounded-[24px] p-5 shadow-2xl border backdrop-blur-3xl z-50 bg-white/95 dark:bg-[#1D2E1B]/95 border-[#C8D2A6] dark:border-[#3D543A] text-center space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="w-10 h-10 rounded-2xl bg-[#A9C632]/20 border border-[#A9C632]/30 flex items-center justify-center mx-auto text-[#1D2E1B] dark:text-[#A9C632]">
+                <Search className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-[#1D2E1B] dark:text-white">
+                  No matches found for &ldquo;{searchQuery}&rdquo;
+                </p>
+                <p className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] mt-0.5 max-w-sm mx-auto">
+                  Try searching by role title (e.g. Frontend, AI), tech stack, or startup hub.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSearchFocused(false);
+                  onOpenAddCompany();
+                }}
+                aria-label="Request or add a new company"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#1D2E1B] text-white dark:bg-[#A9C632] dark:text-[#1D2E1B] hover:opacity-90 transition-all cursor-pointer shadow-sm"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Request / Add Startup</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* ── Right: Action Toolbar (6px gap alignment) ──────── */}
-        <div className="flex items-center gap-2 flex-shrink-0 pr-1">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 pr-1">
           {/* Filter Drawer Toggle */}
           {onOpenFilterDrawer && (
             <button
               onClick={onOpenFilterDrawer}
+              aria-label="Filter Roles & Stack"
               className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors cursor-pointer"
               title="Filter Roles & Stack"
             >
@@ -477,6 +507,7 @@ export default function TopBar({
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
+              aria-label="Notifications"
               className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors relative cursor-pointer"
               title="Notifications"
             >
@@ -502,6 +533,7 @@ export default function TopBar({
           <button
             onClick={handleRefreshClick}
             disabled={isRefreshing}
+            aria-label="Refresh Map & Job Database"
             className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors relative cursor-pointer group"
             title="Refresh Map & Job Database"
           >
@@ -516,7 +548,8 @@ export default function TopBar({
           {/* Archive / Saved Tracker Jump */}
           <button
             onClick={() => onSelectTab("applied")}
-            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors cursor-pointer"
+            aria-label="Archive & Saved Applications"
+            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors cursor-pointer hidden sm:flex items-center justify-center"
             title="Archive & Saved Applications"
           >
             <Archive className="w-4 h-4" />
@@ -525,7 +558,8 @@ export default function TopBar({
           {/* Copy Link Button */}
           <button
             onClick={handleCopyLink}
-            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors relative cursor-pointer"
+            aria-label="Copy Link to Share"
+            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors relative cursor-pointer hidden sm:flex items-center justify-center"
             title="Copy Link to Share"
           >
             {copiedLink ? <Check className="w-4 h-4 text-[#A9C632]" /> : <LinkIcon className="w-4 h-4" />}
@@ -539,6 +573,7 @@ export default function TopBar({
           {/* Theme Toggle Button */}
           <button
             onClick={onToggleDarkMode}
+            aria-label={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors cursor-pointer"
             title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
@@ -555,8 +590,9 @@ export default function TopBar({
                 onExitToLanding();
               }
             }}
+            aria-label={user ? "Sign Out" : "Exit to Landing Page"}
             className="p-2.5 apple-squircle border border-red-500/30 hover:bg-red-500/10 text-red-500/80 hover:text-red-500 transition-colors cursor-pointer"
-            title={user ? "Log Out" : "Exit to Landing Page"}
+            title={user ? "Sign Out" : "Exit to Landing Page"}
           >
             <LogOut className="w-4 h-4" />
           </button>
@@ -564,10 +600,11 @@ export default function TopBar({
           {/* Primary Action: + Add company */}
           <button
             onClick={onOpenAddCompany}
-            className="flex items-center gap-1.5 px-5 py-2.5 rounded-2xl font-bold text-xs shadow-md transition-all hover:scale-102 cursor-pointer bg-[#1D2E1B] text-white hover:bg-[#2D442A] dark:bg-[#A9C632] dark:text-[#1D2E1B] dark:hover:bg-[#96B228] ml-1"
+            aria-label="Add company to startup map"
+            className="flex items-center gap-1.5 px-3.5 sm:px-5 py-2.5 rounded-2xl font-bold text-xs shadow-md transition-all hover:scale-102 cursor-pointer bg-[#1D2E1B] text-white hover:bg-[#2D442A] dark:bg-[#A9C632] dark:text-[#1D2E1B] dark:hover:bg-[#96B228] ml-1 shrink-0"
           >
             <Plus className="w-4 h-4 text-[#A9C632] dark:text-[#1D2E1B] stroke-[3]" />
-            <span>Add company</span>
+            <span className="hidden sm:inline">Add company</span>
           </button>
         </div>
       </div>

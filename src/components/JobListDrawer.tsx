@@ -230,13 +230,13 @@ export default function JobListDrawer({
             </motion.div>
           )}
 
-          {/* Sliding Left Drawer Panel (Generous 20px top gutter below TopBar matching side margin) */}
+          {/* Sliding Left Drawer Panel (Responsive gutter and width on mobile) */}
           <motion.aside
             initial={{ x: -480, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -480, opacity: 0 }}
             transition={{ type: "spring", damping: 30, stiffness: 280 }}
-            className={`fixed left-20 md:left-24 top-[96px] bottom-6 w-[370px] md:w-[395px] z-30 rounded-[28px] border shadow-2xl backdrop-blur-2xl flex flex-col font-urbanist select-none overflow-hidden transition-colors ${
+            className={`fixed left-4 sm:left-20 md:left-24 top-[84px] sm:top-[96px] bottom-4 sm:bottom-6 w-[calc(100vw-32px)] sm:w-[370px] md:w-[395px] max-w-[420px] z-30 rounded-[28px] border shadow-2xl backdrop-blur-2xl flex flex-col font-urbanist select-none overflow-hidden transition-colors ${
               isDarkMode
                 ? "bg-[#1D2E1B]/95 border-[#3D543A] text-white"
                 : "bg-white/95 border-[#C8D2A6] text-[#1D2E1B]"
@@ -256,6 +256,7 @@ export default function JobListDrawer({
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
+                    aria-label="Sort jobs by"
                     className="bg-transparent font-bold text-xs text-[#1D2E1B] dark:text-white focus:outline-none cursor-pointer"
                   >
                     <option value="newest" className="dark:bg-[#1D2E1B]">Newest first</option>
@@ -268,6 +269,7 @@ export default function JobListDrawer({
                 {onExpandToFullPage && (
                   <button
                     onClick={onExpandToFullPage}
+                    aria-label="Expand to Full Page Grid View"
                     className="p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#546E50] hover:text-[#1D2E1B] dark:hover:text-white transition-colors cursor-pointer"
                     title="Expand to Full Page Grid View"
                   >
@@ -277,6 +279,7 @@ export default function JobListDrawer({
 
                 <button
                   onClick={onClose}
+                  aria-label="Close List Drawer"
                   className="p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#546E50] hover:text-[#1D2E1B] dark:hover:text-white transition-colors cursor-pointer"
                   title="Close List Drawer"
                 >
@@ -435,6 +438,7 @@ export default function JobListDrawer({
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
+                  aria-label="Previous page of jobs"
                   className="p-1.5 rounded-xl border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 cursor-pointer"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
@@ -445,6 +449,7 @@ export default function JobListDrawer({
                   <button
                     key={pg}
                     onClick={() => setCurrentPage(pg)}
+                    aria-label={`Go to page ${pg}`}
                     className={`w-7 h-7 rounded-xl font-bold text-xs flex items-center justify-center transition-all cursor-pointer ${
                       currentPage === pg
                         ? "bg-[#1D2E1B] text-white dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-xs"
@@ -459,6 +464,7 @@ export default function JobListDrawer({
 
                 <button
                   onClick={() => setCurrentPage(867)}
+                  aria-label="Go to page 867"
                   className="w-8 h-7 rounded-xl font-bold text-xs flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 text-[#546E50] dark:text-[#C8D2A6] cursor-pointer"
                 >
                   867
@@ -468,6 +474,7 @@ export default function JobListDrawer({
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage >= totalPages && totalPages > 1}
+                  aria-label="Next page of jobs"
                   className="p-1.5 rounded-xl border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 cursor-pointer"
                 >
                   <ChevronRight className="w-3.5 h-3.5" />

@@ -54,6 +54,7 @@ export default function SideNavRail({
                 onSelectViewMode("map");
               }
             }}
+            aria-label="Findely Logo - Return to Landing Page"
             className="w-12 h-12 apple-icon-tile bg-[#1D2E1B] hover:bg-[#2D442A] border border-[#C8D2A6]/60 flex items-center justify-center shadow-md hover:scale-105 transition-transform cursor-pointer p-1.5 overflow-hidden group"
             title="About Findely · Landing Page"
           >
@@ -72,6 +73,7 @@ export default function SideNavRail({
                 onSelectTab("globe");
                 onSelectViewMode("map");
               }}
+              aria-label="2.5D Interactive Map View"
               className={`w-11 h-11 apple-squircle flex items-center justify-center transition-all cursor-pointer ${
                 currentTab === "globe" && viewMode === "map"
                   ? "bg-[#1D2E1B] text-[#A9C632] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
@@ -88,6 +90,7 @@ export default function SideNavRail({
                 onSelectTab("globe");
                 onSelectViewMode("list");
               }}
+              aria-label="Grid List View"
               className={`w-11 h-11 apple-squircle flex items-center justify-center transition-all cursor-pointer ${
                 currentTab === "globe" && viewMode === "list"
                   ? "bg-[#1D2E1B] text-[#A9C632] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
@@ -101,6 +104,7 @@ export default function SideNavRail({
             {/* Tracker (Applied & Saved) */}
             <button
               onClick={() => onSelectTab("applied")}
+              aria-label="Application and Saved Job Tracker"
               className={`w-11 h-11 apple-squircle flex items-center justify-center transition-all cursor-pointer ${
                 currentTab === "applied"
                   ? "bg-[#1D2E1B] text-[#A9C632] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
@@ -114,6 +118,7 @@ export default function SideNavRail({
             {/* AI Audit Queue */}
             <button
               onClick={() => onSelectTab("verification")}
+              aria-label="AI Safety Verification Queue"
               className={`w-11 h-11 apple-squircle flex items-center justify-center transition-all cursor-pointer ${
                 currentTab === "verification"
                   ? "bg-[#1D2E1B] text-[#A9C632] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
@@ -131,6 +136,7 @@ export default function SideNavRail({
           {/* Support Builder Chip */}
           <button
             onClick={() => setShowBuilderModal(true)}
+            aria-label="Support the Builder via PayPal"
             className="w-10 h-10 apple-squircle flex items-center justify-center text-[#546E50] hover:text-[#A9C632] dark:hover:text-[#A9C632] hover:bg-[#A9C632]/15 border border-transparent hover:border-[#A9C632]/40 transition-all cursor-pointer group"
             title="Support the Builder · PayPal & Donations"
           >
@@ -140,6 +146,7 @@ export default function SideNavRail({
           {/* Candidate Profile Avatar Button in Apple Squircle */}
           <button
             onClick={() => onSelectTab("profile")}
+            aria-label="Candidate Profile and Portfolio"
             className={`relative p-0.5 rounded-[18px] transition-all cursor-pointer group focus:outline-none ${
               currentTab === "profile" ? "ring-2 ring-[#A9C632] scale-105" : "hover:scale-105"
             }`}
@@ -165,6 +172,7 @@ export default function SideNavRail({
                 onOpenLandingPage();
               }
             }}
+            aria-label={user ? "Sign Out" : "Exit to Landing Page"}
             className="w-10 h-10 apple-squircle flex items-center justify-center text-red-500/80 hover:text-red-500 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/40 transition-all cursor-pointer group"
             title={user ? "Sign Out" : "Exit to Landing Page"}
           >
