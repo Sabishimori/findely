@@ -7,7 +7,8 @@
   <p align="center">
     <a href="https://github.com/Sabishimori/findely/stargazers"><img src="https://img.shields.io/github/stars/Sabishimori/findely?color=A9C632&style=flat-square" alt="Stars" /></a>
     <a href="https://github.com/Sabishimori/findely/network/members"><img src="https://img.shields.io/github/forks/Sabishimori/findely?color=546E50&style=flat-square" alt="Forks" /></a>
-    <img src="https://img.shields.io/badge/License-Proprietary%20%7C%20All%20Rights%20Reserved-red.svg?style=flat-square" alt="Proprietary" />
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-A9C632.svg?style=flat-square" alt="MIT License" /></a>
+    <a href="https://github.com/Sabishimori/findely/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome" /></a>
   </p>
 </div>
 
@@ -103,9 +104,21 @@ Findely is 100% configured for instant one-click deployment:
 
 ---
 
-## 📄 License & Intellectual Property Notice
+## 🤝 Contributing to Findely UI
 
-**Proprietary Software — All Rights Reserved.**  
+Community contributions to the **Findely User Interface & Spatial Map** are warmly welcome!
+
+1. **Fork the Repository**: `https://github.com/Sabishimori/findely`
+2. **Create a Feature Branch**: `git checkout -b feature/awesome-ui-component`
+3. **Commit your Changes**: `git commit -m 'feat: add new spatial filter'`
+4. **Push to the Branch**: `git push origin feature/awesome-ui-component`
+5. **Open a Pull Request** 🚀
+
+> **Note**: The frontend client interface and spatial components are open source under the MIT License. Backend infrastructure credentials and production scraper API keys remain private.
+
+---
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).  
 Copyright © 2026 Findely / Sabishimori.
-
-Unauthorized copying, cloning, scraping, reproduction, or distribution of this code, design architecture, or assets is strictly prohibited. See the [LICENSE](LICENSE) file for complete terms.
