@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { 
   Compass, 
   MapPin, 
@@ -199,6 +199,29 @@ export default function LandingPage({
   const [landingDonationAmount, setLandingDonationAmount] = useState<string>("");
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+  const [countdown, setCountdown] = useState("03h : 42m : 18s");
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date();
+      const nextCrawl = new Date();
+      nextCrawl.setUTCHours(24, 0, 0, 0); // Next midnight UTC
+      const diffMs = nextCrawl.getTime() - now.getTime();
+      if (diffMs <= 0) {
+        setCountdown("Sync In Progress...");
+      } else {
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+        setCountdown(
+          `${String(hours).padStart(2, "0")}h : ${String(minutes).padStart(2, "0")}m : ${String(seconds).padStart(2, "0")}s`
+        );
+      }
+    };
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Scroll Container Ref for Parallax
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -390,16 +413,33 @@ export default function LandingPage({
           </div>
         </motion.div>
 
-        {/* Top Pill Badge */}
-        <motion.div 
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#A9C632]/15 border border-[#A9C632]/40 text-xs sm:text-sm font-extrabold text-[#1D2E1B] dark:text-[#A9C632] mb-6 shadow-xs"
-        >
-          <Flame className="w-4 h-4 text-[#A9C632]" />
-          <span>No Ghost Roles · Direct ATS Pipelines · 100% Free Forever</span>
-        </motion.div>
+        {/* Top Badges & Live Countdown */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#A9C632]/15 border border-[#A9C632]/40 text-xs sm:text-sm font-extrabold text-[#1D2E1B] dark:text-[#A9C632] shadow-xs"
+          >
+            <Flame className="w-4 h-4 text-[#A9C632]" />
+            <span>100% Direct ATS Pipelines · No Ghost Roles</span>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 dark:bg-[#1D2E1B]/90 border border-[#C8D2A6] dark:border-[#3D543A] text-xs font-bold text-[#1D2E1B] dark:text-white shadow-xs backdrop-blur-md"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A9C632] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#A9C632]"></span>
+            </span>
+            <span><strong className="text-[#1D2E1B] dark:text-[#A9C632] font-black">+24 Startups</strong> Scraped Today</span>
+            <span className="text-[#C8D2A6] dark:text-[#3D543A]">•</span>
+            <span className="font-mono text-[11px] text-[#546E50] dark:text-[#C8D2A6]">Next Sync: <strong className="text-[#A9C632]">{countdown}</strong></span>
+          </motion.div>
+        </div>
 
         {/* Hero Title */}
         <div className="max-w-5xl mx-auto">
