@@ -155,3 +155,14 @@ export const company_reports = sqliteTable('company_reports', {
   created_at: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
 });
 
+// Real OTP Email Verification Sessions
+export const otp_sessions = sqliteTable('otp_sessions', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  email: text('email').notNull(),
+  otp_code: text('otp_code').notNull(),
+  name: text('name'),
+  expires_at: integer('expires_at', { mode: 'timestamp' }).notNull(),
+  verified: integer('verified', { mode: 'boolean' }).default(false),
+  created_at: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+});
+

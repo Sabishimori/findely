@@ -35,7 +35,7 @@ export default function FindersApp({
   initialCompanies?: any[];
   initialApplicationsCount?: number;
 }) {
-  const { user, logout } = useAuth();
+  const { user, logout, openAuthModal } = useAuth();
   const [currentTab, setCurrentTab] = useState<NavTab>("globe");
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,10 +48,12 @@ export default function FindersApp({
   const [spatialPinLocation, setSpatialPinLocation] = useState<SpatialLocationInfo | null>(null);
   const [geoToast, setGeoToast] = useState<string | null>(null);
 
-  // Enter workspace when user logs in
+  // Mandatory Login Gate: Enter workspace ONLY when user is verified
   useEffect(() => {
     if (user) {
       setShowLandingPage(false);
+    } else {
+      setShowLandingPage(true);
     }
   }, [user]);
 
@@ -286,6 +288,10 @@ export default function FindersApp({
       <div className={`w-full h-full relative overflow-hidden font-urbanist ${isDarkMode ? "dark bg-[#131E12]" : "bg-[#F7F9F2]"}`}>
         <LandingPage
           onLaunchWorkspace={(companyName?: string) => {
+            if (!user) {
+              openAuthModal();
+              return;
+            }
             setShowLandingPage(false);
             setCurrentTab("globe");
             setViewMode("map");

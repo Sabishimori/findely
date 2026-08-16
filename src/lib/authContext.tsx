@@ -23,6 +23,7 @@ interface AuthContextType {
   closeAuthModal: () => void;
   loginWithGoogle: (email: string, name: string) => Promise<void>;
   loginWithWorkEmail: (name: string, email: string) => Promise<void>;
+  setVerifiedUser: (user: AuthUser) => void;
   logout: () => void;
 }
 
@@ -145,6 +146,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAuthModalOpen(false);
   };
 
+  const setVerifiedUser = (verifiedUser: AuthUser) => {
+    playTapSound();
+    setUser(verifiedUser);
+    try {
+      localStorage.setItem("findely_auth_user", JSON.stringify(verifiedUser));
+    } catch (e) {
+      console.error("Failed to save verified user session", e);
+    }
+    setIsAuthModalOpen(false);
+  };
+
   const logout = () => {
     playTapSound();
     setUser(null);
@@ -166,6 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         closeAuthModal,
         loginWithGoogle,
         loginWithWorkEmail,
+        setVerifiedUser,
         logout,
       }}
     >

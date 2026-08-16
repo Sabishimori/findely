@@ -16,13 +16,13 @@ import {
   ArrowLeft,
   KeyRound,
   RotateCw,
-  Copy,
-  Check
+  Inbox
 } from "lucide-react";
 import { useAuth } from "@/lib/authContext";
 import { playTapSound } from "@/lib/soundFx";
 import { signIn } from "next-auth/react";
 import { isDisposableEmail } from "@/lib/disposableEmailBlocker";
+import { sendEmailOtp, verifyEmailOtp } from "@/app/actions";
 
 function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -54,21 +54,20 @@ export default function AuthModal({
   isDarkMode?: boolean;
   onSuccess?: () => void;
 }) {
-  const { isAuthModalOpen, closeAuthModal, loginWithGoogle, loginWithWorkEmail } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, setVerifiedUser } = useAuth();
   
   const [authStep, setAuthStep] = useState<"credentials" | "otp">("credentials");
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   
-  // Real OTP Session State
-  const [generatedOtp, setGeneratedOtp] = useState<string>("");
+  // Real 6-Digit Email OTP States
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [resendTimer, setResendTimer] = useState(30);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [infoMsg, setInfoMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  const [copiedOtp, setCopiedOtp] = useState(false);
 
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -83,17 +82,10 @@ export default function AuthModal({
 
   if (!isAuthModalOpen) return null;
 
-  // Extract domain for instant verified company recognition
+  // Live domain verification
   const domain = email.includes("@") && email.split("@")[1] ? email.split("@")[1].toLowerCase().trim() : "";
   const isGmail = domain === "gmail.com" || email.toLowerCase().endsWith("@gmail.com");
   const isCompanyEmail = domain && !["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com"].includes(domain);
-
-  // Generate 6-digit OTP code
-  const createNewOtp = () => {
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(code);
-    return code;
-  };
 
   // 1. Google OAuth Sign In Trigger
   const handleGoogleOAuth = async () => {
@@ -101,85 +93,95 @@ export default function AuthModal({
     setErrorMsg("");
     playTapSound();
     try {
-      const res = await signIn("google", { redirect: false, callbackUrl: "/" });
-      if (res?.error) {
-        setErrorMsg("Google OAuth unavailable. Please enter your Gmail below to verify your account.");
-      } else {
-        if (onSuccess) onSuccess();
-        closeAuthModal();
-      }
+      await signIn("google", { callbackUrl: "/" });
     } catch (err: any) {
-      console.error(err);
-      setErrorMsg("Please enter your Gmail address below to verify your session.");
-    } finally {
+      console.error("Google OAuth redirect error:", err);
+      setErrorMsg("Google OAuth redirect failed. Please enter your Gmail below to receive a 6-digit verification code directly.");
       setIsLoading(false);
     }
   };
 
-  // 2. Initiate OTP Verification Session
-  const handleInitiateOtp = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanEmail = email.trim();
+  // 2. Dispatch Real Email OTP to User's Gmail Inbox
+  const handleSendEmailOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail || !cleanEmail.includes("@")) {
       setErrorMsg("Please enter a valid Gmail or work email address.");
       return;
     }
 
     if (isDisposableEmail(cleanEmail)) {
-      setErrorMsg("Temporary and burner emails are blocked. Please use a verified Gmail or company work email.");
-      return;
-    }
-
-    setErrorMsg("");
-    const newCode = createNewOtp();
-    setOtpDigits(["", "", "", "", "", ""]);
-    setResendTimer(30);
-    setAuthStep("otp");
-    playTapSound();
-
-    // Auto focus first OTP input box
-    setTimeout(() => {
-      if (otpInputRefs.current[0]) otpInputRefs.current[0]?.focus();
-    }, 150);
-  };
-
-  // 3. Verify OTP Code and Log In
-  const handleVerifyOtp = async (codeToVerify?: string) => {
-    const code = codeToVerify || otpDigits.join("");
-    if (code.length < 6) {
-      setErrorMsg("Please enter all 6 digits of your verification code.");
-      return;
-    }
-
-    // Strict OTP Validation Check
-    if (code !== generatedOtp) {
-      playTapSound();
-      setErrorMsg("Invalid verification code. Please enter the exact 6-digit code shown above.");
+      setErrorMsg("Temporary and burner emails are strictly blocked. Please enter a genuine Gmail or company work email.");
       return;
     }
 
     setIsLoading(true);
     setErrorMsg("");
-    setSuccessMsg("Identity Verified! Logging in...");
     playTapSound();
 
     try {
-      const cleanEmail = email.trim();
-      const cleanName = name.trim() || cleanEmail.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      const res = await sendEmailOtp({
+        email: cleanEmail,
+        name: name.trim() || undefined,
+      });
 
-      if (isGmail || cleanEmail.toLowerCase().endsWith("@gmail.com")) {
-        await loginWithGoogle(cleanEmail, cleanName);
+      if (!res.success) {
+        setErrorMsg(res.error || "Failed to dispatch verification code. Please try again.");
       } else {
-        await loginWithWorkEmail(cleanName, cleanEmail);
-      }
+        setInfoMsg(`We sent a 6-digit verification code to ${cleanEmail}. Please check your Gmail inbox (and Spam folder).`);
+        setOtpDigits(["", "", "", "", "", ""]);
+        setResendTimer(30);
+        setAuthStep("otp");
 
-      setTimeout(() => {
-        if (onSuccess) onSuccess();
-        closeAuthModal();
-      }, 350);
+        // Focus first digit input box
+        setTimeout(() => {
+          if (otpInputRefs.current[0]) otpInputRefs.current[0]?.focus();
+        }, 150);
+      }
     } catch (err: any) {
       console.error(err);
-      setErrorMsg("Failed to authenticate session. Please try again.");
+      setErrorMsg("Network error sending verification code. Please check your connection.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 3. Verify Real 6-Digit Email OTP Code from Inbox
+  const handleVerifyOtp = async (codeToVerify?: string) => {
+    const code = codeToVerify || otpDigits.join("");
+    if (code.length < 6) {
+      setErrorMsg("Please enter all 6 digits of the verification code received in your email.");
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMsg("");
+    playTapSound();
+
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const res = await verifyEmailOtp({
+        email: cleanEmail,
+        otpCode: code,
+        name: name.trim() || undefined,
+      });
+
+      if (!res.success || !res.user) {
+        setErrorMsg(res.error || "Invalid verification code. Please check your Gmail inbox and enter the 6-digit code.");
+      } else {
+        setSuccessMsg("Identity Verified! Logging you into Findely...");
+        playTapSound();
+        
+        setVerifiedUser(res.user as any);
+
+        setTimeout(() => {
+          if (onSuccess) onSuccess();
+          closeAuthModal();
+        }, 300);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg("Failed to verify code. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -247,17 +249,6 @@ export default function AuthModal({
     }
   };
 
-  const handleAutoFillCode = () => {
-    playTapSound();
-    const digits = generatedOtp.split("");
-    setOtpDigits(digits);
-    setErrorMsg("");
-    setCopiedOtp(true);
-    setTimeout(() => setCopiedOtp(false), 2000);
-    handleVerifyOtp(generatedOtp);
-  };
-
-  // Subtle clean typing greeting without layout shifting jiggle
   const cleanName = name.trim();
 
   return (
@@ -269,7 +260,7 @@ export default function AuthModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={closeAuthModal}
-          className="fixed inset-0 bg-black/65 backdrop-blur-md"
+          className="fixed inset-0 bg-black/70 backdrop-blur-md"
         />
 
         {/* Modal Window in Apple Squircle Curvy Container */}
@@ -310,7 +301,7 @@ export default function AuthModal({
                         Welcome, <span className="text-[#A9C632]">{cleanName}</span>
                       </span>
                     ) : authMode === "signin" ? (
-                      <span>Welcome back to Findely</span>
+                      <span>Sign in to Findely</span>
                     ) : (
                       <span>Create your Findely Account</span>
                     )}
@@ -318,7 +309,7 @@ export default function AuthModal({
 
                   <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-1 font-semibold">
                     {authMode === "signin" 
-                      ? "Access verified frontier roles, live 2.5D map, and tracked applications."
+                      ? "Real Gmail authentication is required to access live 2.5D tech maps and verified roles."
                       : "Join top founders and engineers discovering frontier tech startups."}
                   </p>
                 </div>
@@ -362,7 +353,7 @@ export default function AuthModal({
               <div className="mb-4 flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#A9C632]/10 border border-[#A9C632]/30 text-xs text-[#1D2E1B] dark:text-[#E8EFE6]">
                 <ShieldCheck className="w-4 h-4 text-[#A9C632] shrink-0" />
                 <span className="leading-tight text-[11px] font-semibold">
-                  <strong>Identity Security Protocol:</strong> 6-Digit OTP verification ensures genuine candidate profiles.
+                  <strong>Mandatory Verification:</strong> Real Gmail OTP authentication required to ensure genuine candidates and block bot activity.
                 </span>
               </div>
 
@@ -375,20 +366,20 @@ export default function AuthModal({
                   className="w-full py-3 px-4 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-white dark:bg-white/5 hover:bg-[#A9C632]/10 hover:border-[#A9C632] text-xs font-bold text-[#1D2E1B] dark:text-white flex items-center justify-center gap-3 transition-all shadow-xs hover:scale-101 cursor-pointer disabled:opacity-50"
                 >
                   <GoogleIcon className="w-4 h-4" />
-                  <span>{isLoading ? "Connecting to Google..." : "Continue with Google"}</span>
+                  <span>{isLoading ? "Redirecting to Google..." : "Continue with Google"}</span>
                 </button>
 
                 {/* Divider */}
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-black/[0.08] dark:bg-white/[0.08]" />
                   <span className="text-[11px] font-bold text-[#546E50] dark:text-[#C8D2A6] uppercase tracking-wider">
-                    Or Enter Email
+                    Or Enter Gmail / Work Email
                   </span>
                   <div className="flex-1 h-px bg-black/[0.08] dark:bg-white/[0.08]" />
                 </div>
 
                 {/* Direct Form */}
-                <form onSubmit={handleInitiateOtp} className="space-y-3">
+                <form onSubmit={handleSendEmailOtp} className="space-y-3">
                   {/* Full Name */}
                   <div className="space-y-1">
                     <label className="text-[11px] font-bold text-[#1D2E1B] dark:text-white flex items-center justify-between">
@@ -396,7 +387,7 @@ export default function AuthModal({
                       {cleanName && (
                         <span className="text-[10px] text-[#A9C632] font-bold flex items-center gap-1">
                           <Sparkles className="w-3 h-3 text-[#A9C632]" />
-                          <span>Live Name Sync</span>
+                          <span>Live Profile Sync</span>
                         </span>
                       )}
                     </label>
@@ -428,7 +419,7 @@ export default function AuthModal({
                       ) : isGmail ? (
                         <span className="text-[10px] text-[#A9C632] font-bold flex items-center gap-1">
                           <Sparkles className="w-3 h-3 text-[#A9C632]" />
-                          <span>Google Verified Identity</span>
+                          <span>Verified Google Member</span>
                         </span>
                       ) : isCompanyEmail ? (
                         <span className="text-[10px] text-[#A9C632] font-bold flex items-center gap-1">
@@ -468,7 +459,7 @@ export default function AuthModal({
                   )}
 
                   {errorMsg && (
-                    <p className="text-xs text-red-500 font-semibold text-center bg-red-500/10 p-2 rounded-xl border border-red-500/20">
+                    <p className="text-xs text-red-500 font-semibold text-center bg-red-500/10 p-2.5 rounded-xl border border-red-500/20">
                       {errorMsg}
                     </p>
                   )}
@@ -479,7 +470,7 @@ export default function AuthModal({
                     disabled={isLoading || !email.includes("@") || isDisposableEmail(email)}
                     className="w-full py-3.5 px-4 rounded-2xl font-bold text-xs shadow-md transition-all hover:scale-101 flex items-center justify-center gap-2 cursor-pointer bg-[#1D2E1B] text-white hover:bg-[#2D442A] dark:bg-[#A9C632] dark:text-[#1D2E1B] dark:hover:bg-[#96B228] disabled:opacity-50 mt-3"
                   >
-                    <span>Send 6-Digit Verification Code</span>
+                    <span>{isLoading ? "Sending Code to your Gmail..." : "Send 6-Digit Verification Code"}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>
@@ -487,7 +478,7 @@ export default function AuthModal({
             </div>
           ) : (
             /* ══════════════════════════════════════════════════════════════
-                STEP 2: 6-DIGIT OTP SECURITY VERIFICATION
+                STEP 2: 6-DIGIT EMAIL OTP VERIFICATION
             ══════════════════════════════════════════════════════════════ */
             <div>
               {/* Back to Step 1 Button */}
@@ -496,6 +487,7 @@ export default function AuthModal({
                   playTapSound();
                   setAuthStep("credentials");
                   setErrorMsg("");
+                  setInfoMsg("");
                 }}
                 className="flex items-center gap-1.5 text-xs font-bold text-[#546E50] dark:text-[#C8D2A6] hover:text-[#1D2E1B] dark:hover:text-white transition-colors mb-4 cursor-pointer"
               >
@@ -505,39 +497,25 @@ export default function AuthModal({
 
               <div className="flex flex-col items-center text-center space-y-3 mb-5">
                 <div className="w-14 h-14 apple-icon-tile bg-[#A9C632]/20 border border-[#A9C632]/50 p-3 flex items-center justify-center text-[#A9C632] shadow-md">
-                  <KeyRound className="w-7 h-7 text-[#A9C632]" />
+                  <Inbox className="w-7 h-7 text-[#A9C632]" />
                 </div>
 
                 <div>
                   <h2 className="text-2xl font-black tracking-tight text-[#1D2E1B] dark:text-white">
-                    Verify Your Identity
+                    Check Your Gmail Inbox
                   </h2>
                   <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-1 font-semibold max-w-sm">
-                    Enter the 6-digit verification code generated for{" "}
-                    <strong className="text-[#1D2E1B] dark:text-white underline">{email}</strong>
+                    We sent a 6-digit security verification code to{" "}
+                    <strong className="text-[#1D2E1B] dark:text-white underline">{email}</strong>. Please enter the code below.
                   </p>
                 </div>
 
-                {/* Real OTP Active Verification Card */}
-                <div className="w-full p-3.5 rounded-2xl bg-[#A9C632]/15 border border-[#A9C632]/40 flex items-center justify-between shadow-xs">
-                  <div className="text-left">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6] block">
-                      Verification Code
-                    </span>
-                    <span className="font-mono text-base font-black tracking-widest text-[#1D2E1B] dark:text-[#A9C632]">
-                      {generatedOtp}
-                    </span>
+                {infoMsg && (
+                  <div className="w-full p-3 rounded-2xl bg-[#A9C632]/15 border border-[#A9C632]/40 text-xs text-[#1D2E1B] dark:text-[#E8EFE6] font-semibold text-center flex items-center justify-center gap-2">
+                    <Mail className="w-4 h-4 text-[#A9C632] shrink-0" />
+                    <span>{infoMsg}</span>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={handleAutoFillCode}
-                    className="px-3 py-1.5 rounded-xl bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:scale-103 transition-transform shadow-xs"
-                  >
-                    {copiedOtp ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedOtp ? "Code Filled!" : "Auto-Fill Code"}</span>
-                  </button>
-                </div>
+                )}
               </div>
 
               {/* 6 Digit Input Boxes */}
@@ -566,14 +544,14 @@ export default function AuthModal({
                 </div>
 
                 {errorMsg && (
-                  <p className="text-xs text-red-500 font-semibold text-center bg-red-500/10 p-2 rounded-xl border border-red-500/20">
+                  <p className="text-xs text-red-500 font-semibold text-center bg-red-500/10 p-2.5 rounded-xl border border-red-500/20">
                     {errorMsg}
                   </p>
                 )}
 
                 {successMsg && (
-                  <p className="text-xs text-[#A9C632] font-semibold text-center flex items-center justify-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#A9C632]" />
+                  <p className="text-xs text-[#A9C632] font-semibold text-center flex items-center justify-center gap-1.5 bg-[#A9C632]/15 p-2 rounded-xl border border-[#A9C632]/30">
+                    <CheckCircle2 className="w-4 h-4 text-[#A9C632]" />
                     <span>{successMsg}</span>
                   </p>
                 )}
@@ -584,23 +562,19 @@ export default function AuthModal({
                   disabled={isLoading || otpDigits.join("").length < 6}
                   className="w-full py-3.5 px-4 rounded-2xl font-bold text-xs shadow-md transition-all hover:scale-101 flex items-center justify-center gap-2 cursor-pointer bg-[#1D2E1B] text-white hover:bg-[#2D442A] dark:bg-[#A9C632] dark:text-[#1D2E1B] dark:hover:bg-[#96B228] disabled:opacity-50"
                 >
-                  <span>{isLoading ? "Verifying Session..." : "Verify Code & Launch Findely"}</span>
+                  <span>{isLoading ? "Verifying Code..." : "Verify Code & Enter Workspace"}</span>
                   <CheckCircle2 className="w-4 h-4" />
                 </button>
 
                 {/* Resend Code Section */}
                 <div className="flex items-center justify-between text-xs text-[#546E50] dark:text-[#C8D2A6] pt-1">
-                  <span>Didn't receive code?</span>
+                  <span>Didn't receive email? Check spam folder or</span>
                   {resendTimer > 0 ? (
                     <span className="font-mono text-[#A9C632] font-bold">Resend in {resendTimer}s</span>
                   ) : (
                     <button
                       type="button"
-                      onClick={() => {
-                        createNewOtp();
-                        setResendTimer(30);
-                        setErrorMsg("");
-                      }}
+                      onClick={() => handleSendEmailOtp()}
                       className="font-bold text-[#A9C632] hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       <RotateCw className="w-3 h-3" />
@@ -616,7 +590,7 @@ export default function AuthModal({
           <div className="mt-6 pt-4 border-t border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between text-[10px] text-[#546E50] dark:text-[#C8D2A6] font-medium">
             <div className="flex items-center gap-1">
               <Lock className="w-3 h-3 text-[#A9C632]" />
-              <span>256-bit encrypted verification</span>
+              <span>256-bit encrypted OTP verification</span>
             </div>
             <div className="flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-[#A9C632]" />
