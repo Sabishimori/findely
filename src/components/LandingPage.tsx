@@ -194,7 +194,6 @@ export default function LandingPage({
 }) {
   const { openAuthModal, user } = useAuth();
   const [activeTabPreview, setActiveTabPreview] = useState<"map" | "dossier" | "tracker">("map");
-  const [copiedUpi, setCopiedUpi] = useState(false);
   const [copiedPaypal, setCopiedPaypal] = useState(false);
   const [landingDonationAmount, setLandingDonationAmount] = useState<string>("");
   const [newsletterEmail, setNewsletterEmail] = useState("");
@@ -1073,41 +1072,6 @@ export default function LandingPage({
                       ) : (
                         <>
                           <Copy className="w-3.5 h-3.5 text-[#546E50] dark:text-[#C8D2A6]" />
-                          <span>Copy</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  <div className="p-4 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-white/80 dark:bg-white/[0.02] flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-2xl bg-[#A9C632]/15 flex items-center justify-center text-[#A9C632] shrink-0">
-                        <Zap className="w-4.5 h-4.5" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-[11px] font-bold text-[#546E50] dark:text-[#C8D2A6] block uppercase tracking-wider">UPI / Google Pay (India)</span>
-                        <span className="text-xs sm:text-sm font-mono font-bold text-[#1D2E1B] dark:text-white truncate block">sagardon1522002-1@okhdfcbank</span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        playTapSound();
-                        navigator.clipboard.writeText("sagardon1522002-1@okhdfcbank");
-                        setCopiedUpi(true);
-                        setTimeout(() => setCopiedUpi(false), 2200);
-                      }}
-                      className="px-4 py-2 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-[#A9C632] hover:text-[#1D2E1B] text-xs font-black text-[#1D2E1B] dark:text-white flex items-center gap-1.5 transition-all cursor-pointer shrink-0 shadow-xs"
-                      title="Copy UPI ID"
-                    >
-                      {copiedUpi ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-[#A9C632]" />
-                          <span className="text-[#A9C632]">Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5 text-[#A9C632]" />
                           <span>Copy</span>
                         </>
                       )}

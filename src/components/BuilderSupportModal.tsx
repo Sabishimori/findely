@@ -4,18 +4,12 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Heart, 
-  Sparkles, 
-  Globe, 
   ExternalLink, 
   Copy, 
   Check, 
-  QrCode, 
   X, 
-  CreditCard,
-  Send,
-  ShieldCheck,
+  ShieldCheck, 
   Zap,
-  DollarSign,
   Gift
 } from "lucide-react";
 
@@ -62,16 +56,12 @@ export default function BuilderSupportModal({
   onClose,
   isDarkMode = false,
 }: BuilderSupportModalProps) {
-  const [activeTab, setActiveTab] = useState<"paypal" | "upi">("paypal");
   const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedUpi, setCopiedUpi] = useState(false);
   const [selectedPledge, setSelectedPledge] = useState<number>(5);
   const [customAmount, setCustomAmount] = useState<string>("");
 
   const paypalUsername = "Sagar1502";
   const paypalUrl = "https://paypal.me/Sagar1502";
-  const upiIdOrAddress = "sagardon1522002-1@okhdfcbank";
-  const upiPayeeName = "sagar S";
 
   // Calculate active donation amount
   const activeAmount = customAmount && !isNaN(Number(customAmount)) && Number(customAmount) > 0
@@ -84,12 +74,6 @@ export default function BuilderSupportModal({
     navigator.clipboard.writeText(paypalUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2200);
-  };
-
-  const handleCopyUpi = () => {
-    navigator.clipboard.writeText(upiIdOrAddress);
-    setCopiedUpi(true);
-    setTimeout(() => setCopiedUpi(false), 2200);
   };
 
   return (
@@ -143,8 +127,9 @@ export default function BuilderSupportModal({
                     <span className="w-2.5 h-2.5 rounded-full bg-[#A9C632] animate-ping" />
                     <span className="font-bold text-xs">Direct Creator Line</span>
                   </div>
-                  <span className="text-[10px] font-bold text-[#A9C632] bg-[#A9C632]/10 px-2 py-0.5 rounded-md">
-                    PayPal & UPI
+                  <span className="text-[10px] font-bold text-[#0070BA] bg-[#0070BA]/10 dark:text-[#45a2e5] px-2 py-0.5 rounded-md flex items-center gap-1">
+                    <PayPalIcon className="w-3 h-3" />
+                    <span>Verified PayPal</span>
                   </span>
                 </div>
                 <p className="text-[#546E50] dark:text-[#C8D2A6] leading-relaxed">
@@ -158,25 +143,27 @@ export default function BuilderSupportModal({
                 </div>
 
                 {/* Social Connect Links */}
-                <div className="flex items-center gap-2 pt-2 border-t border-black/[0.05] dark:border-white/[0.06]">
+                <div className="flex items-center gap-2 pt-1">
                   <a
                     href="https://github.com/Sabishimori"
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#C8D2A6] dark:border-[#546E50] hover:border-[#A9C632] text-xs font-semibold transition-colors"
                   >
-                    <GithubIcon className="w-3.5 h-3.5 text-[#1D2E1B] dark:text-white" />
+                    <GithubIcon className="w-3.5 h-3.5" />
                     <span>GitHub</span>
                   </a>
+
                   <a
-                    href="https://x.com/sabishimor1"
+                    href="https://x.com/sagar__ux"
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#C8D2A6] dark:border-[#546E50] hover:border-[#A9C632] text-xs font-semibold transition-colors"
                   >
-                    <TwitterIcon className="w-3.5 h-3.5 text-[#1D2E1B] dark:text-white" />
-                    <span>@sabishimor1</span>
+                    <TwitterIcon className="w-3.5 h-3.5" />
+                    <span>Twitter / X</span>
                   </a>
+
                   <a
                     href="https://www.linkedin.com/in/sagar-s-510aa4232/"
                     target="_blank"
@@ -189,175 +176,97 @@ export default function BuilderSupportModal({
                 </div>
               </div>
 
-              {/* Donation & Support Tab Selector */}
-              <div className="flex items-center justify-between p-1 rounded-2xl bg-black/5 dark:bg-white/5 border border-[#C8D2A6] dark:border-[#546E50]">
-                <button
-                  onClick={() => setActiveTab("paypal")}
-                  className={`flex-1 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    activeTab === "paypal"
-                      ? "bg-[#0070BA] text-white shadow-xs"
-                      : "text-[#546E50] dark:text-[#C8D2A6] hover:text-[#1D2E1B] dark:hover:text-white"
-                  }`}
-                >
-                  <PayPalIcon className="w-3.5 h-3.5" />
-                  <span>PayPal (Global)</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab("upi")}
-                  className={`flex-1 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    activeTab === "upi"
-                      ? "bg-[#1D2E1B] text-white dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-xs"
-                      : "text-[#546E50] dark:text-[#C8D2A6] hover:text-[#1D2E1B] dark:hover:text-white"
-                  }`}
-                >
-                  <QrCode className="w-3.5 h-3.5" />
-                  <span>UPI / GPay (India)</span>
-                </button>
-              </div>
-
-              {/* Tab Content */}
-              {activeTab === "paypal" ? (
-                <div className="space-y-3.5 p-4 rounded-2xl border border-[#C8D2A6] dark:border-[#546E50] bg-white/60 dark:bg-white/[0.02]">
-                  
-                  {/* Preset Amount Grid */}
-                  <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-2">
-                      Choose Your Contribution Amount
-                    </label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {[
-                        { amount: 1, label: "$1 · Micro" },
-                        { amount: 3, label: "$3 · Matcha" },
-                        { amount: 5, label: "$5 · Coffee" },
-                        { amount: 10, label: "$10 · Server" },
-                      ].map((item) => (
-                        <button
-                          key={item.amount}
-                          onClick={() => {
-                            setSelectedPledge(item.amount);
-                            setCustomAmount("");
-                          }}
-                          className={`p-2.5 rounded-xl font-bold text-xs border transition-all cursor-pointer text-center ${
-                            selectedPledge === item.amount && !customAmount
-                              ? "bg-[#A9C632] text-[#1D2E1B] border-[#A9C632] shadow-sm scale-102"
-                              : "bg-[#F7F9F2] dark:bg-white/5 border-[#C8D2A6] text-[#546E50] hover:border-[#A9C632]"
-                          }`}
-                        >
-                          <span className="block font-extrabold text-sm">${item.amount}</span>
-                          <span className="text-[10px] block opacity-80">{item.label.split(" · ")[1]}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* ── Custom Amount Section (Give more or less) ──── */}
-                  <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1.5">
-                      Or Enter Any Custom Amount ($)
-                    </label>
-                    <div className="relative flex items-center">
-                      <div className="absolute left-3 text-[#546E50] dark:text-[#C8D2A6] font-bold text-sm">
-                        $
-                      </div>
-                      <input
-                        type="number"
-                        min="1"
-                        step="1"
-                        placeholder="Enter custom amount (e.g. 2, 7, 25, 50, 100)"
-                        value={customAmount}
-                        onChange={(e) => setCustomAmount(e.target.value)}
-                        className="w-full pl-8 pr-4 py-2.5 rounded-xl border border-[#C8D2A6] dark:border-[#546E50] bg-white dark:bg-white/5 text-xs font-bold focus:outline-none focus:border-[#A9C632] placeholder:text-[#546E50]/50"
-                      />
-                    </div>
-                  </div>
-
-                  {/* 1-Click Action & Copy PayPal Link */}
-                  <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
-                    <a
-                      href={dynamicPaypalUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full sm:flex-1 py-2.5 rounded-xl bg-[#0070BA] hover:bg-[#005ea6] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer transition-transform hover:scale-102"
-                    >
-                      <PayPalIcon className="w-4 h-4" />
-                      <span>Proceed with ${activeAmount} on PayPal</span>
-                      <ExternalLink className="w-3.5 h-3.5 text-white/80" />
-                    </a>
-
-                    <button
-                      onClick={handleCopyPaypal}
-                      className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#C8D2A6] hover:bg-black/5 dark:hover:bg-white/10 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
-                      title="Copy PayPal Handle"
-                    >
-                      {copiedLink ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-[#A9C632]" />
-                          <span className="text-[#A9C632]">Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5 text-[#546E50] dark:text-[#C8D2A6]" />
-                          <span>Copy PayPal Link</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  <div className="text-[11px] text-center text-[#546E50] dark:text-[#C8D2A6] font-mono">
-                    Direct Handle: <span className="font-bold text-[#0070BA] dark:text-[#45a2e5]">paypal.me/{paypalUsername}</span>
+              {/* PayPal Contribution Card */}
+              <div className="space-y-3.5 p-4 rounded-2xl border border-[#C8D2A6] dark:border-[#546E50] bg-white/60 dark:bg-white/[0.02]">
+                
+                {/* Preset Amount Grid */}
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-2">
+                    Choose Your Contribution Amount
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { amount: 1, label: "$1 · Micro" },
+                      { amount: 3, label: "$3 · Matcha" },
+                      { amount: 5, label: "$5 · Coffee" },
+                      { amount: 10, label: "$10 · Server" },
+                    ].map((item) => (
+                      <button
+                        key={item.amount}
+                        onClick={() => {
+                          setSelectedPledge(item.amount);
+                          setCustomAmount("");
+                        }}
+                        className={`p-2.5 rounded-xl font-bold text-xs border transition-all cursor-pointer text-center ${
+                          selectedPledge === item.amount && !customAmount
+                            ? "bg-[#A9C632] text-[#1D2E1B] border-[#A9C632] shadow-sm scale-102"
+                            : "bg-[#F7F9F2] dark:bg-white/5 border-[#C8D2A6] text-[#546E50] hover:border-[#A9C632]"
+                        }`}
+                      >
+                        <span className="block font-extrabold text-sm">${item.amount}</span>
+                        <span className="text-[10px] block opacity-80">{item.label.split(" · ")[1]}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
-              ) : (
-                /* UPI / QR Code Tab */
-                <div className="p-4 rounded-2xl border border-[#C8D2A6] dark:border-[#546E50] bg-white/60 dark:bg-white/[0.02] flex flex-col items-center justify-center text-center space-y-3">
-                  {/* Real Google Pay / UPI QR Code Card */}
-                  <div className="p-2 rounded-2xl bg-white border border-[#C8D2A6] shadow-md flex flex-col items-center max-w-[210px] overflow-hidden">
-                    <img
-                      src="/sagar-upi-qr.jpg"
-                      alt="Google Pay UPI QR - sagar S"
-                      className="w-48 h-auto object-contain rounded-xl"
+
+                {/* Custom Amount Section */}
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1.5">
+                    Or Enter Any Custom Amount ($)
+                  </label>
+                  <div className="relative flex items-center">
+                    <div className="absolute left-3 text-[#546E50] dark:text-[#C8D2A6] font-bold text-sm">
+                      $
+                    </div>
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      placeholder="Enter custom amount (e.g. 2, 7, 25, 50, 100)"
+                      value={customAmount}
+                      onChange={(e) => setCustomAmount(e.target.value)}
+                      className="w-full pl-8 pr-4 py-2.5 rounded-xl border border-[#C8D2A6] dark:border-[#546E50] bg-white dark:bg-white/5 text-xs font-bold focus:outline-none focus:border-[#A9C632] placeholder:text-[#546E50]/50"
                     />
                   </div>
-
-                  <div className="space-y-1">
-                    <div className="text-xs font-black text-[#1D2E1B] dark:text-white">
-                      {upiPayeeName}
-                    </div>
-                    <div className="text-[11px] font-mono text-[#546E50] dark:text-[#C8D2A6] select-all font-bold">
-                      {upiIdOrAddress}
-                    </div>
-                  </div>
-
-                  {/* Actions: Direct App Launch & Copy */}
-                  <div className="flex flex-col sm:flex-row items-center gap-2 w-full pt-1">
-                    <a
-                      href={`upi://pay?pa=${upiIdOrAddress}&pn=${encodeURIComponent(upiPayeeName)}&cu=INR`}
-                      className="w-full sm:flex-1 py-2.5 rounded-xl bg-[#1D2E1B] hover:bg-[#2D442A] text-white dark:bg-[#A9C632] dark:text-[#1D2E1B] font-bold text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer transition-transform hover:scale-102"
-                    >
-                      <Zap className="w-3.5 h-3.5" />
-                      <span>Open UPI App (Mobile)</span>
-                    </a>
-
-                    <button
-                      onClick={handleCopyUpi}
-                      className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#C8D2A6] hover:bg-black/5 dark:hover:bg-white/10 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
-                    >
-                      {copiedUpi ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-[#A9C632]" />
-                          <span className="text-[#A9C632]">UPI Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5 text-[#546E50] dark:text-[#C8D2A6]" />
-                          <span>Copy UPI ID</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
                 </div>
-              )}
+
+                {/* 1-Click Action & Copy PayPal Link */}
+                <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
+                  <a
+                    href={dynamicPaypalUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full sm:flex-1 py-2.5 rounded-xl bg-[#0070BA] hover:bg-[#005ea6] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer transition-transform hover:scale-102"
+                  >
+                    <PayPalIcon className="w-4 h-4" />
+                    <span>Proceed with ${activeAmount} on PayPal</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-white/80" />
+                  </a>
+
+                  <button
+                    onClick={handleCopyPaypal}
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#C8D2A6] hover:bg-black/5 dark:hover:bg-white/10 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+                    title="Copy PayPal Handle"
+                  >
+                    {copiedLink ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-[#A9C632]" />
+                        <span className="text-[#A9C632]">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5 text-[#546E50] dark:text-[#C8D2A6]" />
+                        <span>Copy PayPal Link</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="text-[11px] text-center text-[#546E50] dark:text-[#C8D2A6] font-mono">
+                  Direct Handle: <span className="font-bold text-[#0070BA] dark:text-[#45a2e5]">paypal.me/{paypalUsername}</span>
+                </div>
+              </div>
             </div>
 
             {/* Footer */}
