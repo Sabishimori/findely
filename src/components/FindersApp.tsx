@@ -48,12 +48,10 @@ export default function FindersApp({
   const [spatialPinLocation, setSpatialPinLocation] = useState<SpatialLocationInfo | null>(null);
   const [geoToast, setGeoToast] = useState<string | null>(null);
 
-  // Return to Landing Page automatically when user logs out, enter workspace when user logs in
+  // Enter workspace when user logs in
   useEffect(() => {
     if (user) {
       setShowLandingPage(false);
-    } else {
-      setShowLandingPage(true);
     }
   }, [user]);
 
