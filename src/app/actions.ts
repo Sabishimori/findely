@@ -6,7 +6,7 @@ import { eq, and, or, isNull, desc, gt } from "drizzle-orm";
 import { revalidatePath, unstable_cache } from "next/cache";
 import { isDisposableEmail } from "@/lib/disposableEmailBlocker";
 import { sanitizeText, sanitizeUrl, sanitizeObject } from "@/lib/security/xssSanitizer";
-import { resolveExactJobApplyUrl } from "@/lib/applyUrlResolver";
+import { resolveExactJobApplyUrl, resolveFounderLinkedinUrl } from "@/lib/applyUrlResolver";
 import { sendOtpEmail } from "@/lib/emailService";
 
 // ── Real Email OTP Verification Actions ──────────────────────────────────
@@ -384,8 +384,24 @@ async function fetchMapDataFromDb() {
       let founders = [];
       let hrLeads = [];
       let techStack = [];
-      try { if (c.founders_json) founders = JSON.parse(c.founders_json); } catch (_) {}
-      try { if (c.hr_leads_json) hrLeads = JSON.parse(c.hr_leads_json); } catch (_) {}
+      try { 
+        if (c.founders_json) {
+          founders = JSON.parse(c.founders_json).map((f: any) => ({
+            ...f,
+            linkedin_url: resolveFounderLinkedinUrl(f.name, c.name, f.linkedin_url),
+            avatar_url: f.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(f.name)}&backgroundColor=1D2E1B&textColor=A9C632`,
+          }));
+        }
+      } catch (_) {}
+      try { 
+        if (c.hr_leads_json) {
+          hrLeads = JSON.parse(c.hr_leads_json).map((h: any) => ({
+            ...h,
+            linkedin_url: resolveFounderLinkedinUrl(h.name, c.name, h.linkedin_url),
+            avatar_url: h.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(h.name)}&backgroundColor=1D2E1B&textColor=A9C632`,
+          }));
+        }
+      } catch (_) {}
       try { if (c.tech_stack_json) techStack = JSON.parse(c.tech_stack_json); } catch (_) {}
 
       // Find the latest posted job date
@@ -491,8 +507,24 @@ export async function getCompanyWithJobs(companyId: string) {
     let founders = [];
     let hrLeads = [];
     let techStack = [];
-    try { if (company.founders_json) founders = JSON.parse(company.founders_json); } catch (_) {}
-    try { if (company.hr_leads_json) hrLeads = JSON.parse(company.hr_leads_json); } catch (_) {}
+    try { 
+      if (company.founders_json) {
+        founders = JSON.parse(company.founders_json).map((f: any) => ({
+          ...f,
+          linkedin_url: resolveFounderLinkedinUrl(f.name, company.name, f.linkedin_url),
+          avatar_url: f.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(f.name)}&backgroundColor=1D2E1B&textColor=A9C632`,
+        }));
+      }
+    } catch (_) {}
+    try { 
+      if (company.hr_leads_json) {
+        hrLeads = JSON.parse(company.hr_leads_json).map((h: any) => ({
+          ...h,
+          linkedin_url: resolveFounderLinkedinUrl(h.name, company.name, h.linkedin_url),
+          avatar_url: h.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(h.name)}&backgroundColor=1D2E1B&textColor=A9C632`,
+        }));
+      }
+    } catch (_) {}
     try { if (company.tech_stack_json) techStack = JSON.parse(company.tech_stack_json); } catch (_) {}
 
     return {

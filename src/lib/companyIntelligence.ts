@@ -117,19 +117,56 @@ export const ANTHROPIC_INTELLIGENCE: CompanyIntelligence = {
 };
 
 const COMPANY_PRESETS: Record<string, Partial<CompanyIntelligence>> = {
-  stripe: {
-    industry: ["Fintech", "Developer Tools", "Payments Infrastructure", "SaaS"],
-    businessModel: ["B2B", "Enterprise"],
-    founded: 2010,
-    workMode: "Hybrid, Remote",
-    about: "Stripe is a financial infrastructure platform for the internet. Millions of companies—from the world’s largest enterprises to the most ambitious startups—use Stripe to accept payments, grow their revenue, and accelerate new business opportunities.",
-    keyInvestors: ["Sequoia Capital", "Andreessen Horowitz", "Peter Thiel", "Elon Musk", "General Catalyst", "Founders Fund"],
-    fundingStage: "Late Stage / Pre-IPO",
-    totalFunding: "$8.7B",
-    valuation: "$65B",
-    officeAddress: "South San Francisco, CA & Dublin, Ireland",
-    teamSize: "7,000+ employees",
-    openPositionsCount: 142
+  spotify: {
+    industry: ["Audio Streaming", "Music Tech", "Podcast Platform", "AdTech", "AI Recommendation"],
+    businessModel: ["Freemium", "B2C Subscription", "Ad-Supported"],
+    founded: 2006,
+    workMode: "Work From Anywhere / Distributed",
+    about: "Spotify is the world’s most popular audio streaming subscription service with a community of over 600 million users across 180+ global markets.",
+    keyInvestors: ["Founders Fund", "Technology Crossover Ventures", "Tencent Music", "Baillie Gifford"],
+    fundingStage: "Public (NYSE: SPOT)",
+    totalFunding: "$2.6B",
+    valuation: "$68B",
+    officeAddress: "Birger Jarlsgatan 61, Stockholm, Sweden",
+    teamSize: "9,000+ employees",
+    openPositionsCount: 220,
+    officeNetwork: [
+      { flag: "🇸🇪", city: "Stockholm", country: "Sweden", lat: 59.3293, lng: 18.0686, jobs: 64, isHQ: true },
+      { flag: "🇬🇧", city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, jobs: 48 },
+      { flag: "🇺🇸", city: "New York", country: "United States", lat: 40.7128, lng: -74.0060, jobs: 42 },
+      { flag: "🇺🇸", city: "Boston", country: "United States", lat: 42.3601, lng: -71.0589, jobs: 18 },
+      { flag: "🇩🇪", city: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050, jobs: 16 },
+      { flag: "🇯🇵", city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, jobs: 12 },
+      { flag: "🇦🇺", city: "Sydney", country: "Australia", lat: -33.8688, lng: 151.2093, jobs: 9 },
+      { flag: "🇫🇷", city: "Paris", country: "France", lat: 48.8566, lng: 2.3522, jobs: 8 },
+      { flag: "🇮🇳", city: "Mumbai", country: "India", lat: 19.0760, lng: 72.8777, jobs: 14 },
+      { flag: "🇸🇬", city: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198, jobs: 7 },
+      { flag: "🇨🇦", city: "Toronto", country: "Canada", lat: 43.6532, lng: -79.3832, jobs: 6 }
+    ],
+    totalLocationsCount: 11,
+  },
+  deepl: {
+    industry: ["Neural Machine Translation", "Language AI", "LLMs", "Enterprise AI"],
+    businessModel: ["B2B SaaS", "B2C Subscription", "API Platform"],
+    founded: 2017,
+    workMode: "Hybrid / On-site",
+    about: "DeepL is the world’s leading language AI company, developing neural machine translation and communications intelligence trusted by millions of global professionals and enterprises.",
+    keyInvestors: ["Benchmark", "IVP", "Index Ventures", "Atomico"],
+    fundingStage: "Series C",
+    totalFunding: "$420M",
+    valuation: "$2B",
+    officeAddress: "Cologne & Berlin, Germany",
+    teamSize: "1,000+ employees",
+    openPositionsCount: 45,
+    officeNetwork: [
+      { flag: "🇩🇪", city: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050, jobs: 18, isHQ: true },
+      { flag: "🇩🇪", city: "Cologne", country: "Germany", lat: 50.9375, lng: 6.9603, jobs: 14 },
+      { flag: "🇬🇧", city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, jobs: 8 },
+      { flag: "🇯🇵", city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, jobs: 6 },
+      { flag: "🇺🇸", city: "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: 5 },
+      { flag: "🇳🇱", city: "Amsterdam", country: "Netherlands", lat: 52.3676, lng: 4.9041, jobs: 4 }
+    ],
+    totalLocationsCount: 6,
   },
   openai: {
     industry: ["AI / ML", "Generative AI", "AGI Research", "Enterprise AI"],
@@ -143,7 +180,64 @@ const COMPANY_PRESETS: Record<string, Partial<CompanyIntelligence>> = {
     valuation: "$157B",
     officeAddress: "Mission District, San Francisco, CA, USA",
     teamSize: "1,500+ employees",
-    openPositionsCount: 210
+    openPositionsCount: 210,
+    officeNetwork: [
+      { flag: "🇺🇸", city: "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: 110, isHQ: true },
+      { flag: "🇬🇧", city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, jobs: 32 },
+      { flag: "🇯🇵", city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, jobs: 18 },
+      { flag: "🇮🇪", city: "Dublin", country: "Ireland", lat: 53.3498, lng: -6.2603, jobs: 14 },
+      { flag: "🇺🇸", city: "New York", country: "United States", lat: 40.7128, lng: -74.0060, jobs: 20 },
+      { flag: "🇸🇬", city: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198, jobs: 8 },
+      { flag: "🇫🇷", city: "Paris", country: "France", lat: 48.8566, lng: 2.3522, jobs: 6 },
+      { flag: "🇨🇭", city: "Zurich", country: "Switzerland", lat: 47.3769, lng: 8.5417, jobs: 5 }
+    ],
+    totalLocationsCount: 8,
+  },
+  stripe: {
+    industry: ["Fintech", "Developer Tools", "Payments Infrastructure", "SaaS"],
+    businessModel: ["B2B", "Enterprise"],
+    founded: 2010,
+    workMode: "Hybrid, Remote",
+    about: "Stripe is a financial infrastructure platform for the internet. Millions of companies—from the world’s largest enterprises to the most ambitious startups—use Stripe to accept payments, grow their revenue, and accelerate new business opportunities.",
+    keyInvestors: ["Sequoia Capital", "Andreessen Horowitz", "Peter Thiel", "Elon Musk", "General Catalyst", "Founders Fund"],
+    fundingStage: "Late Stage / Pre-IPO",
+    totalFunding: "$8.7B",
+    valuation: "$65B",
+    officeAddress: "South San Francisco, CA & Dublin, Ireland",
+    teamSize: "7,000+ employees",
+    openPositionsCount: 142,
+    officeNetwork: [
+      { flag: "🇺🇸", city: "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: 55, isHQ: true },
+      { flag: "🇮🇪", city: "Dublin", country: "Ireland", lat: 53.3498, lng: -6.2603, jobs: 38, isHQ: true },
+      { flag: "🇬🇧", city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, jobs: 24 },
+      { flag: "🇯🇵", city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, jobs: 12 },
+      { flag: "🇸🇬", city: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198, jobs: 10 },
+      { flag: "🇺🇸", city: "Seattle", country: "United States", lat: 47.6062, lng: -122.3321, jobs: 15 },
+      { flag: "🇺🇸", city: "New York", country: "United States", lat: 40.7128, lng: -74.0060, jobs: 14 },
+      { flag: "🇮🇳", city: "Bengaluru", country: "India", lat: 12.9716, lng: 77.5946, jobs: 12 }
+    ],
+    totalLocationsCount: 8,
+  },
+  postman: {
+    industry: ["API Platform", "Developer Tools", "Collaboration", "SaaS"],
+    businessModel: ["B2B", "Product-Led Growth", "Enterprise"],
+    founded: 2014,
+    workMode: "Hybrid / Remote",
+    about: "Postman is the leading API platform for building and using APIs, used by over 30 million developers across 500,000 organizations worldwide.",
+    keyInvestors: ["Nexus Venture Partners", "Insight Partners", "CRV", "Coatue"],
+    fundingStage: "Series D",
+    totalFunding: "$433M",
+    valuation: "$5.6B",
+    officeAddress: "Bengaluru, India & San Francisco, CA",
+    teamSize: "1,200+ employees",
+    openPositionsCount: 38,
+    officeNetwork: [
+      { flag: "🇮🇳", city: "Bengaluru", country: "India", lat: 12.9716, lng: 77.5946, jobs: 20, isHQ: true },
+      { flag: "🇺🇸", city: "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: 12 },
+      { flag: "🇬🇧", city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, jobs: 6 },
+      { flag: "🇯🇵", city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, jobs: 4 }
+    ],
+    totalLocationsCount: 4,
   },
   linear: {
     industry: ["Productivity", "Developer Tools", "Project Management", "SaaS"],
@@ -157,7 +251,15 @@ const COMPANY_PRESETS: Record<string, Partial<CompanyIntelligence>> = {
     valuation: "$400M",
     officeAddress: "San Francisco, CA & Worldwide Distributed",
     teamSize: "75+ employees",
-    openPositionsCount: 18
+    openPositionsCount: 18,
+    officeNetwork: [
+      { flag: "🇺🇸", city: "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: 8, isHQ: true },
+      { flag: "🇬🇧", city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, jobs: 4 },
+      { flag: "🇩🇪", city: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050, jobs: 3 },
+      { flag: "🇯🇵", city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, jobs: 2 },
+      { flag: "🇫🇷", city: "Paris", country: "France", lat: 48.8566, lng: 2.3522, jobs: 2 }
+    ],
+    totalLocationsCount: 5,
   },
   vercel: {
     industry: ["Cloud Computing", "Developer Experience", "Frontend Infrastructure", "Serverless"],
@@ -171,7 +273,14 @@ const COMPANY_PRESETS: Record<string, Partial<CompanyIntelligence>> = {
     valuation: "$3.25B",
     officeAddress: "San Francisco, CA, United States",
     teamSize: "600+ employees",
-    openPositionsCount: 54
+    openPositionsCount: 54,
+    officeNetwork: [
+      { flag: "🇺🇸", city: "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: 26, isHQ: true },
+      { flag: "🇬🇧", city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, jobs: 12 },
+      { flag: "🇯🇵", city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, jobs: 8 },
+      { flag: "🇩🇪", city: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050, jobs: 6 }
+    ],
+    totalLocationsCount: 4,
   },
   supabase: {
     industry: ["Open Source", "Database", "Backend as a Service", "Developer Tools"],
@@ -185,7 +294,14 @@ const COMPANY_PRESETS: Record<string, Partial<CompanyIntelligence>> = {
     valuation: "$1B",
     officeAddress: "Singapore & 100% Global Remote",
     teamSize: "120+ employees",
-    openPositionsCount: 25
+    openPositionsCount: 25,
+    officeNetwork: [
+      { flag: "🇸🇬", city: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198, jobs: 10, isHQ: true },
+      { flag: "🇺🇸", city: "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: 8 },
+      { flag: "🇬🇧", city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, jobs: 5 },
+      { flag: "🇩🇪", city: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050, jobs: 4 }
+    ],
+    totalLocationsCount: 4,
   },
   figma: {
     industry: ["Design Systems", "Collaboration", "Creative Software", "SaaS"],
@@ -199,7 +315,16 @@ const COMPANY_PRESETS: Record<string, Partial<CompanyIntelligence>> = {
     valuation: "$12.5B",
     officeAddress: "Market St, San Francisco, CA, USA",
     teamSize: "1,800+ employees",
-    openPositionsCount: 95
+    openPositionsCount: 95,
+    officeNetwork: [
+      { flag: "🇺🇸", city: "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: 48, isHQ: true },
+      { flag: "🇺🇸", city: "New York", country: "United States", lat: 40.7128, lng: -74.0060, jobs: 24 },
+      { flag: "🇬🇧", city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, jobs: 18 },
+      { flag: "🇯🇵", city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, jobs: 10 },
+      { flag: "🇫🇷", city: "Paris", country: "France", lat: 48.8566, lng: 2.3522, jobs: 6 },
+      { flag: "🇦🇺", city: "Sydney", country: "Australia", lat: -33.8688, lng: 151.2093, jobs: 5 }
+    ],
+    totalLocationsCount: 6,
   }
 };
 
@@ -309,3 +434,73 @@ export function getCompanyIntelligence(company: {
     openPositionsCount: company.jobs?.length || 12
   };
 }
+
+export interface CompanyMapPin {
+  pinId: string;
+  company: any;
+  locationName: string;
+  isHQ: boolean;
+  latitude: number;
+  longitude: number;
+  roleCount: number;
+  rolesAtLocation?: any[];
+}
+
+export function getAllPinsForCompanies(companies: any[]): CompanyMapPin[] {
+  const pins: CompanyMapPin[] = [];
+  const seenPinCoordinates = new Set<string>();
+
+  for (const company of companies) {
+    if (!company) continue;
+
+    // 1. Primary HQ Pin
+    if (company.latitude !== null && company.latitude !== undefined && company.longitude !== null && company.longitude !== undefined) {
+      const coordKey = `${company.id}-${company.latitude.toFixed(3)}-${company.longitude.toFixed(3)}`;
+      seenPinCoordinates.add(coordKey);
+      pins.push({
+        pinId: `${company.id}-hq`,
+        company,
+        locationName: company.location_text || "Headquarters",
+        isHQ: true,
+        latitude: company.latitude,
+        longitude: company.longitude,
+        roleCount: company.activeJobCount || (company.roles?.length || 1),
+        rolesAtLocation: company.roles || [],
+      });
+    }
+
+    // 2. Global Branch Network Pins
+    const intel = getCompanyIntelligence(company);
+    if (intel && intel.officeNetwork && intel.officeNetwork.length > 0) {
+      for (const branch of intel.officeNetwork) {
+        if (!branch.lat || !branch.lng) continue;
+        
+        // Skip if exact duplicate of existing pin for this company
+        const coordKey = `${company.id}-${branch.lat.toFixed(3)}-${branch.lng.toFixed(3)}`;
+        if (seenPinCoordinates.has(coordKey)) {
+          continue;
+        }
+        seenPinCoordinates.add(coordKey);
+
+        const citySlug = branch.city.toLowerCase().replace(/[^a-z0-9]/g, "-");
+        const matchingRoles = company.roles?.filter((r: any) =>
+          r.location_text?.toLowerCase().includes(branch.city.toLowerCase())
+        ) || [];
+
+        pins.push({
+          pinId: `${company.id}-branch-${citySlug}`,
+          company,
+          locationName: `${branch.city}, ${branch.country}`,
+          isHQ: !!branch.isHQ,
+          latitude: branch.lat,
+          longitude: branch.lng,
+          roleCount: matchingRoles.length > 0 ? matchingRoles.length : (branch.jobs || 1),
+          rolesAtLocation: matchingRoles,
+        });
+      }
+    }
+  }
+
+  return pins;
+}
+

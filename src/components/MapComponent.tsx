@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { handleImageError, getCompanyLogoUrl } from "@/lib/logoResolver";
+import { getAllPinsForCompanies, CompanyMapPin } from "@/lib/companyIntelligence";
 
 export type CompanyMapItem = {
   id: string;
@@ -158,22 +159,25 @@ export default function MapComponent({
     bearing: 0,
   });
 
-  // Filter companies with coordinates + strict search match + freshness filter
-  const validCompanies = useMemo(() => {
-    let list = companies.filter(
-      (c) => c.latitude !== null && c.longitude !== null
-    ) as (CompanyMapItem & { latitude: number; longitude: number })[];
+  // Filter companies & all multi-location office branch pins with coordinates + strict search match + freshness filter
+  const validPins = useMemo(() => {
+    const allPins = getAllPinsForCompanies(companies);
 
-    // If there's an active search query, ONLY show matching companies on the map!
+    let list = allPins.filter(
+      (p) => p.latitude !== null && p.latitude !== undefined && p.longitude !== null && p.longitude !== undefined
+    );
+
+    // If there's an active search query, ONLY show matching pins on the map!
     if (searchQuery && searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      list = list.filter((c) => {
-        const nameMatch = c.name.toLowerCase().includes(q);
-        const descMatch = c.description?.toLowerCase().includes(q);
-        const locationMatch = c.location_text?.toLowerCase().includes(q);
+      list = list.filter((p) => {
+        const nameMatch = p.company.name.toLowerCase().includes(q);
+        const descMatch = p.company.description?.toLowerCase().includes(q);
+        const locationMatch = p.locationName?.toLowerCase().includes(q) || p.company.location_text?.toLowerCase().includes(q);
         const roleMatch =
-          c.jobTitles?.some((t) => t.toLowerCase().includes(q)) ||
-          c.roles?.some((r) => r.title.toLowerCase().includes(q));
+          p.company.jobTitles?.some((t: string) => t.toLowerCase().includes(q)) ||
+          p.company.roles?.some((r: any) => r.title.toLowerCase().includes(q)) ||
+          p.rolesAtLocation?.some((r: any) => r.title.toLowerCase().includes(q));
         return nameMatch || descMatch || locationMatch || roleMatch;
       });
     }
@@ -187,9 +191,9 @@ export default function MapComponent({
           ? 7 * 24 * 60 * 60 * 1000
           : 30 * 24 * 60 * 60 * 1000;
 
-      list = list.filter((c) => {
-        if (!c.latestPostDate) return false;
-        const age = now - new Date(c.latestPostDate).getTime();
+      list = list.filter((p) => {
+        if (!p.company.latestPostDate) return false;
+        const age = now - new Date(p.company.latestPostDate).getTime();
         return age <= maxAgeMs;
       });
     }
@@ -197,15 +201,15 @@ export default function MapComponent({
     return list;
   }, [companies, searchQuery, dateFilter]);
 
-  const flyToCompany = useCallback(
-    (company: CompanyMapItem & { latitude: number; longitude: number }) => {
-      setSelectedCompanyId(company.id);
+  const flyToPin = useCallback(
+    (pin: CompanyMapPin) => {
+      setSelectedCompanyId(pin.company.id);
       if (onSelectCompany) {
-        onSelectCompany(company);
+        onSelectCompany(pin.company);
       }
       mapRef.current?.flyTo({
-        center: [company.longitude, company.latitude],
-        zoom: 11,
+        center: [pin.longitude, pin.latitude],
+        zoom: 11.5,
         pitch: 42,
         duration: 1500,
         essential: true,
@@ -241,6 +245,25 @@ export default function MapComponent({
       });
     }
   }, [focusedArea]);
+
+  // Listen for global fly-to-coords events (e.g. from office branch clicks)
+  useEffect(() => {
+    const handleFlyToCoords = (e: Event) => {
+      const customEvent = e as CustomEvent<{ lat: number; lng: number; zoom?: number; pitch?: number }>;
+      if (customEvent.detail && customEvent.detail.lat && customEvent.detail.lng) {
+        mapRef.current?.flyTo({
+          center: [customEvent.detail.lng, customEvent.detail.lat],
+          zoom: customEvent.detail.zoom || 11.5,
+          pitch: customEvent.detail.pitch || 40,
+          duration: 1500,
+          essential: true,
+        });
+      }
+    };
+
+    window.addEventListener("fly-to-coords", handleFlyToCoords);
+    return () => window.removeEventListener("fly-to-coords", handleFlyToCoords);
+  }, []);
 
   // When user is typing a search query, gently zoom out to overview if previously zoomed in close
   useEffect(() => {
@@ -295,32 +318,33 @@ export default function MapComponent({
         style={{ width: "100%", height: "100%" }}
         attributionControl={false}
       >
-        {validCompanies.map((company) => {
-          const hasJobs = company.activeJobCount > 0;
+        {validPins.map((pin) => {
+          const company = pin.company;
+          const hasJobs = pin.roleCount > 0;
           const isSelected = selectedCompanyId === company.id;
-          const isHovered = hoveredCompanyId === company.id;
+          const isHovered = hoveredCompanyId === pin.pinId;
 
           // Check if company has matching role for the search query
           const matchingRole = searchQuery.trim().length >= 2
-            ? company.jobTitles?.find((t) =>
+            ? company.jobTitles?.find((t: string) =>
                 t.toLowerCase().includes(searchQuery.toLowerCase().trim())
-              ) || company.roles?.find((r) => r.title.toLowerCase().includes(searchQuery.toLowerCase().trim()))?.title
+              ) || company.roles?.find((r: any) => r.title.toLowerCase().includes(searchQuery.toLowerCase().trim()))?.title
             : null;
 
           return (
             <Marker
-              key={company.id}
-              longitude={company.longitude}
-              latitude={company.latitude}
+              key={pin.pinId}
+              longitude={pin.longitude}
+              latitude={pin.latitude}
               anchor="bottom"
               onClick={(e) => {
                 e.originalEvent.stopPropagation();
-                flyToCompany(company);
+                flyToPin(pin);
               }}
             >
               <div
                 className="relative cursor-pointer flex flex-col items-center group"
-                onMouseEnter={() => setHoveredCompanyId(company.id)}
+                onMouseEnter={() => setHoveredCompanyId(pin.pinId)}
                 onMouseLeave={() => setHoveredCompanyId(null)}
               >
                 {/* Hover Tooltip Card */}
@@ -341,12 +365,12 @@ export default function MapComponent({
                           {company.name}
                         </span>
                         <span className="text-[10px] font-bold text-[#1D2E1B] dark:text-[#A9C632] bg-[#A9C632]/20 px-2 py-0.5 rounded-full border border-[#A9C632]/40">
-                          {company.activeJobCount} {company.activeJobCount === 1 ? "Role" : "Roles"}
+                          {pin.isHQ ? "HQ • " : ""}{pin.roleCount} {pin.roleCount === 1 ? "Role" : "Roles"}
                         </span>
                       </div>
                       <p className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] mt-1 flex items-center gap-1 truncate font-medium">
                         <MapPin className="w-3 h-3 text-[#A9C632] flex-shrink-0" />
-                        {company.location_text || "Global"}
+                        {pin.locationName}
                       </p>
                       {company.jobTitles && company.jobTitles.length > 0 && (
                         <div className="mt-2 pt-1.5 border-t border-[#C8D2A6] dark:border-[#3D543A] text-[10px] font-semibold truncate text-[#1D2E1B] dark:text-[#A9C632]">
@@ -354,8 +378,8 @@ export default function MapComponent({
                         </div>
                       )}
                       <div className="mt-2 pt-1.5 border-t border-[#C8D2A6]/40 dark:border-[#3D543A] flex items-center justify-between text-[9px] font-bold text-[#A9C632]">
-                        <span>🏢 Explore Branches & Jobs</span>
-                        <span>Click ↗</span>
+                        <span>🏢 {pin.isHQ ? "Global HQ" : "Branch Hub"}</span>
+                        <span>Explore ↗</span>
                       </div>
                     </motion.div>
                   )}
@@ -406,6 +430,13 @@ export default function MapComponent({
                         : "bg-white"
                     }`}
                   />
+
+                  {/* Branch Pill Tag for Non-HQ Pins */}
+                  {!pin.isHQ && (
+                    <span className="mt-0.5 px-1.5 py-0.2 rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-[#1D2E1B] text-[8px] font-bold shadow-xs whitespace-nowrap max-w-[80px] truncate">
+                      {pin.locationName.split(",")[0]}
+                    </span>
+                  )}
 
                   {/* ── Slide-Down Under-Drawer / Keyword Match Badge (Blink Effect) ── */}
                   <AnimatePresence>

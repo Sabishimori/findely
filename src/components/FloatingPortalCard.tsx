@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion, useDragControls } from "motion/react";
 import { getCompanyWithJobs, trackJobApplication, toggleSaveJob } from "@/app/actions";
 import { getCompanyIntelligence, CompanyIntelligence } from "@/lib/companyIntelligence";
-import { resolveExactJobApplyUrl } from "@/lib/applyUrlResolver";
+import { resolveExactJobApplyUrl, resolveFounderLinkedinUrl, resolveCompanyLinkedinUrl } from "@/lib/applyUrlResolver";
 import { playTapSound } from "@/lib/soundFx";
 import { handleImageError, getCompanyLogoUrl } from "@/lib/logoResolver";
 import EmailOutreachModal from "./EmailOutreachModal";
@@ -566,6 +566,13 @@ export default function FloatingPortalCard({
                               setSelectedBranch(null);
                             } else {
                               setSelectedBranch(loc.city);
+                              if (loc.lat && loc.lng) {
+                                window.dispatchEvent(
+                                  new CustomEvent("fly-to-coords", {
+                                    detail: { lat: loc.lat, lng: loc.lng, zoom: 12, pitch: 42 },
+                                  })
+                                );
+                              }
                               if (onFlyToBranch) {
                                 onFlyToBranch(loc.city, loc.lat, loc.lng);
                               }
@@ -683,35 +690,37 @@ export default function FloatingPortalCard({
                     Leadership & Founders
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {data.founders.map((founder: any, i: number) => (
-                      <div
-                        key={i}
-                        className="p-3 bg-[#F7F9F2] dark:bg-white/5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-between gap-2 shadow-2xs"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <img
-                            src={founder.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80"}
-                            alt={founder.name}
-                            className="w-8 h-8 rounded-full object-cover border border-[#C8D2A6] dark:border-white/10"
-                          />
-                          <div className="min-w-0">
-                            <p className="font-bold text-[#1D2E1B] dark:text-white truncate text-[11px]">{founder.name}</p>
-                            <p className="text-[10px] text-[#546E50] dark:text-[#C8D2A6] truncate">{founder.role}</p>
+                    {data.founders.map((founder: any, i: number) => {
+                      const linkedinUrl = resolveFounderLinkedinUrl(founder.name, data.name, founder.linkedin_url);
+                      return (
+                        <div
+                          key={i}
+                          className="p-3 bg-[#F7F9F2] dark:bg-white/5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-between gap-2 shadow-2xs"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <img
+                              src={founder.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(founder.name)}&backgroundColor=1D2E1B&textColor=A9C632`}
+                              alt={founder.name}
+                              className="w-8 h-8 rounded-full object-cover border border-[#C8D2A6] dark:border-white/10"
+                            />
+                            <div className="min-w-0">
+                              <p className="font-bold text-[#1D2E1B] dark:text-white truncate text-[11px]">{founder.name}</p>
+                              <p className="text-[10px] text-[#546E50] dark:text-[#C8D2A6] truncate">{founder.role}</p>
+                            </div>
                           </div>
-                        </div>
-                        {founder.linkedin_url && (
                           <a
-                            href={founder.linkedin_url}
+                            href={linkedinUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[#0A66C2] hover:text-[#004182] p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
-                            title="View LinkedIn Profile"
+                            className="text-[#0A66C2] hover:text-[#004182] dark:text-[#70B5F9] dark:hover:text-white p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors flex items-center gap-1 shrink-0 font-bold text-[11px]"
+                            title={`Connect with ${founder.name} on LinkedIn`}
                           >
                             <LinkedinIcon className="w-3.5 h-3.5" />
+                            <span>Profile</span>
                           </a>
-                        )}
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { getCompanyWithJobs, trackJobApplication, toggleSaveJob, getAppliedJobs } from "@/app/actions";
 import { getCompanyIntelligence, CompanyIntelligence } from "@/lib/companyIntelligence";
-import { resolveExactJobApplyUrl } from "@/lib/applyUrlResolver";
+import { resolveExactJobApplyUrl, resolveFounderLinkedinUrl, resolveCompanyLinkedinUrl } from "@/lib/applyUrlResolver";
 import EmailOutreachModal from "./EmailOutreachModal";
 import ReportCompanyModal from "./ReportCompanyModal";
 import { 
@@ -291,17 +291,30 @@ export default function CompanySheet({
                               Verified
                             </span>
                           </div>
-                          {data.website_url && (
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {data.website_url && (
+                              <a
+                                href={data.website_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-xs text-[#546E50] hover:text-[#1D2E1B] dark:text-[#C8D2A6] dark:hover:text-[#A9C632] flex items-center gap-1 font-semibold transition-colors"
+                              >
+                                <span>{new URL(data.website_url).hostname.replace("www.", "")}</span>
+                                <ExternalLink className="w-3 h-3 text-[#A9C632]" />
+                              </a>
+                            )}
+                            <span className="text-[#C8D2A6] dark:text-white/20">•</span>
                             <a
-                              href={data.website_url}
+                              href={resolveCompanyLinkedinUrl(data.name, data.website_url)}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-xs text-[#546E50] hover:text-[#1D2E1B] dark:text-[#C8D2A6] dark:hover:text-[#A9C632] flex items-center gap-1 mt-0.5 font-semibold transition-colors"
+                              className="text-xs text-[#0A66C2] hover:text-[#004182] dark:text-[#70B5F9] dark:hover:text-white flex items-center gap-1 font-semibold transition-colors"
+                              title="View Company LinkedIn"
                             >
-                              <span>{new URL(data.website_url).hostname.replace("www.", "")}</span>
-                              <ExternalLink className="w-3 h-3 text-[#A9C632]" />
+                              <LinkedinIcon className="w-3.5 h-3.5" />
+                              <span>LinkedIn</span>
                             </a>
-                          )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -330,6 +343,48 @@ export default function CompanySheet({
                   {/* ── TAB 1: DETAILS ── */}
                   {activeTab === "details" ? (
                     <div className="p-6 space-y-5 text-xs">
+                      {/* Leadership & Founders Section with LinkedIn */}
+                      {data.founders && data.founders.length > 0 && (
+                        <div className="space-y-2">
+                          <h3 className="font-bold uppercase tracking-wider text-[11px] text-[#1D2E1B] dark:text-white">
+                            Leadership & Founders
+                          </h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            {data.founders.map((founder: any, i: number) => {
+                              const linkedinUrl = resolveFounderLinkedinUrl(founder.name, data.name, founder.linkedin_url);
+                              return (
+                                <div
+                                  key={i}
+                                  className="p-3 bg-[#F7F9F2] dark:bg-white/5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-between gap-2 shadow-2xs"
+                                >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <img
+                                      src={founder.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(founder.name)}&backgroundColor=1D2E1B&textColor=A9C632`}
+                                      alt={founder.name}
+                                      className="w-8 h-8 rounded-full object-cover border border-[#C8D2A6] dark:border-white/10"
+                                    />
+                                    <div className="min-w-0">
+                                      <p className="font-bold text-[#1D2E1B] dark:text-white truncate text-[11px]">{founder.name}</p>
+                                      <p className="text-[10px] text-[#546E50] dark:text-[#C8D2A6] truncate">{founder.role}</p>
+                                    </div>
+                                  </div>
+                                  <a
+                                    href={linkedinUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-[#0A66C2] hover:text-[#004182] dark:text-[#70B5F9] dark:hover:text-white p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors flex items-center gap-1 shrink-0 font-bold text-[11px]"
+                                    title={`Connect with ${founder.name} on LinkedIn`}
+                                  >
+                                    <LinkedinIcon className="w-3.5 h-3.5" />
+                                    <span>Profile</span>
+                                  </a>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Industry & Model */}
                       <div className="space-y-2">
                         <div className="flex flex-wrap items-center gap-1.5">
@@ -432,13 +487,33 @@ export default function CompanySheet({
 
                         <div className="space-y-1.5">
                           {(showAllLocations ? intel.officeNetwork : intel.officeNetwork.slice(0, 3)).map((loc, idx) => (
-                            <div key={idx} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-between shadow-2xs">
+                            <button
+                              key={idx}
+                              onClick={() => {
+                                if (loc.lat && loc.lng) {
+                                  window.dispatchEvent(
+                                    new CustomEvent("fly-to-coords", {
+                                      detail: { lat: loc.lat, lng: loc.lng, zoom: 12, pitch: 42 },
+                                    })
+                                  );
+                                }
+                              }}
+                              className="w-full text-left p-2.5 rounded-xl bg-white dark:bg-white/5 hover:bg-[#A9C632]/10 border border-[#C8D2A6] dark:border-[#3D543A] hover:border-[#A9C632] flex items-center justify-between shadow-2xs transition-all cursor-pointer group"
+                            >
                               <div className="flex items-center gap-2">
                                 <span className="text-sm">{loc.flag}</span>
-                                <span className="font-semibold text-xs">{loc.city}, {loc.country}</span>
+                                <span className="font-semibold text-xs group-hover:text-[#A9C632] transition-colors">{loc.city}, {loc.country}</span>
+                                {loc.isHQ && (
+                                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-[#A9C632]/20 text-[#1D2E1B] dark:text-[#A9C632] border border-[#A9C632]/40">
+                                    HQ
+                                  </span>
+                                )}
                               </div>
-                              <span className="text-[11px] font-bold text-[#546E50] dark:text-[#C8D2A6]">({loc.jobs} jobs)</span>
-                            </div>
+                              <div className="flex items-center gap-1">
+                                <span className="text-[11px] font-bold text-[#546E50] dark:text-[#C8D2A6]">({loc.jobs} jobs)</span>
+                                <MapPin className="w-3 h-3 text-[#A9C632] opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </div>
+                            </button>
                           ))}
 
                           {intel.officeNetwork.length > 3 && (

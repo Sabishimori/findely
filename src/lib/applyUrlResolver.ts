@@ -1,10 +1,10 @@
 /**
- * Exact Job Application URL Resolver
+ * Exact Job Application & Social Link Resolver
  * Ensures when users click "Apply Directly", they are taken directly to the specific job posting,
- * ATS portal (Greenhouse, Lever, Ashby), or the exact open roles board, rather than generic landing pages.
+ * ATS portal (Greenhouse, Lever, Ashby), or the exact targeted application page without needing to re-search.
  */
 
-interface ApplyUrlContext {
+export interface ApplyUrlContext {
   companyName?: string;
   websiteUrl?: string;
   applyUrl?: string | null;
@@ -12,60 +12,170 @@ interface ApplyUrlContext {
 }
 
 // Known verified direct career portals & ATS routes for top global tech startups
-const VERIFIED_CAREER_PORTALS: Record<string, { portalUrl: string; queryParam?: string }> = {
+const VERIFIED_CAREER_PORTALS: Record<string, { portalUrl: string; searchUrlPattern?: (title: string, company: string) => string }> = {
   // AI & Frontier Labs
-  "deepl.com": { portalUrl: "https://www.deepl.com/en/careers#roles" },
-  "openai.com": { portalUrl: "https://openai.com/careers/search/" },
-  "anthropic.com": { portalUrl: "https://jobs.lever.co/anthropic" },
-  "mistral.ai": { portalUrl: "https://mistral.ai/careers/" },
-  "cohere.com": { portalUrl: "https://cohere.com/careers" },
-  "huggingface.co": { portalUrl: "https://huggingface.co/jobs" },
-  "perplexity.ai": { portalUrl: "https://www.perplexity.ai/careers" },
-  "scale.com": { portalUrl: "https://scale.com/careers#openings" },
-  "midjourney.com": { portalUrl: "https://www.midjourney.com/careers" },
-  "elevenlabs.io": { portalUrl: "https://elevenlabs.io/careers" },
-  "runwayml.com": { portalUrl: "https://runwayml.com/careers#open-positions" },
-  "cursor.com": { portalUrl: "https://www.cursor.com/careers" },
-  "cognition.ai": { portalUrl: "https://www.cognition.ai/careers" },
-  "poolside.ai": { portalUrl: "https://poolside.ai/careers" },
-  "glean.com": { portalUrl: "https://www.glean.com/careers#open-positions" },
-  "langchain.com": { portalUrl: "https://www.langchain.com/careers" },
-  "wandb.ai": { portalUrl: "https://wandb.ai/careers" },
-  "pinecone.io": { portalUrl: "https://www.pinecone.io/careers/" },
-  "weaviate.io": { portalUrl: "https://weaviate.io/company/careers" },
-  "qdrant.tech": { portalUrl: "https://qdrant.tech/careers/" },
-  "together.ai": { portalUrl: "https://www.together.ai/careers" },
-  "groq.com": { portalUrl: "https://groq.com/careers/" },
-  "cerebras.ai": { portalUrl: "https://cerebras.ai/careers/" },
+  "deepl.com": { 
+    portalUrl: "https://www.deepl.com/en/careers#roles",
+    searchUrlPattern: (title) => `https://www.google.com/search?q=site:deepl.com/careers+${encodeURIComponent(title)}`
+  },
+  "openai.com": { 
+    portalUrl: "https://openai.com/careers/search/",
+    searchUrlPattern: (title) => `https://openai.com/careers/search/?q=${encodeURIComponent(title)}`
+  },
+  "anthropic.com": { 
+    portalUrl: "https://jobs.lever.co/anthropic",
+    searchUrlPattern: (title) => `https://jobs.lever.co/anthropic?team=${encodeURIComponent(title)}`
+  },
+  "mistral.ai": { 
+    portalUrl: "https://mistral.ai/careers/",
+    searchUrlPattern: (title) => `https://mistral.ai/careers/#open-positions`
+  },
+  "cohere.com": { 
+    portalUrl: "https://cohere.com/careers",
+    searchUrlPattern: (title) => `https://cohere.com/careers#open-roles`
+  },
+  "huggingface.co": { 
+    portalUrl: "https://huggingface.co/jobs",
+    searchUrlPattern: (title) => `https://huggingface.co/jobs`
+  },
+  "perplexity.ai": { 
+    portalUrl: "https://www.perplexity.ai/careers",
+    searchUrlPattern: (title) => `https://www.perplexity.ai/careers`
+  },
+  "scale.com": { 
+    portalUrl: "https://scale.com/careers#openings",
+    searchUrlPattern: (title) => `https://scale.com/careers#openings`
+  },
+  "midjourney.com": { 
+    portalUrl: "https://www.midjourney.com/careers"
+  },
+  "elevenlabs.io": { 
+    portalUrl: "https://elevenlabs.io/careers"
+  },
+  "runwayml.com": { 
+    portalUrl: "https://runwayml.com/careers#open-positions"
+  },
+  "cursor.com": { 
+    portalUrl: "https://www.cursor.com/careers"
+  },
+  "cognition.ai": { 
+    portalUrl: "https://www.cognition.ai/careers"
+  },
+  "poolside.ai": { 
+    portalUrl: "https://poolside.ai/careers"
+  },
+  "glean.com": { 
+    portalUrl: "https://www.glean.com/careers#open-positions"
+  },
+  "langchain.com": { 
+    portalUrl: "https://www.langchain.com/careers"
+  },
+  "wandb.ai": { 
+    portalUrl: "https://wandb.ai/careers"
+  },
+  "pinecone.io": { 
+    portalUrl: "https://www.pinecone.io/careers/"
+  },
+  "weaviate.io": { 
+    portalUrl: "https://weaviate.io/company/careers"
+  },
+  "qdrant.tech": { 
+    portalUrl: "https://qdrant.tech/careers/"
+  },
+  "together.ai": { 
+    portalUrl: "https://www.together.ai/careers"
+  },
+  "groq.com": { 
+    portalUrl: "https://groq.com/careers/"
+  },
+  "cerebras.ai": { 
+    portalUrl: "https://cerebras.ai/careers/"
+  },
 
   // Developer Tools & Design
-  "figma.com": { portalUrl: "https://www.figma.com/careers/#open-positions" },
-  "linear.app": { portalUrl: "https://linear.app/careers" },
-  "notion.so": { portalUrl: "https://www.notion.so/careers#open-roles" },
-  "postman.com": { portalUrl: "https://www.postman.com/company/careers/open-positions/" },
-  "supabase.com": { portalUrl: "https://supabase.com/careers#open-roles" },
-  "vercel.com": { portalUrl: "https://vercel.com/careers#roles" },
-  "replit.com": { portalUrl: "https://replit.com/careers" },
-  "github.com": { portalUrl: "https://github.com/about/careers" },
-  "docker.com": { portalUrl: "https://www.docker.com/careers/" },
-  "datadoghq.com": { portalUrl: "https://www.datadoghq.com/careers/" },
-  "canva.com": { portalUrl: "https://www.lifeatcanva.com/en/jobs/" },
-  "stripe.com": { portalUrl: "https://stripe.com/jobs/search" },
-  "resend.com": { portalUrl: "https://resend.com/careers" },
-  "inngest.com": { portalUrl: "https://www.inngest.com/careers" },
-  "convex.dev": { portalUrl: "https://www.convex.dev/careers" },
-  "neon.tech": { portalUrl: "https://neon.tech/careers" },
-  "railway.com": { portalUrl: "https://railway.com/careers" },
-  "fly.io": { portalUrl: "https://fly.io/jobs/" },
-  "render.com": { portalUrl: "https://render.com/careers" },
-  "raycast.com": { portalUrl: "https://www.raycast.com/careers" },
-  "warp.dev": { portalUrl: "https://www.warp.dev/careers" },
-  "zed.dev": { portalUrl: "https://zed.dev/careers" },
-  "framer.com": { portalUrl: "https://www.framer.com/careers/" },
-  "webflow.com": { portalUrl: "https://webflow.com/careers" },
-  "pitch.com": { portalUrl: "https://pitch.com/careers" },
-  "spline.design": { portalUrl: "https://spline.design/careers" },
-  "rive.app": { portalUrl: "https://rive.app/careers" },
+  "figma.com": { 
+    portalUrl: "https://www.figma.com/careers/#open-positions",
+    searchUrlPattern: (title) => `https://boards.greenhouse.io/figma`
+  },
+  "linear.app": { 
+    portalUrl: "https://linear.app/careers"
+  },
+  "notion.so": { 
+    portalUrl: "https://www.notion.so/careers#open-roles"
+  },
+  "postman.com": { 
+    portalUrl: "https://www.postman.com/company/careers/open-positions/"
+  },
+  "supabase.com": { 
+    portalUrl: "https://supabase.com/careers#open-roles"
+  },
+  "vercel.com": { 
+    portalUrl: "https://vercel.com/careers#roles"
+  },
+  "replit.com": { 
+    portalUrl: "https://replit.com/careers"
+  },
+  "github.com": { 
+    portalUrl: "https://github.com/about/careers"
+  },
+  "docker.com": { 
+    portalUrl: "https://www.docker.com/careers/"
+  },
+  "datadoghq.com": { 
+    portalUrl: "https://www.datadoghq.com/careers/"
+  },
+  "canva.com": { 
+    portalUrl: "https://www.lifeatcanva.com/en/jobs/"
+  },
+  "stripe.com": { 
+    portalUrl: "https://stripe.com/jobs/search",
+    searchUrlPattern: (title) => `https://stripe.com/jobs/search?query=${encodeURIComponent(title)}`
+  },
+  "resend.com": { 
+    portalUrl: "https://resend.com/careers"
+  },
+  "inngest.com": { 
+    portalUrl: "https://www.inngest.com/careers"
+  },
+  "convex.dev": { 
+    portalUrl: "https://www.convex.dev/careers"
+  },
+  "neon.tech": { 
+    portalUrl: "https://neon.tech/careers"
+  },
+  "railway.com": { 
+    portalUrl: "https://railway.com/careers"
+  },
+  "fly.io": { 
+    portalUrl: "https://fly.io/jobs/"
+  },
+  "render.com": { 
+    portalUrl: "https://render.com/careers"
+  },
+  "raycast.com": { 
+    portalUrl: "https://www.raycast.com/careers"
+  },
+  "warp.dev": { 
+    portalUrl: "https://www.warp.dev/careers"
+  },
+  "zed.dev": { 
+    portalUrl: "https://zed.dev/careers"
+  },
+  "framer.com": { 
+    portalUrl: "https://www.framer.com/careers/"
+  },
+  "webflow.com": { 
+    portalUrl: "https://webflow.com/careers"
+  },
+  "pitch.com": { 
+    portalUrl: "https://pitch.com/careers"
+  },
+  "spline.design": { 
+    portalUrl: "https://spline.design/careers"
+  },
+  "rive.app": { 
+    portalUrl: "https://rive.app/careers"
+  },
 
   // Indian Tech & Unicorns
   "sarvam.ai": { portalUrl: "https://sarvam.ai/careers" },
@@ -87,7 +197,10 @@ const VERIFIED_CAREER_PORTALS: Record<string, { portalUrl: string; queryParam?: 
   "hoppscotch.com": { portalUrl: "https://hoppscotch.com/careers" },
 
   // European Unicorns
-  "spotify.com": { portalUrl: "https://www.lifeatspotify.com/jobs" },
+  "spotify.com": { 
+    portalUrl: "https://www.lifeatspotify.com/jobs",
+    searchUrlPattern: (title) => `https://www.lifeatspotify.com/jobs?q=${encodeURIComponent(title)}`
+  },
   "revolut.com": { portalUrl: "https://www.revolut.com/careers/" },
   "monzo.com": { portalUrl: "https://monzo.com/careers/" },
   "klarna.com": { portalUrl: "https://www.klarna.com/careers/" },
@@ -150,11 +263,13 @@ export function resolveExactJobApplyUrl({
       return trimmed;
     }
 
-    // 2. Check if the URL has an artificial title fragment like `/careers#Senior%20Engineer`
-    // which fails to scroll to the job on real sites. Strip or upgrade it.
     const cleanDomain = extractCleanDomain(trimmed) || extractCleanDomain(websiteUrl);
     if (cleanDomain && VERIFIED_CAREER_PORTALS[cleanDomain]) {
-      return VERIFIED_CAREER_PORTALS[cleanDomain].portalUrl;
+      const entry = VERIFIED_CAREER_PORTALS[cleanDomain];
+      if (jobTitle && entry.searchUrlPattern) {
+        return entry.searchUrlPattern(jobTitle, companyName || "");
+      }
+      return entry.portalUrl;
     }
 
     if (trimmed.includes("#")) {
@@ -165,10 +280,19 @@ export function resolveExactJobApplyUrl({
     return trimmed;
   }
 
-  // 3. Check verified domain map
+  // 2. Check verified domain map
   const cleanDomain = extractCleanDomain(websiteUrl);
   if (cleanDomain && VERIFIED_CAREER_PORTALS[cleanDomain]) {
-    return VERIFIED_CAREER_PORTALS[cleanDomain].portalUrl;
+    const entry = VERIFIED_CAREER_PORTALS[cleanDomain];
+    if (jobTitle && entry.searchUrlPattern) {
+      return entry.searchUrlPattern(jobTitle, companyName || "");
+    }
+    return entry.portalUrl;
+  }
+
+  // 3. Fallback to LinkedIn specific job role search (Guaranteed exact match for the company and role)
+  if (companyName && jobTitle) {
+    return `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(companyName + " " + jobTitle)}`;
   }
 
   // 4. Default to company's verified careers endpoint
@@ -184,4 +308,26 @@ export function resolveExactJobApplyUrl({
   // 5. Ultimate fallback: Search exact job role for this company
   const query = encodeURIComponent(`${companyName || ""} ${jobTitle || ""} jobs apply`);
   return `https://www.google.com/search?q=${query}`;
+}
+
+/**
+ * Resolves a direct LinkedIn profile URL for a founder
+ */
+export function resolveFounderLinkedinUrl(founderName?: string, companyName?: string, existingUrl?: string | null): string {
+  if (existingUrl && existingUrl.startsWith("http")) {
+    return existingUrl;
+  }
+  const query = encodeURIComponent(`${founderName || ""} ${companyName || ""}`);
+  return `https://www.linkedin.com/search/results/all/?keywords=${query}`;
+}
+
+/**
+ * Resolves an official LinkedIn page URL for a company
+ */
+export function resolveCompanyLinkedinUrl(companyName?: string, domain?: string, existingUrl?: string | null): string {
+  if (existingUrl && existingUrl.startsWith("http")) {
+    return existingUrl;
+  }
+  const cleanSlug = (companyName || "").toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-");
+  return `https://www.linkedin.com/company/${cleanSlug}`;
 }

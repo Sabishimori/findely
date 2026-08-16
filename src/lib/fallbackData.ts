@@ -892,7 +892,7 @@ const RAW_GLOBAL_STARTUPS: StartupDef[] = [
   }
 ];
 
-import { resolveExactJobApplyUrl } from "./applyUrlResolver";
+import { resolveExactJobApplyUrl, resolveFounderLinkedinUrl } from "./applyUrlResolver";
 
 export const FALLBACK_COMPANIES: FallbackCompany[] = RAW_GLOBAL_STARTUPS.map((s, idx) => {
   const companyId = "company-" + s.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
@@ -918,6 +918,13 @@ export const FALLBACK_COMPANIES: FallbackCompany[] = RAW_GLOBAL_STARTUPS.map((s,
     is_active: true,
   }));
 
+  const formattedFounders = (s.founders || []).map((f) => ({
+    name: f.name,
+    role: f.role,
+    linkedin_url: resolveFounderLinkedinUrl(f.name, s.name, (f as any).linkedin_url),
+    avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(f.name)}&backgroundColor=1D2E1B&textColor=A9C632`,
+  }));
+
   return {
     id: companyId,
     name: s.name,
@@ -937,7 +944,7 @@ export const FALLBACK_COMPANIES: FallbackCompany[] = RAW_GLOBAL_STARTUPS.map((s,
     roles: formattedRoles,
     jobs: formattedRoles,
     sources: [],
-    founders: s.founders,
+    founders: formattedFounders,
     hrLeads: [],
     techStack: s.techStack,
     latestPostDate: formattedRoles[0]?.posted_at || new Date(),

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { getCompanyWithJobs, trackJobApplication, toggleSaveJob, getAppliedJobs } from "@/app/actions";
-import { resolveExactJobApplyUrl } from "@/lib/applyUrlResolver";
+import { resolveExactJobApplyUrl, resolveFounderLinkedinUrl } from "@/lib/applyUrlResolver";
 import EmailOutreachModal from "./EmailOutreachModal";
 import { 
   X, 
@@ -346,35 +346,36 @@ export default function DraggableCompanyCard({
                           Leadership & Founders
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {data.founders.map((founder: any, i: number) => (
-                            <div
-                              key={i}
-                              className="p-2.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between gap-2"
-                            >
-                              <div className="flex items-center gap-2 min-w-0">
-                                <img
-                                  src={founder.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80"}
-                                  alt={founder.name}
-                                  className="w-7 h-7 rounded-full object-cover border border-gray-300 dark:border-white/10"
-                                />
-                                <div className="min-w-0">
-                                  <p className="font-bold truncate text-[11px]">{founder.name}</p>
-                                  <p className="text-[10px] text-gray-400 truncate">{founder.role}</p>
+                          {data.founders.map((founder: any, i: number) => {
+                            const linkedinUrl = resolveFounderLinkedinUrl(founder.name, data.name, founder.linkedin_url);
+                            return (
+                              <div
+                                key={i}
+                                className="p-2.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between gap-2"
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <img
+                                    src={founder.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(founder.name)}&backgroundColor=1D2E1B&textColor=A9C632`}
+                                    alt={founder.name}
+                                    className="w-7 h-7 rounded-full object-cover border border-gray-300 dark:border-white/10"
+                                  />
+                                  <div className="min-w-0">
+                                    <p className="font-bold truncate text-[11px]">{founder.name}</p>
+                                    <p className="text-[10px] text-gray-400 truncate">{founder.role}</p>
+                                  </div>
                                 </div>
-                              </div>
-                              {founder.linkedin_url && (
                                 <a
-                                  href={founder.linkedin_url}
+                                  href={linkedinUrl}
                                   target="_blank"
                                   rel="noreferrer"
                                   className="text-[#0A66C2] hover:text-[#004182] p-1 rounded-lg hover:bg-blue-500/10 transition-colors"
-                                  title="View LinkedIn Profile"
+                                  title={`View ${founder.name}'s LinkedIn Profile`}
                                 >
                                   <LinkedinIcon className="w-3.5 h-3.5" />
                                 </a>
-                              )}
-                            </div>
-                          ))}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
