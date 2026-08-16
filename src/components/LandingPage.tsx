@@ -466,7 +466,7 @@ export default function LandingPage({
         {/* ── Giant 10% Opacity Background Watermark Mascot ── */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] sm:w-[620px] md:w-[740px] h-[480px] sm:h-[620px] md:h-[740px] pointer-events-none -z-0 select-none opacity-[0.06] dark:opacity-[0.09] transition-opacity flex items-center justify-center">
           <img
-            src="/logofinal.svg"
+            src="/findely smile transparent [main logo].svg"
             alt=""
             className="w-full h-full object-contain filter contrast-125 scale-110"
           />
