@@ -12,10 +12,12 @@
     "db:seed": "tsx scripts/seed.ts",
     "discover": "tsx scripts/discover.ts",
     "sync": "tsx scripts/sync.ts",
-    "cron": "tsx scripts/daily-scheduler.ts"
+    "cron": "tsx scripts/daily-scheduler.ts",
+    "db:turso-sync": "tsx scripts/export-to-turso.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@libsql/client": "^0.17.4",
     "@types/three": "^0.185.4",
     "better-sqlite3": "^13.0.3",
     "cheerio": "^1.2.0",
