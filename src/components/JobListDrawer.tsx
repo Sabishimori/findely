@@ -17,12 +17,14 @@ import {
   SlidersHorizontal,
   Compass,
   Maximize2,
-  Flag
+  Flag,
+  Clock
 } from "lucide-react";
 import { CompanyMapItem } from "./MapComponent";
 import { trackJobApplication, toggleSaveJob, getAppliedJobs } from "@/app/actions";
 import { handleImageError, getCompanyLogoUrl } from "@/lib/logoResolver";
 import { resolveExactJobApplyUrl } from "@/lib/applyUrlResolver";
+import { formatRelativeTime } from "@/lib/smartSearch";
 import ReportCompanyModal from "./ReportCompanyModal";
 
 interface JobListDrawerProps {
@@ -365,6 +367,10 @@ export default function JobListDrawer({
                         </span>
                         <span className="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-white dark:bg-white/10 border border-[#C8D2A6] dark:border-white/10 text-[#546E50] dark:text-[#C8D2A6]">
                           {job.workMode}
+                        </span>
+                        <span className="px-2.5 py-1 rounded-xl text-[11px] font-mono font-semibold bg-[#A9C632]/15 border border-[#A9C632]/30 text-[#1D2E1B] dark:text-[#A9C632] flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-[#A9C632]" />
+                          <span>{formatRelativeTime(job.postedAt || job.company.latestPostDate)}</span>
                         </span>
                       </div>
 

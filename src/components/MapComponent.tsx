@@ -25,6 +25,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { handleImageError, getCompanyLogoUrl } from "@/lib/logoResolver";
 import { getAllPinsForCompanies, CompanyMapPin } from "@/lib/companyIntelligence";
+import { matchSmartQuery } from "@/lib/smartSearch";
 
 export type CompanyMapItem = {
   id: string;
@@ -167,18 +168,21 @@ export default function MapComponent({
       (p) => p.latitude !== null && p.latitude !== undefined && p.longitude !== null && p.longitude !== undefined
     );
 
-    // If there's an active search query, ONLY show matching pins on the map!
+    // If there's an active search query, ONLY show matching pins on the map with smart multi-token search!
     if (searchQuery && searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
       list = list.filter((p) => {
-        const nameMatch = p.company.name.toLowerCase().includes(q);
-        const descMatch = p.company.description?.toLowerCase().includes(q);
-        const locationMatch = p.locationName?.toLowerCase().includes(q) || p.company.location_text?.toLowerCase().includes(q);
-        const roleMatch =
-          p.company.jobTitles?.some((t: string) => t.toLowerCase().includes(q)) ||
-          p.company.roles?.some((r: any) => r.title.toLowerCase().includes(q)) ||
-          p.rolesAtLocation?.some((r: any) => r.title.toLowerCase().includes(q));
-        return nameMatch || descMatch || locationMatch || roleMatch;
+        return matchSmartQuery(
+          [
+            p.company.name,
+            p.company.description,
+            p.locationName,
+            p.company.location_text,
+            ...(p.company.jobTitles || []),
+            ...(p.company.roles?.map((r: any) => `${r.title} ${r.location_text || ""}`) || []),
+            ...(p.rolesAtLocation?.map((r: any) => `${r.title} ${r.location_text || ""}`) || []),
+          ],
+          searchQuery
+        );
       });
     }
 

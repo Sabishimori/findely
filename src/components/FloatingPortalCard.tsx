@@ -29,8 +29,10 @@ import {
   ChevronDown, 
   ChevronUp, 
   Check,
-  Flag
+  Flag,
+  Clock
 } from "lucide-react";
+import { formatRelativeTime } from "@/lib/smartSearch";
 
 function LinkedinIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -806,10 +808,15 @@ export default function FloatingPortalCard({
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 mt-1 text-[11px] text-[#546E50] dark:text-[#C8D2A6] font-medium">
+                            <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-[#546E50] dark:text-[#C8D2A6] font-medium">
                               <span className="flex items-center gap-1">
                                 <MapPin className="w-3 h-3 text-[#A9C632]" />
                                 {job.location_text || "San Francisco, CA"}
+                              </span>
+                              <span>•</span>
+                              <span className="flex items-center gap-1 font-mono text-[#546E50] dark:text-[#C8D2A6]">
+                                <Clock className="w-3 h-3 text-[#A9C632]" />
+                                <span>{formatRelativeTime(job.posted_at || (data as any)?.latestPostDate || (data as any)?.updated_at)}</span>
                               </span>
                               {job.salary_range && (
                                 <>

@@ -20,12 +20,14 @@ import {
   ArrowRight,
   Sparkles,
   X,
+  Clock,
 } from "lucide-react";
 import { useAuth } from "@/lib/authContext";
 import { CompanyMapItem } from "./MapComponent";
 import { searchTechAreas, StartupTechHub } from "@/lib/geoUtils";
 import { handleImageError, getCompanyLogoUrl } from "@/lib/logoResolver";
 import { playTapSound } from "@/lib/soundFx";
+import { matchSmartQuery, formatRelativeTime } from "@/lib/smartSearch";
 
 export default function TopBar({
   searchQuery,
@@ -74,43 +76,49 @@ export default function TopBar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 1. Filter matched specific open roles / jobs across all companies
+  // 1. Filter matched specific open roles / jobs across all companies with smart multi-token matching
   const matchedJobs = useMemo(() => {
     if (!searchQuery.trim()) return [];
-    const q = searchQuery.toLowerCase().trim();
     const results: Array<{
       id: string;
       title: string;
       salary_range?: string | null;
       location_text: string;
+      posted_at?: Date | string | null;
       company: CompanyMapItem;
     }> = [];
 
     for (const comp of companies) {
       if (comp.roles && comp.roles.length > 0) {
         for (const role of comp.roles) {
-          if (
-            role.title.toLowerCase().includes(q) ||
-            (role.location_text && role.location_text.toLowerCase().includes(q)) ||
-            (role.salary_range && role.salary_range.toLowerCase().includes(q))
-          ) {
+          const isMatch = matchSmartQuery(
+            [role.title, role.location_text, role.salary_range, comp.name, comp.location_text],
+            searchQuery
+          );
+          if (isMatch) {
             results.push({
               id: role.id,
               title: role.title,
               salary_range: role.salary_range,
               location_text: role.location_text || comp.location_text || "Global",
+              posted_at: role.posted_at || comp.latestPostDate,
               company: comp,
             });
           }
         }
       } else if (comp.jobTitles && comp.jobTitles.length > 0) {
         for (const title of comp.jobTitles) {
-          if (title.toLowerCase().includes(q)) {
+          const isMatch = matchSmartQuery(
+            [title, comp.name, comp.location_text],
+            searchQuery
+          );
+          if (isMatch) {
             results.push({
               id: `${comp.id}_${title}`,
               title,
               salary_range: null,
               location_text: comp.location_text || "Global",
+              posted_at: comp.latestPostDate,
               company: comp,
             });
           }
@@ -120,15 +128,20 @@ export default function TopBar({
     return results.slice(0, 10);
   }, [companies, searchQuery]);
 
-  // 2. Filter matched companies
+  // 2. Filter matched companies with smart multi-token matching
   const matchedCompanies = useMemo(() => {
     if (!searchQuery.trim()) return [];
-    const q = searchQuery.toLowerCase().trim();
     return companies
       .filter((c) => {
-        return (
-          c.name.toLowerCase().includes(q) ||
-          (c.location_text && c.location_text.toLowerCase().includes(q))
+        return matchSmartQuery(
+          [
+            c.name,
+            c.location_text,
+            c.description,
+            ...(c.jobTitles || []),
+            ...(c.roles?.map(r => `${r.title} ${r.location_text || ""}`) || [])
+          ],
+          searchQuery
         );
       })
       .slice(0, 6);
@@ -291,9 +304,14 @@ export default function TopBar({
                     <span>{item.title}</span>
                     <span className="text-[10px] text-[#A9C632] font-medium">• {item.company.name}</span>
                   </p>
-                  <p className="text-[10px] text-[#546E50] dark:text-[#C8D2A6] truncate leading-tight mt-0.5">
-                    📍 {item.location_text}
-                  </p>
+                  <div className="flex items-center gap-2 mt-0.5 text-[10px] text-[#546E50] dark:text-[#C8D2A6]">
+                    <span className="truncate leading-tight">📍 {item.location_text}</span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1 font-mono text-[#546E50] dark:text-[#C8D2A6] shrink-0">
+                      <Clock className="w-2.5 h-2.5 text-[#A9C632]" />
+                      <span>{formatRelativeTime(item.posted_at)}</span>
+                    </span>
+                  </div>
                 </div>
               </div>
               {item.salary_range ? (
@@ -421,9 +439,9 @@ export default function TopBar({
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search roles (e.g. UI/UX, Frontend), companies, or cities..."
-            className={`w-full pl-11 pr-14 py-2.5 text-xs rounded-2xl border transition-all focus:outline-none focus:border-[#A9C632] ${
+            className={`w-full pl-11 pr-14 py-2.5 text-xs rounded-full border-2 transition-all focus:outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/25 shadow-xs ${
               isDarkMode
-                ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]"
+                ? "bg-[#1E2E1F] border-white/15 text-white placeholder:text-[#9EB296]"
                 : "bg-[#F7F9F2] border-[#C8D2A6] text-[#1D2E1B] placeholder:text-[#546E50]"
             }`}
           />

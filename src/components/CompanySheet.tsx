@@ -32,8 +32,10 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
-  Flag
+  Flag,
+  Clock
 } from "lucide-react";
+import { formatRelativeTime } from "@/lib/smartSearch";
 
 function LinkedinIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -600,10 +602,15 @@ export default function CompanySheet({
                                 <div className="flex items-start justify-between gap-2">
                                   <div>
                                     <h4 className="font-bold text-sm leading-snug">{job.title}</h4>
-                                    <div className="flex items-center gap-2 mt-1 text-[11px] text-[#546E50] dark:text-[#C8D2A6]">
+                                    <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-[#546E50] dark:text-[#C8D2A6]">
                                       <span className="flex items-center gap-1">
                                         <MapPin className="w-3 h-3 text-[#A9C632]" />
                                         {job.location_text || "San Francisco, CA"}
+                                      </span>
+                                      <span>•</span>
+                                      <span className="flex items-center gap-1 font-mono text-[#546E50] dark:text-[#C8D2A6]">
+                                        <Clock className="w-3 h-3 text-[#A9C632]" />
+                                        <span>{formatRelativeTime(job.posted_at || (data as any)?.latestPostDate || (data as any)?.updated_at)}</span>
                                       </span>
                                       {job.salary_range && (
                                         <>
