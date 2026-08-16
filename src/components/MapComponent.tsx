@@ -431,10 +431,11 @@ export default function MapComponent({
                     }`}
                   />
 
-                  {/* Branch Pill Tag for Non-HQ Pins */}
-                  {!pin.isHQ && (
-                    <span className="mt-0.5 px-1.5 py-0.2 rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-[#1D2E1B] text-[8px] font-bold shadow-xs whitespace-nowrap max-w-[80px] truncate">
-                      {pin.locationName.split(",")[0]}
+                  {/* Location Tag - Only displayed when actively searching via the top search bar */}
+                  {searchQuery && searchQuery.trim().length > 0 && (
+                    <span className="mt-1 px-2 py-0.5 rounded-full bg-[#1D2E1B]/95 text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] text-[9px] font-bold shadow-lg border border-[#A9C632]/50 whitespace-nowrap max-w-[120px] truncate flex items-center gap-1">
+                      <MapPin className="w-2.5 h-2.5 shrink-0 text-[#A9C632] dark:text-[#1D2E1B]" />
+                      <span className="truncate">{pin.locationName.split(",")[0]}</span>
                     </span>
                   )}
 
