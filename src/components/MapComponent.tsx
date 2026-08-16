@@ -142,6 +142,11 @@ export default function MapComponent({
   );
   const [showTerrainMenu, setShowTerrainMenu] = useState(false);
 
+  // Sync terrain basemap immediately when dark mode is toggled
+  useEffect(() => {
+    setTerrainMode(isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
+
   // Date Freshness Filter State
   const [dateFilter, setDateFilter] = useState<"all" | "24h" | "7d" | "30d">("all");
 

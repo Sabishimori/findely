@@ -7,10 +7,10 @@ import {
   Globe2, 
   Satellite, 
   ShieldCheck, 
-  ArrowRight,
-  Zap,
-  Activity,
-  Cpu
+  ArrowRight, 
+  Zap, 
+  Activity, 
+  Cpu 
 } from "lucide-react";
 
 interface SplashScreenProps {
@@ -23,7 +23,7 @@ interface SplashScreenProps {
 export default function SplashScreen({ 
   onFinish, 
   onComplete,
-  totalCompaniesCount,
+  totalCompaniesCount = 850,
   isDarkMode = false 
 }: SplashScreenProps) {
   const [progress, setProgress] = useState(0);
@@ -47,7 +47,7 @@ export default function SplashScreen({
           clearInterval(interval);
           setTimeout(() => {
             handleDone();
-          }, 450);
+          }, 350);
           return 100;
         }
 
@@ -72,67 +72,67 @@ export default function SplashScreen({
 
         return bounded;
       });
-    }, 90);
+    }, 80);
 
     return () => clearInterval(interval);
   }, [onFinish]);
 
-  // Floating stickers/glitters data
+  // Floating stickers/glitters data spaced across wide canvas
   const floatingObjects = [
-    { id: 1, icon: Sparkles, text: "LIVE JOBS", color: "text-[#1D2E1B] dark:text-[#A9C632] bg-[#A9C632]/25 border-[#A9C632]/40", x: -160, y: -120, delay: 0 },
-    { id: 2, icon: Globe2, text: "2.5D GLOBE", color: "text-[#1D2E1B] dark:text-white bg-white/90 dark:bg-white/10 border-[#C8D2A6]", x: 170, y: -100, delay: 0.2 },
-    { id: 3, icon: ShieldCheck, text: "VERIFIED", color: "text-[#1D2E1B] dark:text-[#A9C632] bg-[#A9C632]/20 border-[#A9C632]/40", x: -180, y: 80, delay: 0.4 },
-    { id: 4, icon: Satellite, text: "ANALOG 4.8G", color: "text-[#1D2E1B] dark:text-white bg-[#E6D4A6]/50 border-[#E6D4A6]", x: 160, y: 90, delay: 0.6 },
-    { id: 5, icon: Zap, text: "MULTI-PORTAL", color: "text-[#1D2E1B] dark:text-[#A9C632] bg-[#A9C632]/20 border-[#A9C632]/40", x: 0, y: -170, delay: 0.3 },
+    { id: 1, icon: Sparkles, text: "LIVE JOBS", color: "text-[#1D2E1B] dark:text-[#A9C632] bg-[#A9C632]/25 border-[#A9C632]/40", x: -220, y: -110, delay: 0 },
+    { id: 2, icon: Globe2, text: "2.5D GLOBE", color: "text-[#1D2E1B] dark:text-white bg-white/90 dark:bg-white/10 border-[#C8D2A6]", x: 230, y: -90, delay: 0.2 },
+    { id: 3, icon: ShieldCheck, text: "VERIFIED", color: "text-[#1D2E1B] dark:text-[#A9C632] bg-[#A9C632]/20 border-[#A9C632]/40", x: -230, y: 80, delay: 0.4 },
+    { id: 4, icon: Satellite, text: "ANALOG 4.8G", color: "text-[#1D2E1B] dark:text-white bg-[#E6D4A6]/50 border-[#E6D4A6]", x: 220, y: 85, delay: 0.6 },
+    { id: 5, icon: Zap, text: "MULTI-PORTAL", color: "text-[#1D2E1B] dark:text-[#A9C632] bg-[#A9C632]/20 border-[#A9C632]/40", x: 0, y: -160, delay: 0.3 },
   ];
 
   return (
     <motion.div
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.04 }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
+      exit={{ opacity: 0, scale: 1.03 }}
+      transition={{ duration: 0.45, ease: "easeInOut" }}
       className={`fixed inset-0 z-50 flex flex-col items-center justify-center font-urbanist select-none overflow-hidden ${
-        isDarkMode ? "bg-[#131E12] text-white" : "bg-[#F7F9F2] text-[#1D2E1B]"
+        isDarkMode ? "bg-[#0C140B] text-white" : "bg-[#F7F9F2] text-[#1D2E1B]"
       }`}
     >
-      {/* ── Background Subtle Ambient Aura ───────────────── */}
+      {/* ── Background Ambient Aura ───────────────── */}
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
         <motion.div
           animate={{
-            scale: [1, 1.15, 1],
-            opacity: [0.35, 0.55, 0.35],
+            scale: [1, 1.2, 1],
+            opacity: [0.4, 0.65, 0.4],
           }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className="w-[500px] h-[500px] rounded-full bg-[#A9C632]/20 blur-[100px]"
+          className="w-[700px] h-[700px] rounded-full bg-[#A9C632]/20 blur-[130px]"
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.03)_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.03)_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)]" />
       </div>
 
-      {/* ── Floating Center Stage ─────────────────────────── */}
-      <div className="relative z-10 flex flex-col items-center max-w-md w-full px-6">
+      {/* ── Wide Floating Center Stage ─────────────────────────── */}
+      <div className="relative z-10 flex flex-col items-center max-w-2xl sm:max-w-3xl w-full px-8">
         
-        {/* Floating Objects / Stickers / Glitters Around Logo */}
-        <div className="relative w-44 h-44 flex items-center justify-center mb-8">
-          {/* Central Floating Logo with Gentle Bob */}
+        {/* Floating Objects & 192px Wide Logo Squircle Container */}
+        <div className="relative w-64 h-64 flex items-center justify-center mb-6">
+          {/* Central 192px (w-48 h-48) Floating Logo Squircle */}
           <motion.div
             animate={{
               y: [-8, 8, -8],
-              rotate: [-1.5, 1.5, -1.5],
+              rotate: [-1.2, 1.2, -1.2],
             }}
             transition={{
               duration: 3.5,
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="relative z-20 w-32 h-32 rounded-3xl bg-[#1D2E1B] border-2 border-[#C8D2A6] shadow-2xl p-4 flex items-center justify-center overflow-hidden"
+            className="relative z-20 w-48 h-48 rounded-[38px] bg-[#1D2E1B] border-2 border-[#C8D2A6] dark:border-[#3D543A] shadow-2xl p-6 flex items-center justify-center overflow-hidden"
           >
             <img
               src="/logofinal.svg"
               alt="Findely Logo"
-              className="w-full h-full object-contain filter drop-shadow-md"
+              className="w-full h-full object-contain filter drop-shadow-lg"
             />
             {/* Gloss shine bar */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/12 to-transparent pointer-events-none" />
           </motion.div>
 
           {/* Floating Sticker Badges */}
@@ -152,9 +152,9 @@ export default function SplashScreen({
                   ease: "easeInOut",
                   delay: item.delay,
                 }}
-                className={`absolute px-2.5 py-1 rounded-xl text-[10px] font-bold border shadow-lg backdrop-blur-md flex items-center gap-1.5 whitespace-nowrap pointer-events-none ${item.color}`}
+                className={`absolute px-3 py-1.5 rounded-xl text-xs font-bold border shadow-lg backdrop-blur-md flex items-center gap-1.5 whitespace-nowrap pointer-events-none ${item.color}`}
               >
-                <Icon className="w-3 h-3 flex-shrink-0 text-[#A9C632]" />
+                <Icon className="w-3.5 h-3.5 flex-shrink-0 text-[#A9C632]" />
                 <span>{item.text}</span>
               </motion.div>
             );
@@ -175,43 +175,43 @@ export default function SplashScreen({
               }}
               className="absolute text-[#A9C632]"
               style={{
-                top: `${20 + (i * 15)}%`,
-                left: `${15 + (i * 14)}%`,
+                top: `${15 + (i * 15)}%`,
+                left: `${10 + (i * 15)}%`,
               }}
             >
-              ✦
+              <Sparkles className="w-3.5 h-3.5 opacity-80" />
             </motion.div>
           ))}
         </div>
 
-        {/* Brand Title */}
-        <div className="text-center space-y-1 mb-6">
-          <h1 className="text-2xl font-extrabold tracking-tight text-[#1D2E1B] dark:text-white flex items-center justify-center gap-2">
+        {/* ── Title & Tagline ─────────────────────────────── */}
+        <div className="text-center space-y-2 mb-6">
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-[#1D2E1B] dark:text-white flex items-center justify-center gap-2.5">
             <span>FINDELY</span>
-            <span className="text-[11px] px-2 py-0.5 rounded-full font-bold bg-[#A9C632]/20 text-[#1D2E1B] dark:text-[#A9C632] border border-[#A9C632]/40">
+            <span className="text-xs px-2.5 py-1 rounded-full font-bold bg-[#A9C632]/20 text-[#1D2E1B] dark:text-[#A9C632] border border-[#A9C632]/40">
               v4.2.0
             </span>
           </h1>
-          <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] font-medium">
+          <p className="text-sm sm:text-base text-[#546E50] dark:text-[#C8D2A6] font-semibold">
             2.5D GPU Career Navigator & Multi-Portal Workspace
           </p>
         </div>
 
-        {/* ── Sleek Loading Bar Container ─────────────────── */}
-        <div className="w-full space-y-2.5 bg-white/70 dark:bg-white/5 border border-[#C8D2A6] dark:border-[#3D543A] p-4 rounded-2xl shadow-xs backdrop-blur-md">
+        {/* ── Expansive Loading Bar Container (Wider Width) ─────── */}
+        <div className="w-full max-w-xl space-y-3 bg-white/80 dark:bg-[#1D2E1B]/80 border border-[#C8D2A6] dark:border-[#3D543A] p-5 rounded-3xl shadow-xl backdrop-blur-xl">
           {/* Top Status & Percentage */}
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-[11px] font-bold text-[#1D2E1B] dark:text-white truncate max-w-[260px] flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-[#A9C632] animate-pulse flex-shrink-0" />
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-xs sm:text-sm font-bold text-[#1D2E1B] dark:text-white truncate max-w-[340px] flex items-center gap-2">
+              <Activity className="w-4 h-4 text-[#A9C632] animate-pulse flex-shrink-0" />
               <span>{statusText}</span>
             </span>
-            <span className="font-extrabold text-sm text-[#1D2E1B] dark:text-[#A9C632]">
+            <span className="font-black text-base text-[#1D2E1B] dark:text-[#A9C632]">
               {progress}%
             </span>
           </div>
 
           {/* Progress Bar Track */}
-          <div className="w-full h-2.5 rounded-full bg-[#E6D4A6]/30 dark:bg-white/10 overflow-hidden p-0.5 border border-[#C8D2A6] dark:border-white/10">
+          <div className="w-full h-3 rounded-full bg-[#E6D4A6]/30 dark:bg-white/10 overflow-hidden p-0.5 border border-[#C8D2A6] dark:border-white/10">
             <motion.div
               className="h-full rounded-full bg-gradient-to-r from-[#A9C632] via-[#B8D838] to-[#A9C632] shadow-xs"
               style={{ width: `${progress}%` }}
@@ -220,27 +220,27 @@ export default function SplashScreen({
           </div>
 
           {/* Analog Telemetry Indicators */}
-          <div className="grid grid-cols-3 gap-2 pt-1 border-t border-[#C8D2A6]/50 dark:border-white/10 text-[10px] font-bold text-[#546E50] dark:text-[#C8D2A6]">
-            <div className="flex items-center gap-1">
-              <Cpu className="w-3 h-3 text-[#A9C632]" />
+          <div className="grid grid-cols-3 gap-3 pt-2 border-t border-[#C8D2A6]/50 dark:border-white/10 text-xs font-bold text-[#546E50] dark:text-[#C8D2A6]">
+            <div className="flex items-center gap-1.5">
+              <Cpu className="w-3.5 h-3.5 text-[#A9C632]" />
               <span>FREQ: {analogValues.freq} MHz</span>
             </div>
-            <div className="flex items-center gap-1 text-center justify-center">
+            <div className="flex items-center gap-1.5 text-center justify-center">
               <span>NODES: {analogValues.nodes}</span>
             </div>
-            <div className="flex items-center gap-1 justify-end">
+            <div className="flex items-center gap-1.5 justify-end">
               <span>SIG: {analogValues.signal}%</span>
             </div>
           </div>
         </div>
 
-        {/* Skip button if user wants to enter immediately */}
+        {/* Skip button */}
         <button
           onClick={handleDone}
-          className="mt-5 text-xs text-[#546E50] dark:text-[#C8D2A6] hover:text-[#1D2E1B] dark:hover:text-white font-bold flex items-center gap-1 cursor-pointer transition-colors px-3 py-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/5"
+          className="mt-6 text-xs sm:text-sm text-[#546E50] dark:text-[#C8D2A6] hover:text-[#1D2E1B] dark:hover:text-white font-bold flex items-center gap-1.5 cursor-pointer transition-colors px-4 py-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/5"
         >
           <span>Skip initialization</span>
-          <ArrowRight className="w-3.5 h-3.5" />
+          <ArrowRight className="w-4 h-4" />
         </button>
       </div>
     </motion.div>
