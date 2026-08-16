@@ -4,25 +4,25 @@ import { users, profiles, companies, scrape_sources, jobs, scrape_runs, applicat
 async function main() {
   console.log('Seeding Finders v3 with Candidate Profiles, Deep Companies, and Fresh Date Timestamps...');
 
-  try { db.delete(applications).run(); } catch (_) {}
-  try { db.delete(company_requests).run(); } catch (_) {}
-  try { db.delete(scrape_runs).run(); } catch (_) {}
-  try { db.delete(jobs).run(); } catch (_) {}
-  try { db.delete(scrape_sources).run(); } catch (_) {}
-  try { db.delete(profiles).run(); } catch (_) {}
-  try { db.delete(companies).run(); } catch (_) {}
-  try { db.delete(users).run(); } catch (_) {}
+  try { await db.delete(applications); } catch (_) {}
+  try { await db.delete(company_requests); } catch (_) {}
+  try { await db.delete(scrape_runs); } catch (_) {}
+  try { await db.delete(jobs); } catch (_) {}
+  try { await db.delete(scrape_sources); } catch (_) {}
+  try { await db.delete(profiles); } catch (_) {}
+  try { await db.delete(companies); } catch (_) {}
+  try { await db.delete(users); } catch (_) {}
 
   // Seed User & Candidate Profile
-  const newUsers = db.insert(users).values([
+  const newUsers = await db.insert(users).values([
     { email: 'alex@finders.app', role: 'individual' },
     { email: 'rep@stripe.com', role: 'company_rep' },
     { email: 'rep@vercel.com', role: 'company_rep' },
-  ]).returning().all();
+  ]).returning();
   const alexId = newUsers[0].id;
   const repId = newUsers[1].id;
 
-  db.insert(profiles).values({
+  await db.insert(profiles).values({
     user_id: alexId,
     name: 'Alex Rivera',
     username: 'alexrivera',
@@ -43,11 +43,11 @@ async function main() {
     website_url: 'https://alexrivera.design',
     project_url: 'https://spatial-canvas.app',
     avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160',
-  }).run();
+  });
   console.log('Seeded candidate profile.');
 
   // Seed Companies
-  const newCompanies = db.insert(companies).values([
+  const newCompanies = await db.insert(companies).values([
     {
       name: 'Stripe',
       website_url: 'https://stripe.com',
@@ -218,13 +218,13 @@ async function main() {
       description: 'The global audio streaming platform connecting over 600M listeners to artists.',
       status: 'verified',
     },
-  ]).returning().all();
+  ]).returning();
 
   const getComp = (name: string) => newCompanies.find((c: any) => c.name === name)!;
 
   // Now seed Jobs with timestamps (past 24h, past 7d, past 30d)
   const now = Date.now();
-  const newJobs = db.insert(jobs).values([
+  const newJobs = await db.insert(jobs).values([
     // Figma (Updated 4 hours ago - ⚡ Past 24h)
     {
       company_id: getComp('Figma').id,
@@ -382,12 +382,12 @@ async function main() {
       last_seen_at: new Date(now - 12 * 60 * 60 * 1000),
       is_active: true,
     }
-  ]).returning().all();
+  ]).returning();
 
   console.log(`Inserted ${newJobs.length} jobs with dates.`);
 
   // Seed sample application and saved job
-  db.insert(applications).values([
+  await db.insert(applications).values([
     {
       user_id: alexId,
       company_id: getComp('Figma').id,
@@ -414,7 +414,7 @@ async function main() {
       applied_at: new Date(now - 1 * 24 * 60 * 60 * 1000),
       notes: 'Bookmarked to review design system guidelines.',
     },
-  ]).run();
+  ]);
 
   console.log('Seeding complete.');
 }
