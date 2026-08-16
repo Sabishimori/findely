@@ -215,14 +215,14 @@ export default function CompanySheet({
             transition={{ type: "spring", damping: 28, stiffness: 260 }}
             className={`fixed inset-y-0 right-0 w-full sm:w-[500px] border-l shadow-2xl z-50 flex flex-col font-urbanist select-none overflow-hidden ${
               isDarkMode 
-                ? "bg-[#1D2E1B] border-[#3D543A] text-white" 
+                ? "bg-[#152216] border-white/10 text-white" 
                 : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
             }`}
           >
             {loading ? (
               <div className="p-20 flex flex-col justify-center items-center gap-3 flex-1">
                 <div className="w-8 h-8 border-2 border-[#A9C632] border-t-transparent rounded-full animate-spin" />
-                <span className="text-xs text-[#546E50] dark:text-[#C8D2A6]">Loading company intelligence...</span>
+                <span className="text-xs text-[#546E50] dark:text-[#D2E0CC]">Loading company intelligence...</span>
               </div>
             ) : data && intel ? (
               <div className="relative flex-1 overflow-hidden flex flex-col">
@@ -232,7 +232,7 @@ export default function CompanySheet({
                   <button
                     onClick={() => setShowReportModal(true)}
                     aria-label="Report or flag this company"
-                    className="p-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-red-500/10 text-[#546E50] hover:text-red-500 dark:text-[#C8D2A6] dark:hover:text-red-400 transition-colors cursor-pointer"
+                    className="p-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-red-500/10 text-[#546E50] hover:text-red-500 dark:text-[#D2E0CC] dark:hover:text-red-400 transition-colors cursor-pointer"
                     title="Report or flag this company"
                   >
                     <Flag className="w-4 h-4" />
@@ -240,7 +240,7 @@ export default function CompanySheet({
                   <button
                     onClick={onClose}
                     aria-label="Close company drawer"
-                    className="p-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 text-[#546E50] hover:text-[#1D2E1B] dark:hover:text-white transition-colors cursor-pointer"
+                    className="p-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 text-[#546E50] hover:text-[#1D2E1B] dark:text-[#D2E0CC] dark:hover:text-white transition-colors cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -249,10 +249,10 @@ export default function CompanySheet({
                 {/* Scrollable Container with padding bottom for floating pill */}
                 <div className="flex-1 overflow-y-auto pb-24 flex flex-col">
                   {/* Header Top Profile Section */}
-                  <div className="p-6 border-b border-[#C8D2A6] dark:border-[#3D543A] bg-[#F7F9F2]/70 dark:bg-white/[0.02]">
+                  <div className="p-6 border-b border-[#C8D2A6] dark:border-white/10 bg-[#F7F9F2]/70 dark:bg-white/[0.02]">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3.5">
-                        <div className="w-14 h-14 rounded-2xl bg-white dark:bg-white/10 border border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-center overflow-hidden flex-shrink-0 p-2 shadow-xs">
+                        <div className="w-14 h-14 rounded-2xl bg-white dark:bg-white/10 border border-[#C8D2A6] dark:border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 p-2 shadow-xs">
                           {data.logo_url ? (
                             <img
                               src={data.logo_url}

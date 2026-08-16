@@ -92,12 +92,12 @@ export default function VerificationQueueView({ isDarkMode = false }: { isDarkMo
 
   return (
     <div className={`w-full h-full flex flex-col overflow-y-auto pt-24 pb-16 pl-24 md:pl-28 pr-6 md:pr-10 font-sans select-none transition-colors ${
-      isDarkMode ? "bg-[#1D2E1B] text-white" : "bg-[#F7F9F2] text-[#1D2E1B]"
+      isDarkMode ? "bg-[#0C140D] text-white" : "bg-[#F7F9F2] text-[#1D2E1B]"
     }`}>
       <div className="max-w-5xl mx-auto space-y-6">
         
         {/* Header with Admin & QA Badge */}
-        <div className="pb-6 border-b border-[#C8D2A6] dark:border-[#546E50]">
+        <div className="pb-6 border-b border-[#C8D2A6] dark:border-white/10">
           <div className="flex items-center justify-between flex-wrap gap-3 mb-1.5">
             <div className="flex items-center gap-2">
               <Bot className="w-4 h-4 text-[#A9C632]" />
@@ -121,19 +121,19 @@ export default function VerificationQueueView({ isDarkMode = false }: { isDarkMo
               <ScribbleUnderline width={180} className="text-[#A9C632]" />
             </div>
           </div>
-          <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-3 max-w-2xl leading-relaxed">
+          <p className="text-xs text-[#546E50] dark:text-[#D2E0CC] mt-3 max-w-2xl leading-relaxed">
             Every requested startup and user-flagged issue is audited here by our Gemini AI engine and moderation pipeline to keep Findely 100% scam-free.
           </p>
         </div>
 
         {/* Tab Selectors */}
-        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/70 dark:bg-white/5 border border-[#C8D2A6] dark:border-[#3D543A] w-fit shadow-xs">
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/70 dark:bg-[#152216] border border-[#C8D2A6] dark:border-white/10 w-fit shadow-xs">
           <button
             onClick={() => setActiveTab("reports")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === "reports"
                 ? "bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-md"
-                : "text-[#546E50] dark:text-[#C8D2A6] hover:text-[#1D2E1B] dark:hover:text-white"
+                : "text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white"
             }`}
           >
             <Flag className="w-3.5 h-3.5" />
@@ -150,7 +150,7 @@ export default function VerificationQueueView({ isDarkMode = false }: { isDarkMo
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === "scans"
                 ? "bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-md"
-                : "text-[#546E50] dark:text-[#C8D2A6] hover:text-[#1D2E1B] dark:hover:text-white"
+                : "text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white"
             }`}
           >
             <Bot className="w-3.5 h-3.5" />
@@ -167,13 +167,13 @@ export default function VerificationQueueView({ isDarkMode = false }: { isDarkMo
               </div>
             ) : reports.length === 0 ? (
               <div className={`p-16 text-center rounded-3xl border max-w-lg mx-auto mt-6 ${
-                isDarkMode ? "bg-[#1D2E1B] border-[#546E50]" : "bg-white border-[#C8D2A6] shadow-sm"
+                isDarkMode ? "bg-[#152216] border-white/10" : "bg-white border-[#C8D2A6] shadow-sm"
               }`}>
                 <ShieldCheck className="w-12 h-12 text-[#A9C632] mx-auto mb-4 opacity-75" />
                 <h3 className="text-base font-bold font-space-grotesk mb-1.5 text-[#1D2E1B] dark:text-white">
                   No active company reports
                 </h3>
-                <p className="text-xs text-[#546E50] dark:text-[#C8D2A6]">
+                <p className="text-xs text-[#546E50] dark:text-[#D2E0CC]">
                   All company profiles on the 2.5D map are currently reported clean by the community.
                 </p>
               </div>
@@ -189,7 +189,7 @@ export default function VerificationQueueView({ isDarkMode = false }: { isDarkMo
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       className={`rounded-3xl p-6 border shadow-xs transition-all ${
-                        isDarkMode ? "bg-[#1D2E1B] border-[#546E50]" : "bg-white border-[#C8D2A6]"
+                        isDarkMode ? "bg-[#152216] border-white/10" : "bg-white border-[#C8D2A6]"
                       }`}
                     >
                       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

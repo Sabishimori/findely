@@ -406,11 +406,11 @@ export default function TopBar({
 
   return (
     <header className="fixed top-4 left-22 md:left-26 right-6 z-40 select-none pointer-events-none font-sans">
-      <div className="w-full p-2.5 rounded-[28px] border shadow-2xl backdrop-blur-2xl pointer-events-auto flex items-center justify-between gap-4 transition-all bg-white/90 dark:bg-[#1D2E1B]/95 border-[#C8D2A6] dark:border-[#3D543A] text-[#1D2E1B] dark:text-white">
+      <div className="w-full p-2.5 rounded-[28px] border shadow-2xl backdrop-blur-2xl pointer-events-auto flex items-center justify-between gap-4 transition-all bg-white/90 dark:bg-[#152216]/95 border-[#C8D2A6] dark:border-white/10 text-[#1D2E1B] dark:text-white">
         
         {/* ── Left: Search Bar with Autocomplete Dropdown ────── */}
         <div ref={searchContainerRef} className="flex items-center gap-3 flex-1 max-w-2xl relative pl-2">
-          <Search className="w-4 h-4 text-[#546E50] dark:text-[#C8D2A6] absolute left-5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#546E50] dark:text-[#D2E0CC] absolute left-5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
@@ -423,7 +423,7 @@ export default function TopBar({
             placeholder="Search roles (e.g. UI/UX, Frontend), companies, or cities..."
             className={`w-full pl-11 pr-14 py-2.5 text-xs rounded-2xl border transition-all focus:outline-none focus:border-[#A9C632] ${
               isDarkMode
-                ? "bg-[#243822] border-[#3D543A] text-white placeholder:text-[#A0B28C]"
+                ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]"
                 : "bg-[#F7F9F2] border-[#C8D2A6] text-[#1D2E1B] placeholder:text-[#546E50]"
             }`}
           />
@@ -435,13 +435,13 @@ export default function TopBar({
                 playTapSound();
                 onSearchChange("");
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/10 dark:bg-white/15 text-[#546E50] dark:text-[#C8D2A6] hover:text-[#1D2E1B] dark:hover:text-white hover:bg-black/20 dark:hover:bg-white/25 transition-all cursor-pointer flex items-center justify-center"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/10 dark:bg-white/15 text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white hover:bg-black/20 dark:hover:bg-white/25 transition-all cursor-pointer flex items-center justify-center"
               title="Clear search"
             >
               <X className="w-3.5 h-3.5 stroke-[2.5]" />
             </button>
           ) : (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-black/5 dark:bg-white/10 text-[10px] font-mono text-[#546E50] pointer-events-none">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-black/5 dark:bg-white/10 text-[10px] font-mono text-[#546E50] dark:text-[#D2E0CC] pointer-events-none">
               <Command className="w-2.5 h-2.5" />
               <span>K</span>
             </div>
@@ -449,7 +449,7 @@ export default function TopBar({
 
           {/* ── Dynamic Context-Ordered Dropdown ── */}
           {isSearchFocused && hasMatches && (
-            <div className="absolute left-2 right-0 top-full mt-2.5 max-h-[380px] overflow-y-auto custom-scrollbar rounded-[24px] p-3 shadow-2xl border backdrop-blur-3xl z-50 bg-white/95 dark:bg-[#1D2E1B]/95 border-[#C8D2A6] dark:border-[#3D543A] space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="absolute left-2 right-0 top-full mt-2.5 max-h-[380px] overflow-y-auto custom-scrollbar rounded-[24px] p-3 shadow-2xl border backdrop-blur-3xl z-50 bg-white/95 dark:bg-[#152216]/98 border-[#C8D2A6] dark:border-white/10 space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
               {sectionOrder.map((sectionKey) => {
                 if (sectionKey === "jobs") return renderJobsSection();
                 if (sectionKey === "companies") return renderCompaniesSection();
@@ -461,7 +461,7 @@ export default function TopBar({
 
           {/* ── Search Empty State (No Matches Found) ── */}
           {isSearchFocused && searchQuery.trim().length > 0 && !hasMatches && (
-            <div className="absolute left-2 right-0 top-full mt-2.5 rounded-[24px] p-5 shadow-2xl border backdrop-blur-3xl z-50 bg-white/95 dark:bg-[#1D2E1B]/95 border-[#C8D2A6] dark:border-[#3D543A] text-center space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="absolute left-2 right-0 top-full mt-2.5 rounded-[24px] p-5 shadow-2xl border backdrop-blur-3xl z-50 bg-white/95 dark:bg-[#152216]/98 border-[#C8D2A6] dark:border-white/10 text-center space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-150">
               <div className="w-10 h-10 rounded-2xl bg-[#A9C632]/20 border border-[#A9C632]/30 flex items-center justify-center mx-auto text-[#1D2E1B] dark:text-[#A9C632]">
                 <Search className="w-4 h-4" />
               </div>
@@ -469,7 +469,7 @@ export default function TopBar({
                 <p className="text-xs font-bold text-[#1D2E1B] dark:text-white">
                   No matches found for &ldquo;{searchQuery}&rdquo;
                 </p>
-                <p className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] mt-0.5 max-w-sm mx-auto">
+                <p className="text-[11px] text-[#546E50] dark:text-[#D2E0CC] mt-0.5 max-w-sm mx-auto">
                   Try searching by role title (e.g. Frontend, AI), tech stack, or startup hub.
                 </p>
               </div>
@@ -496,7 +496,7 @@ export default function TopBar({
             <button
               onClick={onOpenFilterDrawer}
               aria-label="Filter Roles & Stack"
-              className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors cursor-pointer"
+              className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-white/10 hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white transition-colors cursor-pointer"
               title="Filter Roles & Stack"
             >
               <SlidersHorizontal className="w-4 h-4" />
@@ -508,7 +508,7 @@ export default function TopBar({
             <button
               onClick={() => setShowNotifications(!showNotifications)}
               aria-label="Notifications"
-              className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors relative cursor-pointer"
+              className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-white/10 hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white transition-colors relative cursor-pointer"
               title="Notifications"
             >
               <Bell className="w-4 h-4" />
@@ -517,12 +517,12 @@ export default function TopBar({
 
             {/* Notifications Flyout */}
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 rounded-2xl p-4 shadow-2xl border text-xs z-50 bg-white dark:bg-[#1D2E1B] border-[#C8D2A6] dark:border-[#3D543A]">
+              <div className="absolute right-0 mt-2 w-80 rounded-2xl p-4 shadow-2xl border text-xs z-50 bg-white dark:bg-[#152216] border-[#C8D2A6] dark:border-white/10">
                 <h4 className="font-bold text-sm mb-2 text-[#1D2E1B] dark:text-white">Active Notifications</h4>
                 <div className="space-y-2">
-                  <div className="p-2 rounded-xl bg-[#F7F9F2] dark:bg-white/[0.03] space-y-0.5">
+                  <div className="p-2 rounded-xl bg-[#F7F9F2] dark:bg-white/[0.04] space-y-0.5">
                     <p className="font-semibold text-xs text-[#1D2E1B] dark:text-white">AI Scan Completed</p>
-                    <p className="text-[10px] text-[#546E50] dark:text-[#C8D2A6]">Verified careers endpoint authenticated (100/100)</p>
+                    <p className="text-[10px] text-[#546E50] dark:text-[#D2E0CC]">Verified careers endpoint authenticated (100/100)</p>
                   </div>
                 </div>
               </div>
@@ -534,7 +534,7 @@ export default function TopBar({
             onClick={handleRefreshClick}
             disabled={isRefreshing}
             aria-label="Refresh Map & Job Database"
-            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors relative cursor-pointer group"
+            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-white/10 hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white transition-colors relative cursor-pointer group"
             title="Refresh Map & Job Database"
           >
             <RotateCw className={`w-4 h-4 transition-transform ${isRefreshing ? "animate-spin text-[#A9C632]" : "group-hover:rotate-45"}`} />
@@ -549,7 +549,7 @@ export default function TopBar({
           <button
             onClick={() => onSelectTab("applied")}
             aria-label="Archive & Saved Applications"
-            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors cursor-pointer hidden sm:flex items-center justify-center"
+            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-white/10 hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white transition-colors cursor-pointer hidden sm:flex items-center justify-center"
             title="Archive & Saved Applications"
           >
             <Archive className="w-4 h-4" />
@@ -559,7 +559,7 @@ export default function TopBar({
           <button
             onClick={handleCopyLink}
             aria-label="Copy Link to Share"
-            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors relative cursor-pointer hidden sm:flex items-center justify-center"
+            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-white/10 hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white transition-colors relative cursor-pointer hidden sm:flex items-center justify-center"
             title="Copy Link to Share"
           >
             {copiedLink ? <Check className="w-4 h-4 text-[#A9C632]" /> : <LinkIcon className="w-4 h-4" />}
@@ -574,7 +574,7 @@ export default function TopBar({
           <button
             onClick={onToggleDarkMode}
             aria-label={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-[#3D543A] hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#C8D2A6] transition-colors cursor-pointer"
+            className="p-2.5 apple-squircle border border-[#C8D2A6] dark:border-white/10 hover:bg-[#A9C632]/10 text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white transition-colors cursor-pointer"
             title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
             {isDarkMode ? <Sun className="w-4 h-4 text-[#A9C632]" /> : <Moon className="w-4 h-4 text-[#1D2E1B]" />}

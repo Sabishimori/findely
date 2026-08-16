@@ -42,7 +42,7 @@ export default function SideNavRail({
 
   return (
     <>
-      <aside className="fixed left-4 top-4 bottom-4 z-40 flex flex-col items-center justify-between py-5 px-3 rounded-[32px] border shadow-2xl backdrop-blur-2xl transition-all select-none pointer-events-auto bg-white/85 dark:bg-[#1D2E1B]/90 border-[#C8D2A6] dark:border-[#3D543A] text-[#1D2E1B] dark:text-white">
+      <aside className="fixed left-4 top-4 bottom-4 z-40 flex flex-col items-center justify-between py-5 px-3 rounded-[32px] border shadow-2xl backdrop-blur-2xl transition-all select-none pointer-events-auto bg-white/85 dark:bg-[#152216]/95 border-[#C8D2A6] dark:border-white/10 text-[#1D2E1B] dark:text-white">
         {/* ── Top Brand Emblem (Main Logo Vector in Apple Squircle) ─────── */}
         <div className="flex flex-col items-center gap-6">
           <button
@@ -55,7 +55,7 @@ export default function SideNavRail({
               }
             }}
             aria-label="Findely Logo - Return to Landing Page"
-            className="w-12 h-12 apple-icon-tile bg-[#1D2E1B] hover:bg-[#2D442A] border border-[#C8D2A6]/60 flex items-center justify-center shadow-md hover:scale-105 transition-transform cursor-pointer p-1.5 overflow-hidden group"
+            className="w-12 h-12 apple-icon-tile bg-[#1D2E1B] hover:bg-[#2D442A] border border-[#C8D2A6]/60 dark:border-white/10 flex items-center justify-center shadow-md hover:scale-105 transition-transform cursor-pointer p-1.5 overflow-hidden group"
             title="About Findely · Landing Page"
           >
             <img
@@ -76,8 +76,8 @@ export default function SideNavRail({
               aria-label="2.5D Interactive Map View"
               className={`w-11 h-11 apple-squircle flex items-center justify-center transition-all cursor-pointer ${
                 currentTab === "globe" && viewMode === "map"
-                  ? "bg-[#1D2E1B] text-[#A9C632] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
-                  : "bg-transparent text-[#546E50] hover:text-[#1D2E1B] hover:bg-black/5 dark:hover:bg-white/10"
+                  ? "bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
+                  : "bg-transparent text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
               }`}
               title="2.5D Interactive Map"
             >
@@ -93,8 +93,8 @@ export default function SideNavRail({
               aria-label="Grid List View"
               className={`w-11 h-11 apple-squircle flex items-center justify-center transition-all cursor-pointer ${
                 currentTab === "globe" && viewMode === "list"
-                  ? "bg-[#1D2E1B] text-[#A9C632] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
-                  : "bg-transparent text-[#546E50] hover:text-[#1D2E1B] hover:bg-black/5 dark:hover:bg-white/10"
+                  ? "bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
+                  : "bg-transparent text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
               }`}
               title="Grid List View"
             >
@@ -107,8 +107,8 @@ export default function SideNavRail({
               aria-label="Application and Saved Job Tracker"
               className={`w-11 h-11 apple-squircle flex items-center justify-center transition-all cursor-pointer ${
                 currentTab === "applied"
-                  ? "bg-[#1D2E1B] text-[#A9C632] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
-                  : "bg-transparent text-[#546E50] hover:text-[#1D2E1B] hover:bg-black/5 dark:hover:bg-white/10"
+                  ? "bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
+                  : "bg-transparent text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
               }`}
               title="Application & Saved Tracker"
             >
@@ -121,8 +121,8 @@ export default function SideNavRail({
               aria-label="AI Safety Verification Queue"
               className={`w-11 h-11 apple-squircle flex items-center justify-center transition-all cursor-pointer ${
                 currentTab === "verification"
-                  ? "bg-[#1D2E1B] text-[#A9C632] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
-                  : "bg-transparent text-[#546E50] hover:text-[#1D2E1B] hover:bg-black/5 dark:hover:bg-white/10"
+                  ? "bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-md scale-105 ring-2 ring-[#A9C632]/50"
+                  : "bg-transparent text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
               }`}
               title="AI Safety Verification Queue"
             >
@@ -137,7 +137,7 @@ export default function SideNavRail({
           <button
             onClick={() => setShowBuilderModal(true)}
             aria-label="Support the Builder via PayPal"
-            className="w-10 h-10 apple-squircle flex items-center justify-center text-[#546E50] hover:text-[#A9C632] dark:hover:text-[#A9C632] hover:bg-[#A9C632]/15 border border-transparent hover:border-[#A9C632]/40 transition-all cursor-pointer group"
+            className="w-10 h-10 apple-squircle flex items-center justify-center text-[#546E50] hover:text-[#A9C632] dark:text-[#D2E0CC] dark:hover:text-[#A9C632] hover:bg-[#A9C632]/15 border border-transparent hover:border-[#A9C632]/40 transition-all cursor-pointer group"
             title="Support the Builder · PayPal & Donations"
           >
             <Heart className="w-4.5 h-4.5 group-hover:fill-[#A9C632] group-hover:scale-110 transition-transform" />

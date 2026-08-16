@@ -218,12 +218,12 @@ export default function UnifiedTrackerView({
 
   return (
     <div className={`w-full h-full overflow-y-auto pt-24 pb-20 pl-24 md:pl-28 pr-6 md:pr-10 font-urbanist select-none transition-colors ${
-      isDarkMode ? "bg-[#131E12] text-white" : "bg-[#F7F9F2] text-[#1D2E1B]"
+      isDarkMode ? "bg-[#0C140D] text-white" : "bg-[#F7F9F2] text-[#1D2E1B]"
     }`}>
       <div className="w-full max-w-7xl mx-auto space-y-6">
         
         {/* ── Header & Sub-Tab Switcher ─────────────────────── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#C8D2A6] dark:border-[#3D543A]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#C8D2A6] dark:border-white/10">
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold tracking-tight text-[#1D2E1B] dark:text-white">
@@ -233,13 +233,13 @@ export default function UnifiedTrackerView({
                 {appsList.length} Active Pipeline
               </span>
             </div>
-            <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-0.5">
+            <p className="text-xs text-[#546E50] dark:text-[#D2E0CC] mt-0.5">
               Drag & drop cards to move between stages, or click any card to inspect full role details and notes
             </p>
           </div>
 
           {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-black/5 dark:bg-white/5 border border-[#C8D2A6] dark:border-[#3D543A] text-xs">
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-black/5 dark:bg-[#152216] border border-[#C8D2A6] dark:border-white/10 text-xs">
             {[
               { id: "all", label: `All (${appsList.length})` },
               { id: "saved", label: `Saved (${appsList.filter(a => a.status === "saved").length})` },
@@ -253,7 +253,7 @@ export default function UnifiedTrackerView({
                 className={`px-3.5 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
                   activeSubTab === tab.id
                     ? "bg-[#1D2E1B] text-white dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-xs font-bold"
-                    : "text-[#546E50] dark:text-[#C8D2A6] hover:text-[#1D2E1B] dark:hover:text-white"
+                    : "text-[#546E50] dark:text-[#D2E0CC] hover:text-[#1D2E1B] dark:hover:text-white"
                 }`}
               >
                 {tab.label}
@@ -264,12 +264,12 @@ export default function UnifiedTrackerView({
 
         {/* ── Empty State ───────────────────────────────────── */}
         {filteredApps.length === 0 ? (
-          <div className="py-24 flex flex-col items-center justify-center text-center space-y-3 rounded-3xl border border-dashed border-[#C8D2A6] dark:border-[#3D543A] bg-white/60 dark:bg-white/5">
+          <div className="py-24 flex flex-col items-center justify-center text-center space-y-3 rounded-3xl border border-dashed border-[#C8D2A6] dark:border-white/10 bg-white/60 dark:bg-white/5">
             <div className="w-14 h-14 rounded-3xl bg-[#A9C632]/20 flex items-center justify-center text-[#1D2E1B] dark:text-[#A9C632] border border-[#A9C632]/30">
               <Briefcase className="w-7 h-7" />
             </div>
             <h3 className="font-bold text-lg text-[#1D2E1B] dark:text-white">No roles in this stage yet</h3>
-            <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] max-w-sm">
+            <p className="text-xs text-[#546E50] dark:text-[#D2E0CC] max-w-sm">
               Explore the 2.5D GPU Globe or Grid List to bookmark positions and track your pipeline.
             </p>
           </div>
@@ -294,13 +294,13 @@ export default function UnifiedTrackerView({
                     isDropTarget 
                       ? "ring-2 ring-[#A9C632] bg-[#A9C632]/10 border-[#A9C632]" 
                       : isDarkMode 
-                      ? "bg-[#1D2E1B]/60 border-[#3D543A]" 
+                      ? "bg-[#152216]/90 border-white/10" 
                       : "bg-white/70 border-[#C8D2A6] shadow-xs"
                   }`}
                 >
                   {/* Column Header */}
                   {activeSubTab === "all" && (
-                    <div className="flex items-center justify-between pb-3.5 mb-3 border-b border-[#C8D2A6] dark:border-[#3D543A]">
+                    <div className="flex items-center justify-between pb-3.5 mb-3 border-b border-[#C8D2A6] dark:border-white/10">
                       <div className="flex items-center gap-2">
                         <span className={`p-1.5 rounded-xl border ${col.bg}`}>
                           <col.icon className={`w-3.5 h-3.5 ${col.color}`} />
@@ -325,7 +325,7 @@ export default function UnifiedTrackerView({
                           draggingId === app.id ? "opacity-40 scale-98" : ""
                         } ${
                           isDarkMode 
-                            ? "bg-[#243822] border-[#3D543A] hover:border-[#A9C632]" 
+                            ? "bg-[#1C2C1D] border-white/10 hover:border-[#A9C632]" 
                             : "bg-white border-[#C8D2A6] hover:border-[#A9C632]"
                         }`}
                       >
@@ -345,14 +345,14 @@ export default function UnifiedTrackerView({
                                   e.stopPropagation();
                                   setReportingJob(app);
                                 }}
-                                className="p-1 rounded-lg text-[#546E50] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                                className="p-1 rounded-lg text-[#546E50] hover:text-red-500 hover:bg-red-50 dark:text-[#D2E0CC] dark:hover:bg-red-950/40 transition-colors cursor-pointer"
                                 title="Report or flag this role"
                               >
                                 <Flag className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={(e) => handleDelete(app.id, e)}
-                                className="p-1 rounded-lg text-[#546E50] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                                className="p-1 rounded-lg text-[#546E50] hover:text-red-500 hover:bg-red-50 dark:text-[#D2E0CC] dark:hover:bg-red-950/40 transition-colors cursor-pointer"
                                 title="Remove from tracker"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -361,7 +361,7 @@ export default function UnifiedTrackerView({
                           </div>
 
                           {app.location && (
-                            <p className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] flex items-center gap-1 truncate">
+                            <p className="text-[11px] text-[#546E50] dark:text-[#D2E0CC] flex items-center gap-1 truncate">
                               <MapPin className="w-3 h-3 text-[#A9C632] flex-shrink-0" />
                               <span className="truncate">{app.location}</span>
                             </p>
@@ -375,20 +375,24 @@ export default function UnifiedTrackerView({
                           )}
 
                           {app.notes && (
-                            <p className="text-[11px] text-[#546E50] dark:text-[#A0B28C] line-clamp-1 italic bg-[#F7F9F2] dark:bg-white/5 p-1.5 rounded-lg border border-[#C8D2A6]/50">
+                            <p className={`text-[11px] line-clamp-1 italic p-1.5 rounded-lg border ${
+                              isDarkMode 
+                                ? "bg-white/10 text-white border-white/10" 
+                                : "bg-[#F7F9F2] text-[#546E50] border-[#C8D2A6]/50"
+                            }`}>
                               &ldquo;{app.notes}&rdquo;
                             </p>
                           )}
                         </div>
 
                         {/* Status Stage Quick Actions */}
-                        <div className="mt-3 pt-3 border-t border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-between text-xs gap-2">
+                        <div className="mt-3 pt-3 border-t border-[#C8D2A6] dark:border-white/10 flex items-center justify-between text-xs gap-2">
                           <select
                             value={app.status}
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e) => handleUpdateStatus(app.id, e.target.value as ApplicationStatus)}
                             className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold border cursor-pointer ${
-                              isDarkMode ? "bg-[#1D2E1B] border-[#3D543A] text-white" : "bg-[#F7F9F2] border-[#C8D2A6] text-[#1D2E1B]"
+                              isDarkMode ? "bg-[#152216] border-white/15 text-white" : "bg-[#F7F9F2] border-[#C8D2A6] text-[#1D2E1B]"
                             }`}
                           >
                             <option value="saved">Saved</option>
@@ -403,7 +407,7 @@ export default function UnifiedTrackerView({
                             target="_blank"
                             rel="noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1 text-[11px] font-bold text-[#1D2E1B] hover:text-[#A9C632] transition-colors"
+                            className="flex items-center gap-1 text-[11px] font-bold text-[#1D2E1B] dark:text-[#A9C632] hover:text-[#A9C632] transition-colors"
                           >
                             <span>Apply</span>
                             <ArrowUpRight className="w-3 h-3 text-[#A9C632]" />

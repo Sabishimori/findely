@@ -238,20 +238,20 @@ export default function JobListDrawer({
             transition={{ type: "spring", damping: 30, stiffness: 280 }}
             className={`fixed left-4 sm:left-20 md:left-24 top-[84px] sm:top-[96px] bottom-4 sm:bottom-6 w-[calc(100vw-32px)] sm:w-[370px] md:w-[395px] max-w-[420px] z-30 rounded-[28px] border shadow-2xl backdrop-blur-2xl flex flex-col font-urbanist select-none overflow-hidden transition-colors ${
               isDarkMode
-                ? "bg-[#1D2E1B]/95 border-[#3D543A] text-white"
+                ? "bg-[#152216]/95 border-white/10 text-white"
                 : "bg-white/95 border-[#C8D2A6] text-[#1D2E1B]"
             }`}
           >
             {/* ── Top Header Bar (Compact) ─────────────────────────── */}
-            <div className="px-4 py-3 border-b border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-between bg-[#F7F9F2]/70 dark:bg-white/[0.03] flex-shrink-0">
+            <div className="px-4 py-3 border-b border-[#C8D2A6] dark:border-white/10 flex items-center justify-between bg-[#F7F9F2]/70 dark:bg-white/[0.03] flex-shrink-0">
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xs tracking-tight">
+                <span className="font-extrabold text-xs tracking-tight text-[#1D2E1B] dark:text-white">
                   {totalCount.toLocaleString()} jobs
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 text-[11px] text-[#546E50] dark:text-[#C8D2A6]">
+                <div className="flex items-center gap-1 text-[11px] text-[#546E50] dark:text-[#D2E0CC]">
                   <span>Sorted by:</span>
                   <select
                     value={sortBy}
@@ -259,9 +259,9 @@ export default function JobListDrawer({
                     aria-label="Sort jobs by"
                     className="bg-transparent font-bold text-xs text-[#1D2E1B] dark:text-white focus:outline-none cursor-pointer"
                   >
-                    <option value="newest" className="dark:bg-[#1D2E1B]">Newest first</option>
-                    <option value="company" className="dark:bg-[#1D2E1B]">Company Name</option>
-                    <option value="salary" className="dark:bg-[#1D2E1B]">Salary: High to Low</option>
+                    <option value="newest" className="dark:bg-[#152216]">Newest first</option>
+                    <option value="company" className="dark:bg-[#152216]">Company Name</option>
+                    <option value="salary" className="dark:bg-[#152216]">Salary: High to Low</option>
                   </select>
                 </div>
 
@@ -270,7 +270,7 @@ export default function JobListDrawer({
                   <button
                     onClick={onExpandToFullPage}
                     aria-label="Expand to Full Page Grid View"
-                    className="p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#546E50] hover:text-[#1D2E1B] dark:hover:text-white transition-colors cursor-pointer"
+                    className="p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#546E50] hover:text-[#1D2E1B] dark:text-[#D2E0CC] dark:hover:text-white transition-colors cursor-pointer"
                     title="Expand to Full Page Grid View"
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
@@ -280,7 +280,7 @@ export default function JobListDrawer({
                 <button
                   onClick={onClose}
                   aria-label="Close List Drawer"
-                  className="p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#546E50] hover:text-[#1D2E1B] dark:hover:text-white transition-colors cursor-pointer"
+                  className="p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#546E50] hover:text-[#1D2E1B] dark:text-[#D2E0CC] dark:hover:text-white transition-colors cursor-pointer"
                   title="Close List Drawer"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -299,7 +299,7 @@ export default function JobListDrawer({
                     key={job.id}
                     className={`rounded-3xl p-4 border transition-all space-y-3 shadow-xs hover:shadow-md ${
                       isDarkMode
-                        ? "bg-[#243822] border-[#3D543A] hover:border-[#A9C632]"
+                        ? "bg-[#1C2C1D] border-white/10 hover:border-[#A9C632]"
                         : "bg-white border-[#C8D2A6] hover:border-[#A9C632]"
                     }`}
                   >

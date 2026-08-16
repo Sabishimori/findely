@@ -52,22 +52,22 @@
   }
 
   .dark {
-    /* ── Dark Mode Fallback Mapping ────────────────────────────── */
-    --bg-canvas: #131E12;
-    --bg-surface: #1D2E1B;
-    --bg-surface-elevated: #243822;
-    --bg-subtle: #2D442A;
+    /* ── Dark Mode High-Contrast Obsidian Forest ──────────────── */
+    --bg-canvas: #0C140D;
+    --bg-surface: #152216;
+    --bg-surface-elevated: #1B2C1C;
+    --bg-subtle: #223724;
     
     --text-primary: #FFFFFF;
-    --text-secondary: #C8D2A6;
-    --text-muted: #A0B28C;
+    --text-secondary: #D2E0CC;
+    --text-muted: #9EB296;
     
-    --border-subtle: rgba(200, 210, 166, 0.25);
-    --border-strong: rgba(200, 210, 166, 0.45);
+    --border-subtle: rgba(200, 210, 166, 0.18);
+    --border-strong: rgba(169, 198, 50, 0.35);
     
     --accent-matcha: #A9C632;
     --accent-matcha-hover: #BBD646;
-    --accent-matcha-light: rgba(169, 198, 50, 0.25);
+    --accent-matcha-light: rgba(169, 198, 50, 0.2);
   }
 
   *, *::before, *::after, html, body, input, button, textarea, select {

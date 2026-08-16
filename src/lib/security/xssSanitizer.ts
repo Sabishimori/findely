@@ -39,8 +39,8 @@ export function sanitizeText(input: string | null | undefined, options?: { allow
   // 3. Remove null byte injection attacks
   cleaned = cleaned.replace(/\0/g, "");
 
-  // 4. Escape special HTML characters to prevent DOM injection
-  cleaned = cleaned.replace(/[&<>"'`=\/]/g, (char) => HTML_ESCAPE_MAP[char] || char);
+  // 4. Escape angle brackets to prevent raw HTML markup injection
+  cleaned = cleaned.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
   // 5. Trim excessive whitespace
   cleaned = cleaned.trim();

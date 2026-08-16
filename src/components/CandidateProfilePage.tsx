@@ -550,7 +550,7 @@ export default function CandidateProfilePage({
 
   return (
     <div className={`w-full h-full h-screen overflow-hidden flex flex-col justify-between pt-4 pb-4 pl-22 md:pl-26 pr-6 font-urbanist select-none transition-colors ${
-      isDarkMode ? "bg-[#1D2E1B] text-white" : "bg-[#F7F9F2] text-[#1D2E1B]"
+      isDarkMode ? "bg-[#0C140D] text-white" : "bg-[#F7F9F2] text-[#1D2E1B]"
     }`}>
       
       {/* ── Toast Notification Pill ─────────────────────────── */}
@@ -592,7 +592,7 @@ export default function CandidateProfilePage({
       />
 
       {/* ── Top Header Strip ─────────────────────────────────── */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-[#546E50] flex-shrink-0">
+      <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-white/10 flex-shrink-0">
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight text-[#1D2E1B] dark:text-white">
@@ -602,7 +602,7 @@ export default function CandidateProfilePage({
               ● Verified Candidate 2026
             </span>
           </div>
-          <p className="text-sm text-[#546E50] dark:text-[#C8D2A6] mt-0.5">
+          <p className="text-sm text-[#546E50] dark:text-[#D2E0CC] mt-0.5">
             Single-frame spatial candidate dossier. Click any section or pencil icon to customize via structured pop-up editorials.
           </p>
         </div>
@@ -642,7 +642,7 @@ export default function CandidateProfilePage({
           {/* Share Profile Action */}
           <button
             onClick={handleCopyProfileLink}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#546E50] hover:bg-black/5 dark:hover:bg-white/10 font-bold text-sm transition-all cursor-pointer shadow-xs text-[#1D2E1B] dark:text-white"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 font-bold text-sm transition-all cursor-pointer shadow-xs text-[#1D2E1B] dark:text-white"
           >
             {copiedLink ? <Check className="w-4 h-4 text-[#A9C632]" /> : <Share2 className="w-4 h-4" />}
             <span>{copiedLink ? "Link Copied!" : "Share Profile"}</span>
@@ -658,14 +658,14 @@ export default function CandidateProfilePage({
           
           {/* Card 1: Education */}
           <div className={`p-4.5 rounded-[28px] border shadow-xs flex-1 flex flex-col justify-between min-h-0 overflow-hidden ${
-            isDarkMode ? "bg-[#1D2E1B] border-[#546E50]" : "bg-white border-[#C8D2A6] shadow-sm"
+            isDarkMode ? "bg-[#152216] border-white/10" : "bg-white border-[#C8D2A6] shadow-sm"
           }`}>
-            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/[0.06]">
+            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/10">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 apple-squircle bg-[#A9C632]/15 flex items-center justify-center text-[#A9C632] border border-[#A9C632]/30">
                   <GraduationCap className="w-4 h-4" />
                 </div>
-                <h3 className="font-bold text-sm">Education</h3>
+                <h3 className="font-bold text-sm text-[#1D2E1B] dark:text-white">Education</h3>
               </div>
               <button
                 onClick={() => handleOpenEducationModal()}
@@ -682,22 +682,22 @@ export default function CandidateProfilePage({
                 <div
                   key={edu.id}
                   onClick={() => handleOpenEducationModal(edu)}
-                  className="p-2 rounded-2xl hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors cursor-pointer group"
+                  className="p-2 rounded-2xl hover:bg-black/[0.02] dark:hover:bg-white/[0.05] transition-colors cursor-pointer group"
                 >
                   <div className="flex items-start justify-between gap-1.5">
                     <div className="min-w-0">
                       <h4 className="font-bold text-xs text-[#1D2E1B] dark:text-white group-hover:text-[#A9C632] transition-colors truncate">
                         {edu.school}
                       </h4>
-                      <p className="text-[#546E50] dark:text-[#C8D2A6] text-[11px] truncate mt-0.5">{edu.course}</p>
+                      <p className="text-[#546E50] dark:text-[#D2E0CC] text-[11px] truncate mt-0.5">{edu.course}</p>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-400 flex-shrink-0">{edu.year}</span>
+                    <span className="text-[10px] font-bold text-gray-400 dark:text-[#9EB296] flex-shrink-0">{edu.year}</span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="px-2 py-0.5 rounded-md bg-[#A9C632]/10 text-[10px] font-bold text-[#A9C632]">
                       {edu.cgp}
                     </span>
-                    <span className="text-[10px] text-gray-400 truncate">{edu.location}</span>
+                    <span className="text-[10px] text-gray-400 dark:text-[#9EB296] truncate">{edu.location}</span>
                   </div>
                 </div>
               ))}
@@ -706,14 +706,14 @@ export default function CandidateProfilePage({
 
           {/* Card 2: Career Experience */}
           <div className={`p-4.5 rounded-[28px] border shadow-xs flex-1 flex flex-col justify-between min-h-0 overflow-hidden ${
-            isDarkMode ? "bg-[#1D2E1B] border-[#546E50]" : "bg-white border-[#C8D2A6] shadow-sm"
+            isDarkMode ? "bg-[#152216] border-white/10" : "bg-white border-[#C8D2A6] shadow-sm"
           }`}>
-            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/[0.06]">
+            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/10">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 apple-squircle bg-[#A9C632]/15 flex items-center justify-center text-[#A9C632] border border-[#A9C632]/30">
                   <Briefcase className="w-4 h-4" />
                 </div>
-                <h3 className="font-bold text-sm">Experience</h3>
+                <h3 className="font-bold text-sm text-[#1D2E1B] dark:text-white">Experience</h3>
               </div>
               <button
                 onClick={() => handleOpenExperienceModal()}
@@ -730,7 +730,7 @@ export default function CandidateProfilePage({
                 <div
                   key={exp.id}
                   onClick={() => handleOpenExperienceModal(exp)}
-                  className="p-2 rounded-2xl hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors cursor-pointer group"
+                  className="p-2 rounded-2xl hover:bg-black/[0.02] dark:hover:bg-white/[0.05] transition-colors cursor-pointer group"
                 >
                   <div className="flex items-start justify-between gap-1.5">
                     <div className="min-w-0">
@@ -738,12 +738,12 @@ export default function CandidateProfilePage({
                         {exp.role}
                       </h4>
                       <p className="text-[11px] font-semibold text-[#A9C632] truncate mt-0.5">
-                        {exp.company} · <span className="text-[#546E50] dark:text-[#C8D2A6] font-normal">{exp.employmentType}</span>
+                        {exp.company} · <span className="text-[#546E50] dark:text-[#D2E0CC] font-normal">{exp.employmentType}</span>
                       </p>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-400 flex-shrink-0">{exp.timeline}</span>
+                    <span className="text-[10px] font-bold text-gray-400 dark:text-[#9EB296] flex-shrink-0">{exp.timeline}</span>
                   </div>
-                  <p className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] truncate mt-0.5">
+                  <p className="text-[11px] text-[#546E50] dark:text-[#D2E0CC] truncate mt-0.5">
                     {exp.description}
                   </p>
                 </div>
@@ -753,14 +753,14 @@ export default function CandidateProfilePage({
 
           {/* Card 3: Skills & Technologies */}
           <div className={`p-4.5 rounded-[28px] border shadow-xs flex-1 flex flex-col justify-between min-h-0 overflow-hidden ${
-            isDarkMode ? "bg-[#1D2E1B] border-[#546E50]" : "bg-white border-[#C8D2A6] shadow-sm"
+            isDarkMode ? "bg-[#152216] border-white/10" : "bg-white border-[#C8D2A6] shadow-sm"
           }`}>
-            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/[0.06]">
+            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/10">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 apple-squircle bg-[#A9C632]/15 flex items-center justify-center text-[#A9C632] border border-[#A9C632]/30">
                   <Wrench className="w-4 h-4" />
                 </div>
-                <h3 className="font-bold text-sm">Skills & Stack</h3>
+                <h3 className="font-bold text-sm text-[#1D2E1B] dark:text-white">Skills & Stack</h3>
               </div>
               <button
                 onClick={() => setActiveEditorialModal("skills")}
@@ -776,7 +776,11 @@ export default function CandidateProfilePage({
               {skillsList.map((skill) => (
                 <span
                   key={skill}
-                  className="px-2.5 py-1 rounded-xl text-xs font-medium border bg-black/[0.02] dark:bg-white/[0.04] border-[#C8D2A6] dark:border-[#546E50] text-[#1D2E1B] dark:text-white"
+                  className={`px-2.5 py-1 rounded-xl text-xs font-medium border ${
+                    isDarkMode 
+                      ? "bg-white/10 text-white border-white/15" 
+                      : "bg-black/[0.02] border-[#C8D2A6] text-[#1D2E1B]"
+                  }`}
                 >
                   {skill}
                 </span>
@@ -787,7 +791,7 @@ export default function CandidateProfilePage({
 
         {/* ── CENTER COLUMN (col-span-6 - Prominent Hero Centerpiece) ─ */}
         <div className={`col-span-6 rounded-[36px] border shadow-2xl p-7 flex flex-col justify-between min-h-0 overflow-hidden ${
-          isDarkMode ? "bg-[#1D2E1B] border-[#546E50] text-white" : "bg-white border-[#C8D2A6] shadow-md text-[#1D2E1B]"
+          isDarkMode ? "bg-[#152216] border-white/10 text-white" : "bg-white border-[#C8D2A6] shadow-md text-[#1D2E1B]"
         }`}>
           
           {/* Top Identity, Avatar & Interactive Upload Trigger */}
@@ -815,7 +819,7 @@ export default function CandidateProfilePage({
               {/* Upload Badge Button */}
               <button
                 onClick={() => avatarInputRef.current?.click()}
-                className="absolute -bottom-1 -right-1 p-2 rounded-full bg-[#A9C632] hover:bg-[#96B228] text-[#1D2E1B] font-bold shadow-md cursor-pointer transition-transform hover:scale-110 border-2 border-white dark:border-[#1D2E1B]"
+                className="absolute -bottom-1 -right-1 p-2 rounded-full bg-[#A9C632] hover:bg-[#96B228] text-[#1D2E1B] font-bold shadow-md cursor-pointer transition-transform hover:scale-110 border-2 border-white dark:border-[#152216]"
                 title="Upload Profile Picture"
               >
                 <Camera className="w-3.5 h-3.5" />
@@ -825,7 +829,7 @@ export default function CandidateProfilePage({
             <div>
               {/* Editable Name & Pencil Button */}
               <div className="flex items-center justify-center gap-2">
-                <h2 className="text-3xl font-bold tracking-tight">
+                <h2 className="text-3xl font-bold tracking-tight text-[#1D2E1B] dark:text-white">
                   {candidateName}
                 </h2>
                 <button
@@ -838,7 +842,7 @@ export default function CandidateProfilePage({
               </div>
 
               {/* Editable Role / Headline */}
-              <p className="text-sm text-[#546E50] dark:text-[#C8D2A6] mt-0.5 font-medium">
+              <p className="text-sm text-[#546E50] dark:text-[#D2E0CC] mt-0.5 font-medium">
                 {candidateRole}
               </p>
 
@@ -875,7 +879,7 @@ export default function CandidateProfilePage({
                 <span className="text-xs text-[#1D2E1B] dark:text-[#A9C632] font-bold">
                   {candidateActivity}
                 </span>
-                <span className="text-[11px] text-[#546E50] dark:text-[#C8D2A6]">
+                <span className="text-[11px] text-[#546E50] dark:text-[#D2E0CC]">
                   · {candidateLocation}
                 </span>
                 <Edit3 className="w-3 h-3 text-[#A9C632] ml-1 opacity-70" />
@@ -888,7 +892,7 @@ export default function CandidateProfilePage({
               {user?.email && (
                 <a 
                   href={`mailto:${user.email}`} 
-                  className="p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] border border-[#C8D2A6] dark:border-[#546E50] hover:border-[#A9C632] hover:bg-[#A9C632]/10 transition-colors"
+                  className="p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.08] border border-[#C8D2A6] dark:border-white/10 hover:border-[#A9C632] hover:bg-[#A9C632]/10 transition-colors"
                   title={`Send email to ${user.email}`}
                 >
                   <Mail className="w-4.5 h-4.5 text-[#EA4335]" />
@@ -896,22 +900,22 @@ export default function CandidateProfilePage({
               )}
 
               {profile?.linkedin_url && (
-                <a href={profile.linkedin_url} target="_blank" rel="noreferrer" className="p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] border border-[#C8D2A6] dark:border-[#546E50] hover:border-[#A9C632] transition-colors">
+                <a href={profile.linkedin_url} target="_blank" rel="noreferrer" className="p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.08] border border-[#C8D2A6] dark:border-white/10 hover:border-[#A9C632] transition-colors">
                   <LinkedinIcon className="w-4.5 h-4.5 text-[#0A66C2]" />
                 </a>
               )}
               {profile?.github_url && (
-                <a href={profile.github_url} target="_blank" rel="noreferrer" className="p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] border border-[#C8D2A6] dark:border-[#546E50] hover:border-[#A9C632] transition-colors">
+                <a href={profile.github_url} target="_blank" rel="noreferrer" className="p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.08] border border-[#C8D2A6] dark:border-white/10 hover:border-[#A9C632] transition-colors">
                   <GithubIcon className="w-4.5 h-4.5 text-[#1D2E1B] dark:text-white" />
                 </a>
               )}
               {profile?.behance_url && (
-                <a href={profile.behance_url} target="_blank" rel="noreferrer" className="p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] border border-[#C8D2A6] dark:border-[#546E50] hover:border-[#A9C632] transition-colors">
+                <a href={profile.behance_url} target="_blank" rel="noreferrer" className="p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.08] border border-[#C8D2A6] dark:border-white/10 hover:border-[#A9C632] transition-colors">
                   <BehanceIcon className="w-4.5 h-4.5 text-[#0057FF]" />
                 </a>
               )}
               {profile?.website_url && (
-                <a href={profile.website_url} target="_blank" rel="noreferrer" className="p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] border border-[#C8D2A6] dark:border-[#546E50] hover:border-[#A9C632] transition-colors">
+                <a href={profile.website_url} target="_blank" rel="noreferrer" className="p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.08] border border-[#C8D2A6] dark:border-white/10 hover:border-[#A9C632] transition-colors">
                   <Globe className="w-4.5 h-4.5 text-[#A9C632]" />
                 </a>
               )}
@@ -927,9 +931,9 @@ export default function CandidateProfilePage({
           </div>
 
           {/* About Me Section with Pop-up Editorial Trigger */}
-          <div className="space-y-2 pt-3 border-t border-[#C8D2A6] dark:border-[#546E50]">
+          <div className="space-y-2 pt-3 border-t border-[#C8D2A6] dark:border-white/10">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] uppercase text-[#546E50] dark:text-[#C8D2A6] font-bold tracking-wider">
+              <span className="text-[11px] uppercase text-[#546E50] dark:text-[#D2E0CC] font-bold tracking-wider">
                 About Me / Design Philosophy
               </span>
               <button
@@ -944,15 +948,15 @@ export default function CandidateProfilePage({
               </button>
             </div>
 
-            <p className="text-sm text-[#546E50] dark:text-[#C8D2A6] leading-relaxed line-clamp-3">
+            <p className="text-sm text-[#2D442A] dark:text-[#D2E0CC] leading-relaxed line-clamp-3">
               {aboutBio}
             </p>
           </div>
 
           {/* ── Interactive Video & Resume Upload Showcase ──────── */}
-          <div className="space-y-2.5 pt-3 border-t border-[#C8D2A6] dark:border-[#546E50]">
+          <div className="space-y-2.5 pt-3 border-t border-[#C8D2A6] dark:border-white/10">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] uppercase text-[#546E50] dark:text-[#C8D2A6] font-bold tracking-wider">
+              <span className="text-[11px] uppercase text-[#546E50] dark:text-[#D2E0CC] font-bold tracking-wider">
                 Candidate Media & Credentials (Upload & Preview)
               </span>
               <span className="text-[10px] font-bold text-[#A9C632] bg-[#A9C632]/15 px-2 py-0.5 rounded-md">
@@ -963,7 +967,7 @@ export default function CandidateProfilePage({
             <div className="grid grid-cols-2 gap-3.5">
               {/* Card 1: Video Pitch & Upload */}
               <div className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-2.5 ${
-                isDarkMode ? "bg-[#243822] border-[#546E50]" : "bg-gray-50 border-[#C8D2A6]"
+                isDarkMode ? "bg-white/5 border-white/10 text-white" : "bg-gray-50 border-[#C8D2A6]"
               }`}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5 min-w-0">
@@ -971,17 +975,17 @@ export default function CandidateProfilePage({
                       <Video className="w-4.5 h-4.5" />
                     </div>
                     <div className="truncate">
-                      <h4 className="font-bold text-xs truncate">
+                      <h4 className="font-bold text-xs truncate text-[#1D2E1B] dark:text-white">
                         {videoData ? videoData.name : "Upload Video Pitch"}
                       </h4>
-                      <span className="text-[10px] text-gray-400 block">
+                      <span className="text-[10px] text-gray-400 dark:text-[#9EB296] block">
                         {videoData ? `${videoData.duration} · ${videoData.size}` : "MP4, WebM (Max 50MB)"}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 pt-1 border-t border-black/[0.04] dark:border-white/[0.06]">
+                <div className="flex items-center gap-2 pt-1 border-t border-black/[0.04] dark:border-white/10">
                   {videoData ? (
                     <button
                       onClick={() => setActiveMediaModal("video")}
@@ -993,7 +997,7 @@ export default function CandidateProfilePage({
                   ) : null}
                   <button
                     onClick={() => videoInputRef.current?.click()}
-                    className="flex-1 py-1.5 rounded-xl border border-[#C8D2A6] hover:border-[#A9C632] hover:bg-[#A9C632]/10 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors text-[#1D2E1B] dark:text-white"
+                    className="flex-1 py-1.5 rounded-xl border border-[#C8D2A6] dark:border-white/10 hover:border-[#A9C632] hover:bg-[#A9C632]/10 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors text-[#1D2E1B] dark:text-white"
                   >
                     <FileUp className="w-3 h-3 text-[#A9C632]" />
                     <span>{videoData ? "Replace" : "Upload"}</span>
@@ -1003,7 +1007,7 @@ export default function CandidateProfilePage({
 
               {/* Card 2: Resume / CV & Upload */}
               <div className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-2.5 ${
-                isDarkMode ? "bg-[#243822] border-[#546E50]" : "bg-gray-50 border-[#C8D2A6]"
+                isDarkMode ? "bg-white/5 border-white/10 text-white" : "bg-gray-50 border-[#C8D2A6]"
               }`}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5 min-w-0">
@@ -1011,17 +1015,17 @@ export default function CandidateProfilePage({
                       <FileText className="w-4.5 h-4.5" />
                     </div>
                     <div className="truncate">
-                      <h4 className="font-bold text-xs truncate">
+                      <h4 className="font-bold text-xs truncate text-[#1D2E1B] dark:text-white">
                         {resumeData ? resumeData.name : "Upload PDF Resume"}
                       </h4>
-                      <span className="text-[10px] text-gray-400 block">
+                      <span className="text-[10px] text-gray-400 dark:text-[#9EB296] block">
                         {resumeData ? `${resumeData.size} · ${resumeData.uploadedAt}` : "PDF, DOCX (Max 10MB)"}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 pt-1 border-t border-black/[0.04] dark:border-white/[0.06]">
+                <div className="flex items-center gap-2 pt-1 border-t border-black/[0.04] dark:border-white/10">
                   {resumeData ? (
                     <button
                       onClick={() => setActiveMediaModal("cv")}
@@ -1033,7 +1037,7 @@ export default function CandidateProfilePage({
                   ) : null}
                   <button
                     onClick={() => resumeInputRef.current?.click()}
-                    className="flex-1 py-1.5 rounded-xl border border-[#C8D2A6] hover:border-[#A9C632] hover:bg-[#A9C632]/10 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors text-[#1D2E1B] dark:text-white"
+                    className="flex-1 py-1.5 rounded-xl border border-[#C8D2A6] dark:border-white/10 hover:border-[#A9C632] hover:bg-[#A9C632]/10 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors text-[#1D2E1B] dark:text-white"
                   >
                     <FileUp className="w-3 h-3 text-[#A9C632]" />
                     <span>{resumeData ? "Replace" : "Upload"}</span>
@@ -1044,8 +1048,8 @@ export default function CandidateProfilePage({
           </div>
 
           {/* ── Bottom Asset Quick Upload Strip ───────────────── */}
-          <div className="pt-3 border-t border-[#C8D2A6] dark:border-[#546E50] flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2 text-[11px] font-semibold text-[#546E50] dark:text-[#C8D2A6]">
+          <div className="pt-3 border-t border-[#C8D2A6] dark:border-white/10 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2 text-[11px] font-semibold text-[#546E50] dark:text-[#D2E0CC]">
               <ShieldCheck className="w-4 h-4 text-[#A9C632]" />
               <span>100% Dossier Complete & Verified for 2026 Recruiter Indexing</span>
             </div>
@@ -1053,7 +1057,7 @@ export default function CandidateProfilePage({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => videoInputRef.current?.click()}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.06] hover:bg-[#A9C632]/15 text-[#1D2E1B] dark:text-white text-xs font-bold transition-colors cursor-pointer border border-[#C8D2A6] dark:border-[#546E50]"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.08] hover:bg-[#A9C632]/15 text-[#1D2E1B] dark:text-white text-xs font-bold transition-colors cursor-pointer border border-[#C8D2A6] dark:border-white/10"
               >
                 <Video className="w-3.5 h-3.5 text-[#A9C632]" />
                 <span>Upload Video</span>
@@ -1074,12 +1078,12 @@ export default function CandidateProfilePage({
           
           {/* Card 1: Certifications */}
           <div className={`p-4.5 rounded-[28px] border shadow-xs flex-1 flex flex-col justify-between min-h-0 overflow-hidden ${
-            isDarkMode ? "bg-[#1D2E1B] border-[#546E50]" : "bg-white border-[#C8D2A6] shadow-sm"
+            isDarkMode ? "bg-[#152216] border-white/10" : "bg-white border-[#C8D2A6] shadow-sm"
           }`}>
-            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/[0.06]">
+            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/10">
               <div className="flex items-center gap-2">
                 <Award className="w-4.5 h-4.5 text-[#A9C632]" />
-                <h3 className="font-bold text-sm">Certifications</h3>
+                <h3 className="font-bold text-sm text-[#1D2E1B] dark:text-white">Certifications</h3>
               </div>
               <button
                 onClick={() => handleOpenCertModal()}
@@ -1096,13 +1100,13 @@ export default function CandidateProfilePage({
                 <div
                   key={cert.id}
                   onClick={() => handleOpenCertModal(cert)}
-                  className="p-2 rounded-2xl hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors cursor-pointer group flex items-center justify-between"
+                  className="p-2 rounded-2xl hover:bg-black/[0.02] dark:hover:bg-white/[0.05] transition-colors cursor-pointer group flex items-center justify-between"
                 >
                   <div className="min-w-0">
                     <h4 className="font-bold text-xs truncate group-hover:text-[#A9C632] transition-colors text-[#1D2E1B] dark:text-white">
                       {cert.title}
                     </h4>
-                    <span className="text-[10px] text-gray-400 block mt-0.5">{cert.issuer}</span>
+                    <span className="text-[10px] text-gray-400 dark:text-[#9EB296] block mt-0.5">{cert.issuer}</span>
                   </div>
                   <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-[#A9C632]/15 text-[#A9C632] flex-shrink-0">
                     {cert.year}
@@ -1114,12 +1118,12 @@ export default function CandidateProfilePage({
 
           {/* Card 2: Career Expectations */}
           <div className={`p-4.5 rounded-[28px] border shadow-xs flex-1 flex flex-col justify-between min-h-0 overflow-hidden ${
-            isDarkMode ? "bg-[#1D2E1B] border-[#546E50]" : "bg-white border-[#C8D2A6] shadow-sm"
+            isDarkMode ? "bg-[#152216] border-white/10" : "bg-white border-[#C8D2A6] shadow-sm"
           }`}>
-            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/[0.06]">
+            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/10">
               <div className="flex items-center gap-2">
                 <Target className="w-4.5 h-4.5 text-[#A9C632]" />
-                <h3 className="font-bold text-sm">Career Expectations</h3>
+                <h3 className="font-bold text-sm text-[#1D2E1B] dark:text-white">Career Expectations</h3>
               </div>
               <button
                 onClick={() => {
@@ -1136,28 +1140,28 @@ export default function CandidateProfilePage({
 
             <div className="space-y-2 text-xs my-1">
               <div>
-                <span className="text-[10px] text-gray-400 uppercase block font-bold">Target Comp</span>
+                <span className="text-[10px] text-gray-400 dark:text-[#9EB296] uppercase block font-bold">Target Comp</span>
                 <p className="font-bold text-xs text-[#A9C632] mt-0.5">{expectations.targetComp}</p>
               </div>
               <div>
-                <span className="text-[10px] text-gray-400 uppercase block font-bold">Location</span>
+                <span className="text-[10px] text-gray-400 dark:text-[#9EB296] uppercase block font-bold">Location</span>
                 <p className="font-bold text-xs mt-0.5 text-[#1D2E1B] dark:text-white">{expectations.preferredLocation}</p>
               </div>
               <div>
-                <span className="text-[10px] text-gray-400 uppercase block font-bold">Notice & Mode</span>
-                <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-0.5">{expectations.noticePeriod} · {expectations.employmentType}</p>
+                <span className="text-[10px] text-gray-400 dark:text-[#9EB296] uppercase block font-bold">Notice & Mode</span>
+                <p className="text-xs text-[#546E50] dark:text-[#D2E0CC] mt-0.5">{expectations.noticePeriod} · {expectations.employmentType}</p>
               </div>
             </div>
           </div>
 
           {/* Card 3: Featured Live Projects */}
           <div className={`p-4.5 rounded-[28px] border shadow-xs flex-1 flex flex-col justify-between min-h-0 overflow-hidden ${
-            isDarkMode ? "bg-[#1D2E1B] border-[#546E50]" : "bg-white border-[#C8D2A6] shadow-sm"
+            isDarkMode ? "bg-[#152216] border-white/10" : "bg-white border-[#C8D2A6] shadow-sm"
           }`}>
-            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/[0.06]">
+            <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05] dark:border-white/10">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4.5 h-4.5 text-[#A9C632]" />
-                <h3 className="font-bold text-sm">Live Projects</h3>
+                <h3 className="font-bold text-sm text-[#1D2E1B] dark:text-white">Live Projects</h3>
               </div>
               <button
                 onClick={() => handleOpenProjectModal()}
@@ -1174,7 +1178,7 @@ export default function CandidateProfilePage({
                 <div
                   key={proj.id}
                   onClick={() => handleOpenProjectModal(proj)}
-                  className="p-2 rounded-2xl hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors cursor-pointer group space-y-1"
+                  className="p-2 rounded-2xl hover:bg-black/[0.02] dark:hover:bg-white/[0.05] transition-colors cursor-pointer group space-y-1"
                 >
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-xs group-hover:text-[#A9C632] transition-colors truncate text-[#1D2E1B] dark:text-white">{proj.title}</h4>
@@ -1189,7 +1193,7 @@ export default function CandidateProfilePage({
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
-                  <p className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] truncate">{proj.desc}</p>
+                  <p className="text-[11px] text-[#546E50] dark:text-[#D2E0CC] truncate">{proj.desc}</p>
                 </div>
               ))}
             </div>
@@ -1210,13 +1214,13 @@ export default function CandidateProfilePage({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className={`w-full max-w-xl rounded-3xl shadow-2xl border p-6 ${
-                isDarkMode ? "bg-[#1D2E1B] border-[#546E50] text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
+                isDarkMode ? "bg-[#152216] border-white/10 text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
               }`}
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-white/10">
                 <div className="flex items-center gap-2">
                   <User className="w-5 h-5 text-[#A9C632]" />
-                  <h3 className="font-bold text-base">Edit Candidate Name, Role & Location</h3>
+                  <h3 className="font-bold text-base text-[#1D2E1B] dark:text-white">Edit Candidate Name, Role & Location</h3>
                 </div>
                 <button onClick={() => setActiveEditorialModal(null)} className="p-1 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer">
                   <X className="w-5 h-5" />
@@ -1225,60 +1229,60 @@ export default function CandidateProfilePage({
 
               <div className="space-y-4 py-4 text-xs">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Candidate Full Name</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Candidate Full Name</label>
                   <input
                     type="text"
                     value={identityForm.name}
                     onChange={(e) => setIdentityForm({ ...identityForm, name: e.target.value })}
                     placeholder="e.g. Alex Rivera"
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Primary Role / Headline</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Primary Role / Headline</label>
                   <input
                     type="text"
                     value={identityForm.role}
                     onChange={(e) => setIdentityForm({ ...identityForm, role: e.target.value })}
                     placeholder="e.g. Staff Product Designer & Full-Stack Architect"
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Activity / Search Status</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Activity / Search Status</label>
                     <input
                       type="text"
                       value={identityForm.activity}
                       onChange={(e) => setIdentityForm({ ...identityForm, activity: e.target.value })}
                       placeholder="e.g. Actively Looking · Immediate"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Location & Remote Policy</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Location & Remote Policy</label>
                     <input
                       type="text"
                       value={identityForm.location}
                       onChange={(e) => setIdentityForm({ ...identityForm, location: e.target.value })}
                       placeholder="e.g. San Francisco, CA & Remote"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex justify-end gap-2 pt-3 border-t border-[#C8D2A6] dark:border-white/10">
                 <button
                   onClick={() => setActiveEditorialModal(null)}
                   className="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
@@ -1306,13 +1310,13 @@ export default function CandidateProfilePage({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className={`w-full max-w-xl rounded-3xl shadow-2xl border p-6 font-urbanist ${
-                isDarkMode ? "bg-[#1D2E1B] border-[#546E50] text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
+                isDarkMode ? "bg-[#152216] border-white/10 text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
               }`}
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-white/10">
                 <div className="flex items-center gap-2">
                   <GraduationCap className="w-5 h-5 text-[#A9C632]" />
-                  <h3 className="font-bold text-base">
+                  <h3 className="font-bold text-base text-[#1D2E1B] dark:text-white">
                     {eduForm.id ? "Edit Education" : "Add Education Record"}
                   </h3>
                 </div>
@@ -1323,72 +1327,72 @@ export default function CandidateProfilePage({
 
               <div className="space-y-4 py-4 text-xs">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">University / Institute</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">University / Institute</label>
                   <input
                     type="text"
                     value={eduForm.school}
                     onChange={(e) => setEduForm({ ...eduForm, school: e.target.value })}
                     placeholder="e.g. Stanford University"
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Degree & Major</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Degree & Major</label>
                   <input
                     type="text"
                     value={eduForm.course}
                     onChange={(e) => setEduForm({ ...eduForm, course: e.target.value })}
                     placeholder="e.g. B.S. in Computer Science & Human-Computer Interaction"
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Graduation Year</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Graduation Year</label>
                     <input
                       type="text"
                       value={eduForm.year}
                       onChange={(e) => setEduForm({ ...eduForm, year: e.target.value })}
                       placeholder="e.g. 2019 - 2023"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">GPA / Honors</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">GPA / Honors</label>
                     <input
                       type="text"
                       value={eduForm.cgp}
                       onChange={(e) => setEduForm({ ...eduForm, cgp: e.target.value })}
                       placeholder="e.g. 3.9 GPA · Honors"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Location</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Location</label>
                     <input
                       type="text"
                       value={eduForm.location}
                       onChange={(e) => setEduForm({ ...eduForm, location: e.target.value })}
                       placeholder="e.g. Stanford, CA"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pt-3 border-t border-[#C8D2A6] dark:border-white/10">
                 {eduForm.id ? (
                   <button
                     onClick={() => handleDeleteEducation(eduForm.id)}
@@ -1428,13 +1432,13 @@ export default function CandidateProfilePage({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className={`w-full max-w-xl rounded-3xl shadow-2xl border p-6 font-urbanist ${
-                isDarkMode ? "bg-[#1D2E1B] border-[#546E50] text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
+                isDarkMode ? "bg-[#152216] border-white/10 text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
               }`}
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-white/10">
                 <div className="flex items-center gap-2">
                   <Briefcase className="w-5 h-5 text-[#A9C632]" />
-                  <h3 className="font-bold text-base">
+                  <h3 className="font-bold text-base text-[#1D2E1B] dark:text-white">
                     {expForm.id ? "Edit Career Experience" : "Add Career Role"}
                   </h3>
                 </div>
@@ -1446,26 +1450,26 @@ export default function CandidateProfilePage({
               <div className="space-y-4 py-4 text-xs">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Role / Job Title</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Role / Job Title</label>
                     <input
                       type="text"
                       value={expForm.role}
                       onChange={(e) => setExpForm({ ...expForm, role: e.target.value })}
                       placeholder="e.g. Staff Product Designer"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Company / Organization</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Company / Organization</label>
                     <input
                       type="text"
                       value={expForm.company}
                       onChange={(e) => setExpForm({ ...expForm, company: e.target.value })}
                       placeholder="e.g. Stripe Inc."
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
@@ -1473,58 +1477,58 @@ export default function CandidateProfilePage({
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Timeline</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Timeline</label>
                     <input
                       type="text"
                       value={expForm.timeline}
                       onChange={(e) => setExpForm({ ...expForm, timeline: e.target.value })}
                       placeholder="e.g. Jan 2024 - Present"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Employment Type</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Employment Type</label>
                     <input
                       type="text"
                       value={expForm.employmentType}
                       onChange={(e) => setExpForm({ ...expForm, employmentType: e.target.value })}
                       placeholder="e.g. Full-Time / Contract"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Location</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Location</label>
                     <input
                       type="text"
                       value={expForm.location}
                       onChange={(e) => setExpForm({ ...expForm, location: e.target.value })}
                       placeholder="e.g. San Francisco, CA (Hybrid)"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Impact & Responsibilities</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Impact & Responsibilities</label>
                   <textarea
                     rows={3}
                     value={expForm.description}
                     onChange={(e) => setExpForm({ ...expForm, description: e.target.value })}
                     placeholder="Describe high-impact systems, spatial interfaces, or architectural milestones delivered..."
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] resize-none ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pt-3 border-t border-[#C8D2A6] dark:border-white/10">
                 {expForm.id ? (
                   <button
                     onClick={() => handleDeleteExperience(expForm.id)}
@@ -1564,13 +1568,13 @@ export default function CandidateProfilePage({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className={`w-full max-w-xl rounded-3xl shadow-2xl border p-6 font-urbanist ${
-                isDarkMode ? "bg-[#1D2E1B] border-[#546E50] text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
+                isDarkMode ? "bg-[#152216] border-white/10 text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
               }`}
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-white/10">
                 <div className="flex items-center gap-2">
                   <Wrench className="w-5 h-5 text-[#A9C632]" />
-                  <h3 className="font-bold text-base">Manage Skills & Tech Stacks</h3>
+                  <h3 className="font-bold text-base text-[#1D2E1B] dark:text-white">Manage Skills & Tech Stacks</h3>
                 </div>
                 <button onClick={() => setActiveEditorialModal(null)} className="p-1 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   <X className="w-5 h-5" />
@@ -1580,8 +1584,8 @@ export default function CandidateProfilePage({
               <div className="space-y-4 py-4 text-xs">
                 {/* Active Selected Skills */}
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-2">Active Candidate Skills (Click × to remove)</label>
-                  <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-[#C8D2A6] dark:border-[#546E50]">
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-2">Active Candidate Skills (Click × to remove)</label>
+                  <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-[#C8D2A6] dark:border-white/10">
                     {skillsList.map((skill) => (
                       <span
                         key={skill}
@@ -1608,7 +1612,7 @@ export default function CandidateProfilePage({
                     onKeyDown={(e) => e.key === "Enter" && handleAddSkill(customSkillInput)}
                     placeholder="Type custom skill (e.g. Shaders, Rust, Go, Prompt Engineering)..."
                     className={`flex-1 p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                   <button
@@ -1621,7 +1625,7 @@ export default function CandidateProfilePage({
                 </div>
               </div>
 
-              <div className="flex justify-end pt-3 border-t border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex justify-end pt-3 border-t border-[#C8D2A6] dark:border-white/10">
                 <button
                   onClick={() => setActiveEditorialModal(null)}
                   className="px-5 py-2 rounded-xl bg-[#A9C632] hover:bg-[#96B228] text-white font-bold text-xs shadow-md cursor-pointer"
@@ -1643,13 +1647,13 @@ export default function CandidateProfilePage({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className={`w-full max-w-xl rounded-3xl shadow-2xl border p-6 font-urbanist ${
-                isDarkMode ? "bg-[#1D2E1B] border-[#546E50] text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
+                isDarkMode ? "bg-[#152216] border-white/10 text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
               }`}
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-white/10">
                 <div className="flex items-center gap-2">
                   <Award className="w-5 h-5 text-[#A9C632]" />
-                  <h3 className="font-bold text-base">
+                  <h3 className="font-bold text-base text-[#1D2E1B] dark:text-white">
                     {certForm.id ? "Edit Certification" : "Add Certification"}
                   </h3>
                 </div>
@@ -1660,60 +1664,60 @@ export default function CandidateProfilePage({
 
               <div className="space-y-4 py-4 text-xs">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Certification Name</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Certification Name</label>
                   <input
                     type="text"
                     value={certForm.title}
                     onChange={(e) => setCertForm({ ...certForm, title: e.target.value })}
                     placeholder="e.g. Figma Certified Design Systems Master"
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Issuer / Authority</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Issuer / Authority</label>
                     <input
                       type="text"
                       value={certForm.issuer}
                       onChange={(e) => setCertForm({ ...certForm, issuer: e.target.value })}
                       placeholder="e.g. Figma Academy / AWS"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Year of Issue</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Year of Issue</label>
                     <input
                       type="text"
                       value={certForm.year}
                       onChange={(e) => setCertForm({ ...certForm, year: e.target.value })}
                       placeholder="e.g. 2025"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Verification / Certificate URL</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Verification / Certificate URL</label>
                   <input
                     type="text"
                     value={certForm.link}
                     onChange={(e) => setCertForm({ ...certForm, link: e.target.value })}
                     placeholder="https://..."
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pt-3 border-t border-[#C8D2A6] dark:border-white/10">
                 {certForm.id ? (
                   <button
                     onClick={() => handleDeleteCert(certForm.id)}
@@ -1753,13 +1757,13 @@ export default function CandidateProfilePage({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className={`w-full max-w-xl rounded-3xl shadow-2xl border p-6 font-urbanist ${
-                isDarkMode ? "bg-[#1D2E1B] border-[#546E50] text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
+                isDarkMode ? "bg-[#152216] border-white/10 text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
               }`}
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-white/10">
                 <div className="flex items-center gap-2">
                   <Target className="w-5 h-5 text-[#A9C632]" />
-                  <h3 className="font-bold text-base">Edit Career Expectations</h3>
+                  <h3 className="font-bold text-base text-[#1D2E1B] dark:text-white">Edit Career Expectations</h3>
                 </div>
                 <button onClick={() => setActiveEditorialModal(null)} className="p-1 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   <X className="w-5 h-5" />
@@ -1768,60 +1772,60 @@ export default function CandidateProfilePage({
 
               <div className="space-y-4 py-4 text-xs">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Target Compensation Range</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Target Compensation Range</label>
                   <input
                     type="text"
                     value={expExpectForm.targetComp}
                     onChange={(e) => setExpExpectForm({ ...expExpectForm, targetComp: e.target.value })}
                     placeholder="e.g. $195,000 - $250,000 + Equity"
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Preferred Work Locations & Remote Policy</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Preferred Work Locations & Remote Policy</label>
                   <input
                     type="text"
                     value={expExpectForm.preferredLocation}
                     onChange={(e) => setExpExpectForm({ ...expExpectForm, preferredLocation: e.target.value })}
                     placeholder="e.g. San Francisco, CA or 100% Remote"
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Notice Period & Availability</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Notice Period & Availability</label>
                     <input
                       type="text"
                       value={expExpectForm.noticePeriod}
                       onChange={(e) => setExpExpectForm({ ...expExpectForm, noticePeriod: e.target.value })}
                       placeholder="e.g. Immediate (2 Weeks)"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Employment Type</label>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Employment Type</label>
                     <input
                       type="text"
                       value={expExpectForm.employmentType}
                       onChange={(e) => setExpExpectForm({ ...expExpectForm, employmentType: e.target.value })}
                       placeholder="e.g. Full-Time"
                       className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                        isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                        isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                       }`}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex justify-end gap-2 pt-3 border-t border-[#C8D2A6] dark:border-white/10">
                 <button
                   onClick={() => setActiveEditorialModal(null)}
                   className="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
@@ -1852,13 +1856,13 @@ export default function CandidateProfilePage({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className={`w-full max-w-xl rounded-3xl shadow-2xl border p-6 font-urbanist ${
-                isDarkMode ? "bg-[#1D2E1B] border-[#546E50] text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
+                isDarkMode ? "bg-[#152216] border-white/10 text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
               }`}
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-white/10">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-[#A9C632]" />
-                  <h3 className="font-bold text-base">
+                  <h3 className="font-bold text-base text-[#1D2E1B] dark:text-white">
                     {projForm.id ? "Edit Live Project" : "Add Live Project"}
                   </h3>
                 </div>
@@ -1869,59 +1873,59 @@ export default function CandidateProfilePage({
 
               <div className="space-y-4 py-4 text-xs">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Project Name</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Project Name</label>
                   <input
                     type="text"
                     value={projForm.title}
                     onChange={(e) => setProjForm({ ...projForm, title: e.target.value })}
                     placeholder="e.g. Spatial Canvas V3"
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Live Demo / Repository URL</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Live Demo / Repository URL</label>
                   <input
                     type="text"
                     value={projForm.url}
                     onChange={(e) => setProjForm({ ...projForm, url: e.target.value })}
                     placeholder="https://..."
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Tech Stack Tags (Comma Separated)</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Tech Stack Tags (Comma Separated)</label>
                   <input
                     type="text"
                     value={projForm.tags}
                     onChange={(e) => setProjForm({ ...projForm, tags: e.target.value })}
                     placeholder="e.g. Next.js, WebGL, TypeScript, Tailwind"
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Project Summary</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-[#9EB296] block mb-1">Project Summary</label>
                   <textarea
                     rows={3}
                     value={projForm.desc}
                     onChange={(e) => setProjForm({ ...projForm, desc: e.target.value })}
                     placeholder="Summary of the project architectural breakthroughs..."
                     className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-[#A9C632] resize-none ${
-                      isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                      isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                     }`}
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pt-3 border-t border-[#C8D2A6] dark:border-white/10">
                 {projForm.id ? (
                   <button
                     onClick={() => handleDeleteProject(projForm.id)}
@@ -1961,11 +1965,11 @@ export default function CandidateProfilePage({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className={`w-full max-w-xl rounded-3xl shadow-2xl border p-6 font-urbanist ${
-                isDarkMode ? "bg-[#1D2E1B] border-[#546E50] text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
+                isDarkMode ? "bg-[#152216] border-white/10 text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
               }`}
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-[#546E50]">
-                <h3 className="font-bold text-base">Edit About Me / Narrative Bio</h3>
+              <div className="flex items-center justify-between pb-3 border-b border-[#C8D2A6] dark:border-white/10">
+                <h3 className="font-bold text-base text-[#1D2E1B] dark:text-white">Edit About Me / Narrative Bio</h3>
                 <button onClick={() => setActiveEditorialModal(null)} className="p-1 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   <X className="w-5 h-5" />
                 </button>
@@ -1978,12 +1982,12 @@ export default function CandidateProfilePage({
                   onChange={(e) => setBioInput(e.target.value)}
                   placeholder="Share your philosophy, spatial engineering milestones, and what inspires your craft..."
                   className={`w-full p-4 rounded-2xl border text-xs focus:outline-none focus:border-[#A9C632] leading-relaxed resize-none ${
-                    isDarkMode ? "bg-[#243822] border-[#546E50] text-white" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
+                    isDarkMode ? "bg-[#1E2E1F] border-white/10 text-white placeholder:text-[#9EB296]" : "bg-gray-50 border-[#C8D2A6] text-[#1D2E1B]"
                   }`}
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex justify-end gap-2 pt-3 border-t border-[#C8D2A6] dark:border-white/10">
                 <button
                   onClick={() => setActiveEditorialModal(null)}
                   className="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
@@ -2011,17 +2015,17 @@ export default function CandidateProfilePage({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className={`w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden border p-6 ${
-                isDarkMode ? "bg-[#1D2E1B] border-[#546E50] text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
+                isDarkMode ? "bg-[#152216] border-white/10 text-white" : "bg-white border-[#C8D2A6] text-[#1D2E1B]"
               }`}
             >
-              <div className="flex items-center justify-between pb-4 border-b border-[#C8D2A6] dark:border-[#546E50]">
+              <div className="flex items-center justify-between pb-4 border-b border-[#C8D2A6] dark:border-white/10">
                 <div className="flex items-center gap-2.5">
                   {activeMediaModal === "video" ? (
                     <Video className="w-5 h-5 text-[#A9C632]" />
                   ) : (
                     <FileText className="w-5 h-5 text-[#A9C632]" />
                   )}
-                  <h3 className="font-bold text-base">
+                  <h3 className="font-bold text-base text-[#1D2E1B] dark:text-white">
                     {activeMediaModal === "video" ? "Candidate Video Pitch" : "Candidate Curriculum Vitae (CV)"}
                   </h3>
                 </div>
@@ -2034,14 +2038,14 @@ export default function CandidateProfilePage({
                 {activeMediaModal === "video" ? (
                   <div className="space-y-4">
                     {videoData?.url ? (
-                      <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-[#C8D2A6]">
+                      <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-[#C8D2A6] dark:border-white/10">
                         <video controls autoPlay className="w-full h-full object-cover">
                           <source src={videoData.url} />
                           Your browser does not support HTML video.
                         </video>
                       </div>
                     ) : (
-                      <div className="aspect-video rounded-2xl bg-[#131E12] border border-[#3D543A] flex flex-col items-center justify-center text-white relative overflow-hidden p-6 text-center">
+                      <div className="aspect-video rounded-2xl bg-[#131E12] border border-white/10 flex flex-col items-center justify-center text-white relative overflow-hidden p-6 text-center">
                         <Video className="w-12 h-12 text-[#A9C632] mb-3 animate-pulse" />
                         <p className="font-bold text-base">{videoData?.name || "No Video Uploaded Yet"}</p>
                         <p className="text-xs text-[#C8D2A6] mt-1">Record a quick 60s pitch to showcase your projects & strengths</p>
@@ -2054,7 +2058,7 @@ export default function CandidateProfilePage({
                     <div className="flex items-center justify-between pt-2">
                       <button
                         onClick={() => videoInputRef.current?.click()}
-                        className="px-4 py-2 rounded-xl border border-[#C8D2A6] hover:bg-black/5 dark:hover:bg-white/5 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                        className="px-4 py-2 rounded-xl border border-[#C8D2A6] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 font-bold text-xs flex items-center gap-1.5 cursor-pointer text-[#1D2E1B] dark:text-white"
                       >
                         <Upload className="w-3.5 h-3.5 text-[#A9C632]" />
                         <span>Upload Video Pitch</span>
@@ -2068,23 +2072,23 @@ export default function CandidateProfilePage({
                     </div>
                   </div>
                 ) : (
-                  <div className="p-6 rounded-2xl bg-gray-50 dark:bg-[#243822] border border-[#C8D2A6] dark:border-[#546E50] space-y-4 text-xs">
+                  <div className="p-6 rounded-2xl bg-gray-50 dark:bg-[#1E2E1F] border border-[#C8D2A6] dark:border-white/10 space-y-4 text-xs">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <FileText className="w-5 h-5 text-[#A9C632]" />
-                        <span className="font-bold text-sm">{resumeData?.name || "No Resume PDF Attached"}</span>
+                        <span className="font-bold text-sm text-[#1D2E1B] dark:text-white">{resumeData?.name || "No Resume PDF Attached"}</span>
                       </div>
                       <span className="px-2.5 py-0.5 rounded-lg bg-[#A9C632]/15 text-[#A9C632] font-bold text-[10px]">
                         ATS & Recruiter Ready
                       </span>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-white dark:bg-black/20 border border-[#C8D2A6]/50 space-y-2">
-                      <div className="flex items-center justify-between text-[11px] text-gray-500">
+                    <div className="p-4 rounded-xl bg-white dark:bg-[#152216] border border-[#C8D2A6]/50 dark:border-white/10 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-[#9EB296]">
                         <span>File Size: {resumeData?.size || "0 KB"}</span>
                         <span>Status: {resumeData?.uploadedAt || "Pending Upload"}</span>
                       </div>
-                      <p className="text-[#546E50] dark:text-[#C8D2A6] leading-relaxed">
+                      <p className="text-[#546E50] dark:text-[#D2E0CC] leading-relaxed">
                         Attach your resume PDF so frontier startup founders can review your work experience and credentials.
                       </p>
                     </div>
@@ -2092,7 +2096,7 @@ export default function CandidateProfilePage({
                     <div className="pt-3 flex items-center justify-between">
                       <button
                         onClick={() => resumeInputRef.current?.click()}
-                        className="px-4 py-2 rounded-xl border border-[#C8D2A6] hover:bg-black/5 dark:hover:bg-white/5 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                        className="px-4 py-2 rounded-xl border border-[#C8D2A6] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 font-bold text-xs flex items-center gap-1.5 cursor-pointer text-[#1D2E1B] dark:text-white"
                       >
                         <Upload className="w-3.5 h-3.5 text-[#A9C632]" />
                         <span>Upload PDF Resume</span>
@@ -2110,7 +2114,7 @@ export default function CandidateProfilePage({
                       ) : (
                         <button
                           onClick={() => setActiveMediaModal(null)}
-                          className="px-5 py-2 rounded-xl bg-[#1D2E1B] text-white dark:bg-white/10 font-bold text-xs"
+                          className="px-5 py-2 rounded-xl bg-[#1D2E1B] text-white dark:bg-white/10 font-bold text-xs cursor-pointer"
                         >
                           Close
                         </button>

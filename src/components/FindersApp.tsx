@@ -48,6 +48,13 @@ export default function FindersApp({
   const [spatialPinLocation, setSpatialPinLocation] = useState<SpatialLocationInfo | null>(null);
   const [geoToast, setGeoToast] = useState<string | null>(null);
 
+  // Synchronize dark class to document element for Tailwind dark: variants
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.classList.toggle("dark", isDarkMode);
+    }
+  }, [isDarkMode]);
+
   // Mandatory Login Gate: Enter workspace ONLY when user is verified
   useEffect(() => {
     if (user) {
@@ -320,7 +327,7 @@ export default function FindersApp({
   }
 
   return (
-    <div className={`w-screen h-screen overflow-hidden flex flex-col relative font-urbanist select-none transition-colors ${isDarkMode ? "bg-[#1D2E1B] text-white" : "bg-[#F7F9F2] text-[#1D2E1B]"}`}>
+    <div className={`w-screen h-screen overflow-hidden flex flex-col relative font-urbanist select-none transition-colors ${isDarkMode ? "dark bg-[#0C140D] text-white" : "bg-[#F7F9F2] text-[#1D2E1B]"}`}>
       
       {/* ── 0. Animated Startup Splash Screen ─────────────────── */}
       <AnimatePresence>
