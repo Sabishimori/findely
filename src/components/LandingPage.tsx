@@ -107,15 +107,29 @@ function InfiniteSlider({ children, gap = 24, duration = 25 }: { children: React
 }
 
 // ── Hand-Drawn SVG Accents ─────────────────────────────────────────
+// ── Hand-Drawn SVG Accents (Lottie-Style Organic Animated Scribbles) ──
 function HandDrawnUnderline({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 280 20" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M3 14C50 4 150 2 277 11C210 18 90 19 12 17"
+    <svg 
+      viewBox="0 0 340 24" 
+      fill="none" 
+      className={className} 
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Primary Smooth Hand Swoosh */}
+      <motion.path
+        d="M 4,13 C 58,6 178,3 336,8 C 250,15 128,17 28,15 C 102,14 228,11 312,13"
         stroke="currentColor"
-        strokeWidth="3.5"
+        strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.85 }}
+        transition={{
+          duration: 1.25,
+          delay: 0.7,
+          ease: [0.22, 1, 0.36, 1],
+        }}
       />
     </svg>
   );
@@ -123,20 +137,44 @@ function HandDrawnUnderline({ className = "" }: { className?: string }) {
 
 function HandDrawnCircle({ children }: { children: React.ReactNode }) {
   return (
-    <span className="relative inline-block px-2">
+    <span className="relative inline-block px-2.5 py-0.5">
       <span className="relative z-10">{children}</span>
       <svg
-        viewBox="0 0 160 55"
+        viewBox="0 0 260 70"
         fill="none"
-        className="absolute -inset-x-2 -inset-y-1.5 w-[calc(100%+16px)] h-[calc(100%+12px)] text-[#A9C632] pointer-events-none -z-0"
+        preserveAspectRatio="none"
+        className="absolute -inset-x-3 -inset-y-1.5 w-[calc(100%+24px)] h-[calc(100%+12px)] text-[#A9C632] pointer-events-none -z-0 overflow-visible"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path
-          d="M15 28C14 12 40 5 80 5C130 5 152 14 152 28C152 42 120 50 75 50C25 50 8 40 10 26C12 10 50 6 85 6"
+        {/* Main Fluid Loop */}
+        <motion.path
+          d="M 28,34 C 25,18 58,11 130,8 C 205,5 246,14 250,33 C 254,51 210,63 128,64 C 52,65 14,54 11,35 C 8,16 52,9 122,7 C 178,5 235,11 246,24"
           stroke="currentColor"
-          strokeWidth="2.5"
+          strokeWidth="1.75"
           strokeLinecap="round"
           strokeLinejoin="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 0.88 }}
+          transition={{
+            duration: 1.2,
+            delay: 0.35,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        />
+        {/* Soft Organic Micro-Accent */}
+        <motion.path
+          d="M 38,40 C 72,56 182,58 228,44"
+          stroke="currentColor"
+          strokeWidth="1.1"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 0.4 }}
+          transition={{
+            duration: 0.9,
+            delay: 0.9,
+            ease: [0.22, 1, 0.36, 1],
+          }}
         />
       </svg>
     </span>
@@ -146,12 +184,25 @@ function HandDrawnCircle({ children }: { children: React.ReactNode }) {
 function HandDrawnArrow({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 70 50" fill="none" className={`w-14 h-10 ${className}`} xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M8 8C20 22 36 34 58 38M58 38L44 43M58 38L52 25"
+      <motion.path
+        d="M 6,10 C 22,22 38,33 58,37"
         stroke="currentColor"
-        strokeWidth="2.5"
+        strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.9 }}
+        transition={{ duration: 0.7, delay: 1.0, ease: "easeOut" }}
+      />
+      <motion.path
+        d="M 45,41 L 58,37 L 53,24"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.9 }}
+        transition={{ duration: 0.45, delay: 1.5, ease: "easeOut" }}
       />
     </svg>
   );
