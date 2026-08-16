@@ -15,13 +15,12 @@ export async function getSessionUser() {
       return null;
     }
 
-    const user = await db
+    const userRows = await db
       .select()
       .from(users)
-      .where(eq(users.email, session.user.email))
-      .get();
+      .where(eq(users.email, session.user.email));
 
-    return user || null;
+    return userRows[0] || null;
   } catch (error) {
     console.error("[AuthSession] Error fetching session user:", error);
     return null;

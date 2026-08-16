@@ -458,8 +458,7 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
       const existing = await db
         .select()
         .from(companies)
-        .where(eq(companies.name, result.name))
-        .all();
+        .where(eq(companies.name, result.name));
 
       let companyId: string;
 
@@ -506,8 +505,7 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
         const existingJob = await db
           .select()
           .from(jobs)
-          .where(eq(jobs.apply_url, j.applyUrl))
-          .all();
+          .where(eq(jobs.apply_url, j.applyUrl));
 
         if (existingJob.length === 0) {
           await db.insert(jobs).values({
@@ -545,8 +543,7 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
       const existing = await db
         .select()
         .from(companies)
-        .where(eq(companies.name, comp.name))
-        .all();
+        .where(eq(companies.name, comp.name));
 
       let companyId: string;
       if (existing.length > 0) {
@@ -572,8 +569,7 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
         const existingJob = await db
           .select()
           .from(jobs)
-          .where(eq(jobs.apply_url, j.applyUrl))
-          .all();
+          .where(eq(jobs.apply_url, j.applyUrl));
 
         if (existingJob.length === 0) {
           await db.insert(jobs).values({
@@ -610,7 +606,7 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
     console.warn("[Findely Scraper] AgentReach pass skipped or errored:", reachErr.message);
   }
 
-  const allJobsCount = await db.select().from(jobs).all();
+  const allJobsCount = await db.select().from(jobs);
 
   return {
     success: true,

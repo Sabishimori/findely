@@ -19,16 +19,17 @@ export async function registerOrLoginUser(data: {
     if (isDisposableEmail(data.email)) {
       return { success: false, error: "Temporary and disposable emails are blocked. Please use a verified Gmail or company email." };
     }
-    const existingUser = await db.select().from(users).where(eq(users.email, data.email)).get();
+    const userRows = await db.select().from(users).where(eq(users.email, data.email));
+    const existingUser = userRows[0];
     let userId: string;
     if (existingUser) {
       userId = existingUser.id;
     } else {
-      const inserted = await db.insert(users).values({
+      const insertedRows = await db.insert(users).values({
         email: data.email,
         role: "individual",
-      }).returning().get();
-      userId = inserted.id;
+      }).returning();
+      userId = insertedRows[0].id;
 
       // Create an initial clean profile for this new user
       await db.insert(profiles).values({
@@ -63,12 +64,13 @@ export async function getUserProfile(userEmail?: string) {
     return null;
   }
 
-  const profile = await db
+  const profileRows = await db
     .select()
     .from(profiles)
     .where(eq(profiles.email, targetEmail))
-    .limit(1)
-    .get();
+    .limit(1);
+
+  const profile = profileRows[0];
 
   if (!profile) return null;
 
@@ -112,12 +114,13 @@ export async function updateUserProfile(data: {
     throw new Error("Cannot update profile without a valid user email");
   }
 
-  const existing = await db
+  const existingRows = await db
     .select()
     .from(profiles)
     .where(eq(profiles.email, effectiveEmail))
-    .limit(1)
-    .get();
+    .limit(1);
+
+  const existing = existingRows[0];
 
   const sanitizedName = sanitizeText(data.name);
   const sanitizedUsername = sanitizeText(data.username);
@@ -263,11 +266,12 @@ export async function getAllMapData() {
 
 export async function getCompanyWithJobs(companyId: string) {
   try {
-    const company = await db
+    const companyRows = await db
       .select()
       .from(companies)
-      .where(eq(companies.id, companyId))
-      .get();
+      .where(eq(companies.id, companyId));
+
+    const company = companyRows[0];
 
     if (!company) {
       const fallback = FALLBACK_COMPANIES.find(
@@ -390,7 +394,7 @@ export async function toggleSaveJob(data: {
     ? eq(applications.user_id, sessionUser.id)
     : isNull(applications.user_id);
 
-  const existing = await db
+  const existingRows = await db
     .select()
     .from(applications)
     .where(
@@ -405,8 +409,9 @@ export async function toggleSaveJob(data: {
           )
         )
       )
-    )
-    .get();
+    );
+
+  const existing = existingRows[0];
 
   if (existing) {
     await db.delete(applications).where(eq(applications.id, existing.id));

@@ -111,17 +111,18 @@ export async function syncAgentReachToDatabase(): Promise<{
         : `https://${domain}`;
 
       // 1. Check if company exists
-      let existingCompany = await db
+      const existingCompanyRows = await db
         .select()
         .from(companies)
-        .where(eq(companies.name, sig.companyName))
-        .get();
+        .where(eq(companies.name, sig.companyName));
+
+      let existingCompany = existingCompanyRows[0];
 
       const hqCoords = geocodeLocation(sig.location || "San Francisco");
 
       if (!existingCompany) {
         const logo = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-        const newCo = await db
+        const newCoRows = await db
           .insert(companies)
           .values({
             name: sig.companyName,
@@ -146,16 +147,15 @@ export async function syncAgentReachToDatabase(): Promise<{
               : null,
             status: "verified",
           })
-          .returning()
-          .get();
+          .returning();
 
-        existingCompany = newCo;
+        existingCompany = newCoRows[0];
       }
 
       if (!existingCompany) continue;
 
       // 2. Check if job already exists
-      const existingJob = await db
+      const existingJobRows = await db
         .select()
         .from(jobs)
         .where(
@@ -163,8 +163,9 @@ export async function syncAgentReachToDatabase(): Promise<{
             eq(jobs.company_id, existingCompany.id),
             eq(jobs.title, sig.roleTitle)
           )
-        )
-        .get();
+        );
+
+      const existingJob = existingJobRows[0];
 
       if (!existingJob) {
         const jobCoords = geocodeLocation(sig.location || existingCompany.location_text || "San Francisco");
