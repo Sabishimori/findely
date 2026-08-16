@@ -13,6 +13,7 @@ import { db } from "../src/db";
 import { companies, jobs } from "../src/db/schema";
 import { eq } from "drizzle-orm";
 import { getCompanyLogoUrl } from "../src/lib/logoResolver";
+import { resolveExactJobApplyUrl } from "../src/lib/applyUrlResolver";
 
 interface StartupDef {
   name: string;
@@ -949,11 +950,16 @@ async function main() {
 
     // Seed roles
     for (const r of s.roles) {
-      const applyUrl = `https://${s.domain}/careers`;
+      const directApplyUrl = resolveExactJobApplyUrl({
+        companyName: s.name,
+        websiteUrl: `https://${s.domain}`,
+        jobTitle: r.title,
+      });
+
       const existingJob = await db
         .select()
         .from(jobs)
-        .where(eq(jobs.apply_url, applyUrl + "#" + encodeURIComponent(r.title)))
+        .where(eq(jobs.apply_url, directApplyUrl))
         .all();
 
       if (existingJob.length === 0) {
@@ -966,7 +972,7 @@ async function main() {
           longitude: s.lng,
           salary_range: r.salary,
           job_type: r.type,
-          apply_url: applyUrl + "#" + encodeURIComponent(r.title),
+          apply_url: directApplyUrl,
           description: `${s.name} is seeking a high-caliber ${r.title} to join our team in ${s.city}. Tech stack: ${s.techStack.join(", ")}.`,
           posted_at: new Date(Date.now() - Math.floor(Math.random() * 7 * 86400000)),
           is_active: true,

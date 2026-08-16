@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { getCompanyWithJobs, trackJobApplication, toggleSaveJob, getAppliedJobs } from "@/app/actions";
 import { getCompanyIntelligence, CompanyIntelligence } from "@/lib/companyIntelligence";
+import { resolveExactJobApplyUrl } from "@/lib/applyUrlResolver";
 import EmailOutreachModal from "./EmailOutreachModal";
 import ReportCompanyModal from "./ReportCompanyModal";
 import { 
@@ -126,6 +127,13 @@ export default function CompanySheet({
     if (!data) return;
     setAppliedJobIds((prev) => new Set([...prev, job.id]));
 
+    const directUrl = resolveExactJobApplyUrl({
+      companyName: data.name,
+      websiteUrl: data.website_url,
+      applyUrl: job.apply_url,
+      jobTitle: job.title,
+    });
+
     trackJobApplication({
       job_id: job.id,
       company_id: data.id,
@@ -134,7 +142,7 @@ export default function CompanySheet({
       company_logo: data.logo_url,
       location_text: job.location_text,
       salary_range: job.salary_range,
-      apply_url: job.apply_url || data.website_url,
+      apply_url: directUrl,
       status: "applied",
       notes: `Applied via Findely on ${new Date().toLocaleDateString()}`,
     }).catch(console.error);
@@ -161,6 +169,13 @@ export default function CompanySheet({
       })
     );
 
+    const directUrl = resolveExactJobApplyUrl({
+      companyName: data.name,
+      websiteUrl: data.website_url,
+      applyUrl: job.apply_url,
+      jobTitle: job.title,
+    });
+
     toggleSaveJob({
       job_id: job.id,
       job_title: job.title,
@@ -169,7 +184,7 @@ export default function CompanySheet({
       company_logo: data.logo_url,
       location_text: job.location_text,
       salary_range: job.salary_range,
-      apply_url: job.apply_url || data.website_url,
+      apply_url: directUrl,
     }).catch(console.error);
 
     if (onApplicationTracked) onApplicationTracked();
@@ -530,7 +545,12 @@ export default function CompanySheet({
 
                                 <div className="flex items-center gap-2 pt-2 border-t border-black/[0.05] dark:border-white/[0.06]">
                                   <a
-                                    href={job.apply_url || data.website_url}
+                                    href={resolveExactJobApplyUrl({
+                                      companyName: data.name,
+                                      websiteUrl: data.website_url,
+                                      applyUrl: job.apply_url,
+                                      jobTitle: job.title,
+                                    })}
                                     target="_blank"
                                     rel="noreferrer"
                                     onClick={() => handleTrackApplication(job)}

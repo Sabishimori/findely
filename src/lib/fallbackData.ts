@@ -892,6 +892,8 @@ const RAW_GLOBAL_STARTUPS: StartupDef[] = [
   }
 ];
 
+import { resolveExactJobApplyUrl } from "./applyUrlResolver";
+
 export const FALLBACK_COMPANIES: FallbackCompany[] = RAW_GLOBAL_STARTUPS.map((s, idx) => {
   const companyId = "company-" + s.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
   const logoUrl = "https://www.google.com/s2/favicons?domain=" + s.domain + "&sz=128";
@@ -906,7 +908,11 @@ export const FALLBACK_COMPANIES: FallbackCompany[] = RAW_GLOBAL_STARTUPS.map((s,
     salary_range: r.salary,
     work_mode: r.type.toLowerCase().includes("remote") ? "remote" : r.type.toLowerCase().includes("hybrid") ? "hybrid" : "onsite",
     role_category: r.title.includes("Designer") ? "Design" : r.title.includes("AI") || r.title.includes("Machine") ? "AI & ML" : "Engineering",
-    apply_url: "https://" + s.domain + "/careers#" + encodeURIComponent(r.title),
+    apply_url: resolveExactJobApplyUrl({
+      companyName: s.name,
+      websiteUrl: "https://" + s.domain,
+      jobTitle: r.title,
+    }),
     description: s.name + " is seeking a high-caliber " + r.title + " to join our team in " + s.city + ". Tech stack: " + s.techStack.join(", ") + ".",
     posted_at: new Date(Date.now() - ((idx * 3 + rIdx) % 7 + 1) * 86400000),
     is_active: true,

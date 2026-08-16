@@ -9,6 +9,7 @@ import {
   updateApplicationStatus,
   updateApplicationNotes 
 } from "@/app/actions";
+import { resolveExactJobApplyUrl } from "@/lib/applyUrlResolver";
 import { 
   Bookmark, 
   Send, 
@@ -81,7 +82,11 @@ export default function UnifiedTrackerView({
         companyLogo: item.company_logo,
         location: item.location_text,
         salary: item.salary_range,
-        applyUrl: item.apply_url || "#",
+        applyUrl: resolveExactJobApplyUrl({
+          companyName: item.company_name,
+          applyUrl: item.apply_url,
+          jobTitle: item.job_title,
+        }),
         status: (item.status as ApplicationStatus) || "saved",
         notes: item.notes,
         createdAt: item.applied_at ? new Date(item.applied_at).toLocaleDateString() : "Recent",

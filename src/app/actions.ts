@@ -6,6 +6,7 @@ import { eq, and, or, isNull, desc, gt } from "drizzle-orm";
 import { revalidatePath, unstable_cache } from "next/cache";
 import { isDisposableEmail } from "@/lib/disposableEmailBlocker";
 import { sanitizeText, sanitizeUrl, sanitizeObject } from "@/lib/security/xssSanitizer";
+import { resolveExactJobApplyUrl } from "@/lib/applyUrlResolver";
 import { sendOtpEmail } from "@/lib/emailService";
 
 // ── Real Email OTP Verification Actions ──────────────────────────────────
@@ -395,6 +396,16 @@ async function fetchMapDataFromDb() {
           }, 0)
         : null;
 
+      const resolvedCompanyJobs = companyJobs.map((j: any) => ({
+        ...j,
+        apply_url: resolveExactJobApplyUrl({
+          companyName: c.name,
+          websiteUrl: c.website_url,
+          applyUrl: j.apply_url,
+          jobTitle: j.title,
+        }),
+      }));
+
       return {
         id: c.id,
         name: c.name,
@@ -409,9 +420,9 @@ async function fetchMapDataFromDb() {
         contact_email: c.contact_email,
         contact_phone: c.contact_phone,
         status: c.status,
-        activeJobCount: companyJobs.length,
-        jobTitles: companyJobs.map((j) => j.title),
-        roles: companyJobs,
+        activeJobCount: resolvedCompanyJobs.length,
+        jobTitles: resolvedCompanyJobs.map((j: any) => j.title),
+        roles: resolvedCompanyJobs,
         founders,
         hrLeads,
         techStack,
@@ -456,11 +467,21 @@ export async function getCompanyWithJobs(companyId: string) {
       return null;
     }
 
-    const companyJobs = await db
+    const rawCompanyJobs = await db
       .select()
       .from(jobs)
       .where(and(eq(jobs.company_id, companyId), eq(jobs.is_active, true)))
       .orderBy(desc(jobs.posted_at));
+
+    const companyJobs = rawCompanyJobs.map((j) => ({
+      ...j,
+      apply_url: resolveExactJobApplyUrl({
+        companyName: company.name,
+        websiteUrl: company.website_url,
+        applyUrl: j.apply_url,
+        jobTitle: j.title,
+      }),
+    }));
 
     const sources = await db
       .select()

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { getCompanyWithJobs, trackJobApplication, toggleSaveJob, getAppliedJobs } from "@/app/actions";
+import { resolveExactJobApplyUrl } from "@/lib/applyUrlResolver";
 import EmailOutreachModal from "./EmailOutreachModal";
 import { 
   X, 
@@ -116,6 +117,13 @@ export default function DraggableCompanyCard({
     if (!data) return;
     setAppliedJobIds((prev) => new Set([...prev, job.id]));
 
+    const directUrl = resolveExactJobApplyUrl({
+      companyName: data.name,
+      websiteUrl: data.website_url,
+      applyUrl: job.apply_url,
+      jobTitle: job.title,
+    });
+
     await trackJobApplication({
       job_id: job.id,
       company_id: data.id,
@@ -124,7 +132,7 @@ export default function DraggableCompanyCard({
       company_logo: data.logo_url,
       location_text: job.location_text,
       salary_range: job.salary_range,
-      apply_url: job.apply_url || data.website_url,
+      apply_url: directUrl,
       status: "applied",
       notes: `Applied via Findely on ${new Date().toLocaleDateString()}`,
     });
@@ -151,6 +159,13 @@ export default function DraggableCompanyCard({
       })
     );
 
+    const directUrl = resolveExactJobApplyUrl({
+      companyName: data.name,
+      websiteUrl: data.website_url,
+      applyUrl: job.apply_url,
+      jobTitle: job.title,
+    });
+
     toggleSaveJob({
       job_id: job.id,
       company_id: data.id,
@@ -159,7 +174,7 @@ export default function DraggableCompanyCard({
       company_logo: data.logo_url,
       location_text: job.location_text,
       salary_range: job.salary_range,
-      apply_url: job.apply_url || data.website_url,
+      apply_url: directUrl,
     }).catch(console.error);
 
     if (onApplicationTracked) onApplicationTracked();
@@ -459,9 +474,13 @@ export default function DraggableCompanyCard({
                               </p>
 
                               <div className="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center gap-1.5">
-                                {job.apply_url && (
                                   <a
-                                    href={job.apply_url}
+                                    href={resolveExactJobApplyUrl({
+                                      companyName: data.name,
+                                      websiteUrl: data.website_url,
+                                      applyUrl: job.apply_url,
+                                      jobTitle: job.title,
+                                    })}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="flex-1 py-1.5 px-3 bg-[#4E9B78] hover:bg-[#3D8565] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1 shadow-xs"
@@ -469,7 +488,6 @@ export default function DraggableCompanyCard({
                                     <span>Apply</span>
                                     <ExternalLink className="w-3 h-3" />
                                   </a>
-                                )}
 
                                 <button
                                   onClick={() =>

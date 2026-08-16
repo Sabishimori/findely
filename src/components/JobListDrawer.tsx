@@ -22,6 +22,7 @@ import {
 import { CompanyMapItem } from "./MapComponent";
 import { trackJobApplication, toggleSaveJob, getAppliedJobs } from "@/app/actions";
 import { handleImageError, getCompanyLogoUrl } from "@/lib/logoResolver";
+import { resolveExactJobApplyUrl } from "@/lib/applyUrlResolver";
 import ReportCompanyModal from "./ReportCompanyModal";
 
 interface JobListDrawerProps {
@@ -123,7 +124,12 @@ export default function JobListDrawer({
             location: role.location_text || company.location_text || "San Francisco, CA",
             workMode: role.location_text?.toLowerCase().includes("remote") ? "Remote" : "On-site",
             salary: role.salary_range || undefined,
-            applyUrl: (role as any).apply_url || company.website_url,
+            applyUrl: resolveExactJobApplyUrl({
+              companyName: company.name,
+              websiteUrl: company.website_url,
+              applyUrl: (role as any).apply_url,
+              jobTitle: role.title,
+            }),
             postedAt: role.posted_at ? new Date(role.posted_at) : company.latestPostDate,
             company,
           });
@@ -136,7 +142,11 @@ export default function JobListDrawer({
           category: "Engineering",
           location: company.location_text || "San Francisco, CA",
           workMode: "Hybrid / On-site",
-          applyUrl: company.website_url,
+          applyUrl: resolveExactJobApplyUrl({
+            companyName: company.name,
+            websiteUrl: company.website_url,
+            jobTitle: "Founding & Senior Staff Engineer",
+          }),
           postedAt: company.latestPostDate,
           company,
         });
