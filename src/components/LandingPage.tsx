@@ -358,13 +358,19 @@ export default function LandingPage({
             onClick={() => handleLaunchClick()}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-2xl bg-[#1D2E1B] p-1.5 flex items-center justify-center border border-[#C8D2A6]/50 shadow-md group-hover:scale-105 transition-transform overflow-hidden">
-              <img src="/logofinal.svg" alt="Findely Logo" className="w-full h-full object-contain" />
+            <div className="w-10 h-10 rounded-2xl bg-[#1D2E1B] p-1 flex items-center justify-center border border-[#C8D2A6]/50 shadow-md group-hover:scale-105 transition-transform overflow-hidden relative">
+              <img src="/findely cool with a bg.svg" alt="Findely Cool Mascot" className="w-full h-full object-contain" />
             </div>
             <div>
-              <span className="font-black text-lg tracking-tight block leading-none">
-                FINDELY
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-black text-lg tracking-tight block leading-none">
+                  FINDELY
+                </span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md bg-[#A9C632]/20 text-[#1D2E1B] dark:text-[#A9C632] border border-[#A9C632]/40 tracking-wider">
+                  <span>COOL</span>
+                  <span>🕶️</span>
+                </span>
+              </div>
               <span className="text-[11px] font-extrabold text-[#546E50] dark:text-[#C8D2A6] tracking-wider uppercase mt-0.5 block">
                 Spatial Career Engine
               </span>
@@ -880,11 +886,17 @@ export default function LandingPage({
               ? "bg-[#1D2E1B] border-[#3D543A]" 
               : "bg-white border-[#C8D2A6]"
           }`}>
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-3 h-3 rounded-full bg-[#A9C632] animate-pulse" />
-              <span className="text-xs sm:text-sm font-extrabold text-[#A9C632] uppercase tracking-wider">
-                Founder's Note
-              </span>
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-3 h-3 rounded-full bg-[#A9C632] animate-pulse" />
+                <span className="text-xs sm:text-sm font-extrabold text-[#A9C632] uppercase tracking-wider">
+                  Founder's Manifesto & Story
+                </span>
+              </div>
+              <div className="flex items-center gap-2 bg-[#A9C632]/10 border border-[#A9C632]/30 px-3 py-1 rounded-full">
+                <img src="/findely cool with a bg.svg" alt="Cool Findely" className="w-5 h-5 rounded-md" />
+                <span className="text-[11px] font-bold text-[#1D2E1B] dark:text-[#A9C632]">Meet Cool Findely 🕶️</span>
+              </div>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-black text-[#1D2E1B] dark:text-white tracking-tight leading-snug">
@@ -893,34 +905,42 @@ export default function LandingPage({
 
             <div className="mt-6 space-y-5 text-sm sm:text-base text-[#546E50] dark:text-[#C8D2A6] leading-relaxed font-semibold">
               <p>
-                Job hunting right now is frankly exhausting. When you're searching as a fresher, a career switcher, or an independent builder, the worst part is the paywalls: <span className="text-[#1D2E1B] dark:text-white font-black">most people don't have $40 to $80 a month to burn on subscription job boards just to get ghosted.</span>
+                Navigating modern job boards in 2026 feels like <span className="text-[#1D2E1B] dark:text-white font-bold">trying to order a pizza on a site that asks for your 5-year high school GPA, redirects you to Workday to re-type your resume 4 times, only to find out the pizza was eaten 3 months ago by a phantom recruiter.</span> 🍕👻
               </p>
 
               <p>
-                I couldn't stand sending hundreds of applications into black holes where nobody ever responded, while recruiting companies charged thousands just to unlock basic search filters.
+                Traditional platforms treat candidates like lab mice in a paywalled cheese maze — charging $40 to $80 a month just to unlock basic search filters, while tossing your applications into a cosmic black hole of zero replies.
               </p>
 
               <p>
-                So I coded a solution for myself and decided to make it <span className="text-[#A9C632] font-black">100% free and open for everyone.</span> No hidden tiers, no credit cards. Just log in, explore the globe, and find where the real tech teams are building.
+                I got tired of the corporate obstacle course. So, fueled by late-night caffeine, spite, and zero tolerance for ghost jobs, I engineered <span className="text-[#A9C632] font-black">Findely</span>: a 2.5D spatial warp-drive map that lets you bypass the recruiter toll booths and teleport straight to where the real engineers are pushing code. 100% free and open-source for everyone.
               </p>
 
               {/* Fun Hiring Note from Sagar */}
-              <div className="p-5 rounded-3xl bg-[#A9C632]/10 border border-[#A9C632]/30 space-y-2.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-base">👀</span>
-                  <span className="font-extrabold text-xs sm:text-sm text-[#1D2E1B] dark:text-[#A9C632] uppercase tracking-wider">
-                    Fun Note: Yes, I'm Open to Work Too!
+              <div className="p-6 rounded-3xl bg-[#A9C632]/10 border border-[#A9C632]/30 space-y-3 relative overflow-hidden">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🕶️</span>
+                    <span className="font-extrabold text-xs sm:text-sm text-[#1D2E1B] dark:text-[#A9C632] uppercase tracking-wider">
+                      Plot Twist: Yes, The Builder is Open to Work Too!
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-extrabold bg-[#A9C632] text-[#1D2E1B] px-2 py-0.5 rounded-full uppercase">
+                    Available
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-[#1D2E1B] dark:text-white font-medium leading-relaxed">
-                  Want to hire me? I do a bit of UI/UX design, understand product deeply, and vibe code fast full-stack apps with spatial physics and AI from scratch. If your team is building something cool, let’s talk!
+                  While building an entire spatial job discovery platform so other humans don't get ghosted, I realized an inconvenient truth: <em>I also need to pay my Wi-Fi bill.</em>
                 </p>
-                <div className="flex items-center gap-4 pt-1 text-xs font-bold">
+                <p className="text-xs sm:text-sm text-[#1D2E1B] dark:text-white font-medium leading-relaxed">
+                  Need a fast-moving product builder? I design sharp UI/UX, understand product instincts, and vibe code full-stack apps with spatial physics and AI at hyper-speed. If your startup is building something ambitious, let’s talk before I accidentally build an AI that applies to your jobs for me!
+                </p>
+                <div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-bold">
                   <a
                     href="https://www.linkedin.com/in/sagar-s-510aa4232/"
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[#0070BA] dark:text-[#45a2e5] hover:underline flex items-center gap-1"
+                    className="text-[#0070BA] dark:text-[#45a2e5] hover:underline flex items-center gap-1.5"
                   >
                     <span>DM me on LinkedIn</span>
                     <span>↗</span>
@@ -930,7 +950,7 @@ export default function LandingPage({
                     href="https://x.com/sabishimor1"
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[#1D2E1B] dark:text-[#A9C632] hover:underline flex items-center gap-1"
+                    className="text-[#1D2E1B] dark:text-[#A9C632] hover:underline flex items-center gap-1.5"
                   >
                     <span>Slide into X DMs (@sabishimor1)</span>
                     <span>↗</span>
@@ -939,9 +959,13 @@ export default function LandingPage({
               </div>
 
               <div className="pt-6 border-t border-black/[0.08] dark:border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <span className="font-extrabold text-base text-[#1D2E1B] dark:text-white block">Sagar S · The Findely Builder</span>
-                  <div className="flex items-center gap-3.5 mt-2 text-xs sm:text-sm">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-[#1D2E1B] p-1 flex items-center justify-center border border-[#C8D2A6] shadow-sm overflow-hidden shrink-0">
+                    <img src="/findely cool with a bg.svg" alt="Cool Findely" className="w-full h-full object-contain" />
+                  </div>
+                  <div>
+                    <span className="font-extrabold text-base text-[#1D2E1B] dark:text-white block">Sagar S · The Findely Builder</span>
+                    <div className="flex items-center gap-3.5 mt-1 text-xs sm:text-sm">
                     <a
                       href="https://github.com/Sabishimori"
                       target="_blank"
@@ -970,7 +994,8 @@ export default function LandingPage({
                     </a>
                   </div>
                 </div>
-                <Magnetic strength={0.3}>
+              </div>
+              <Magnetic strength={0.3}>
                   <button
                     onClick={handleLaunchClick}
                     className="group px-6 py-3 rounded-2xl bg-[#A9C632] text-[#1D2E1B] font-black text-xs sm:text-sm hover:bg-[#96B228] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0"
