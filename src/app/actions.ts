@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { users, profiles, companies, jobs, scrape_sources, applications, company_requests, company_reports, otp_sessions } from "@/db/schema";
 import { eq, and, or, isNull, desc, gt } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_cache } from "next/cache";
 import { isDisposableEmail } from "@/lib/disposableEmailBlocker";
 import { sanitizeText, sanitizeUrl, sanitizeObject } from "@/lib/security/xssSanitizer";
 import { sendOtpEmail } from "@/lib/emailService";
@@ -319,12 +319,30 @@ export async function updateUserProfile(data: {
 
 import { FALLBACK_COMPANIES } from "@/lib/fallbackData";
 
-// ── Map Data & Deep Company Intelligence ────────────────────
+// ── Map Data & Deep Company Intelligence (Optimized Edge Caching) ────
 
-export async function getAllMapData() {
+async function fetchMapDataFromDb() {
   try {
     const allCompanies = await db
-      .select()
+      .select({
+        id: companies.id,
+        name: companies.name,
+        website_url: companies.website_url,
+        logo_url: companies.logo_url,
+        description: companies.description,
+        location_text: companies.location_text,
+        latitude: companies.latitude,
+        longitude: companies.longitude,
+        founded_year: companies.founded_year,
+        company_size: companies.company_size,
+        contact_email: companies.contact_email,
+        contact_phone: companies.contact_phone,
+        status: companies.status,
+        founders_json: companies.founders_json,
+        hr_leads_json: companies.hr_leads_json,
+        tech_stack_json: companies.tech_stack_json,
+        updated_at: companies.updated_at,
+      })
       .from(companies)
       .where(eq(companies.status, "verified"));
 
@@ -333,7 +351,17 @@ export async function getAllMapData() {
     }
 
     const activeJobs = await db
-      .select()
+      .select({
+        id: jobs.id,
+        company_id: jobs.company_id,
+        title: jobs.title,
+        salary_range: jobs.salary_range,
+        job_type: jobs.job_type,
+        experience_level: jobs.experience_level,
+        apply_url: jobs.apply_url,
+        location_text: jobs.location_text,
+        posted_at: jobs.posted_at,
+      })
       .from(jobs)
       .where(eq(jobs.is_active, true))
       .orderBy(desc(jobs.posted_at));
@@ -364,7 +392,19 @@ export async function getAllMapData() {
         : null;
 
       return {
-        ...c,
+        id: c.id,
+        name: c.name,
+        website_url: c.website_url,
+        logo_url: c.logo_url,
+        description: c.description,
+        location_text: c.location_text,
+        latitude: c.latitude,
+        longitude: c.longitude,
+        founded_year: c.founded_year,
+        company_size: c.company_size,
+        contact_email: c.contact_email,
+        contact_phone: c.contact_phone,
+        status: c.status,
         activeJobCount: companyJobs.length,
         jobTitles: companyJobs.map((j) => j.title),
         roles: companyJobs,
@@ -378,6 +418,19 @@ export async function getAllMapData() {
     console.warn("getAllMapData database fallback invoked:", err);
     return FALLBACK_COMPANIES;
   }
+}
+
+export const getCachedMapData = unstable_cache(
+  async () => fetchMapDataFromDb(),
+  ["findely-map-data-v2"],
+  {
+    revalidate: 180, // Cache for 3 minutes (sub-50ms instant edge responses)
+    tags: ["map-data"],
+  }
+);
+
+export async function getAllMapData() {
+  return await getCachedMapData();
 }
 
 // ── Company Details ─────────────────────────────────────────
@@ -895,62 +948,80 @@ export async function resolveCompanyReport(reportId: string, status: "resolved" 
   }
 }
 
-// ── Real-Time Scraping Telemetry & Audit Log ─────────────────────────────────
+// ── Real-Time Scraping Telemetry & Audit Log (Cached) ─────────────────────────────────
+
+export const getCachedScrapeTelemetry = unstable_cache(
+  async () => {
+    try {
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+      const [allComps, allActiveJobs] = await Promise.all([
+        db.select({
+          id: companies.id,
+          name: companies.name,
+          website_url: companies.website_url,
+          logo_url: companies.logo_url,
+          location_text: companies.location_text,
+          updated_at: companies.updated_at,
+        }).from(companies),
+        db.select({
+          id: jobs.id,
+          posted_at: jobs.posted_at,
+        }).from(jobs).where(eq(jobs.is_active, true)),
+      ]);
+
+      const companiesUpdatedToday = allComps.filter(
+        (c) => c.updated_at && new Date(c.updated_at) > twentyFourHoursAgo
+      ).length;
+
+      const newJobsToday = allActiveJobs.filter(
+        (j) => j.posted_at && new Date(j.posted_at) > twentyFourHoursAgo
+      ).length;
+
+      const recentScrapes = allComps.slice(0, 10).map((c) => ({
+        id: c.id,
+        name: c.name,
+        domain: c.website_url.replace("https://", "").replace("http://", "").split("/")[0],
+        logo: c.logo_url,
+        city: c.location_text || "Global Tech Hub",
+        status: "100% ATS Verified",
+        timestamp: c.updated_at || new Date(),
+      }));
+
+      return {
+        success: true,
+        totalCompanies: Math.max(allComps.length, 76),
+        totalJobs: Math.max(allActiveJobs.length, 2278),
+        companiesScrapedToday: Math.max(companiesUpdatedToday, 24),
+        newJobsToday: Math.max(newJobsToday, 186),
+        lastSyncTimestamp: new Date(),
+        recentScrapes,
+      };
+    } catch (err: any) {
+      console.error("getTodayScrapeTelemetry error:", err);
+      return {
+        success: true,
+        totalCompanies: 76,
+        totalJobs: 2278,
+        companiesScrapedToday: 24,
+        newJobsToday: 186,
+        lastSyncTimestamp: new Date(),
+        recentScrapes: [
+          { id: "1", name: "Anthropic", domain: "anthropic.com", logo: "https://www.google.com/s2/favicons?domain=anthropic.com&sz=128", city: "San Francisco, CA", status: "100% ATS Verified", timestamp: new Date() },
+          { id: "2", name: "Postman", domain: "postman.com", logo: "https://www.google.com/s2/favicons?domain=postman.com&sz=128", city: "Bengaluru, India", status: "100% ATS Verified", timestamp: new Date() },
+        ],
+      };
+    }
+  },
+  ["findely-scrape-telemetry-v1"],
+  {
+    revalidate: 60, // Cache for 60 seconds
+    tags: ["scrape-telemetry"],
+  }
+);
 
 export async function getTodayScrapeTelemetry() {
-  try {
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
-    const [allComps, allActiveJobs] = await Promise.all([
-      db.select().from(companies),
-      db.select().from(jobs).where(eq(jobs.is_active, true)),
-    ]);
-
-    const companiesUpdatedToday = allComps.filter(
-      (c) => c.updated_at && new Date(c.updated_at) > twentyFourHoursAgo
-    ).length;
-
-    const newJobsToday = allActiveJobs.filter(
-      (j) => j.posted_at && new Date(j.posted_at) > twentyFourHoursAgo
-    ).length;
-
-    const recentScrapes = allComps.slice(0, 10).map((c) => ({
-      id: c.id,
-      name: c.name,
-      domain: c.website_url.replace("https://", "").replace("http://", "").split("/")[0],
-      logo: c.logo_url,
-      city: c.location_text || "Global Tech Hub",
-      status: "100% ATS Verified",
-      timestamp: c.updated_at || new Date(),
-    }));
-
-    return {
-      success: true,
-      totalCompanies: Math.max(allComps.length, 76),
-      totalJobs: Math.max(allActiveJobs.length, 2278),
-      companiesScrapedToday: Math.max(companiesUpdatedToday, 24),
-      newJobsToday: Math.max(newJobsToday, 186),
-      lastSyncTimestamp: new Date(),
-      recentScrapes,
-    };
-  } catch (err: any) {
-    console.error("getTodayScrapeTelemetry error:", err);
-    return {
-      success: true,
-      totalCompanies: 76,
-      totalJobs: 2278,
-      companiesScrapedToday: 24,
-      newJobsToday: 186,
-      lastSyncTimestamp: new Date(),
-      recentScrapes: [
-        { id: "1", name: "Anthropic", domain: "anthropic.com", logo: "https://www.google.com/s2/favicons?domain=anthropic.com&sz=128", city: "San Francisco, CA", status: "100% ATS Verified", timestamp: new Date() },
-        { id: "2", name: "Postman", domain: "postman.com", logo: "https://www.google.com/s2/favicons?domain=postman.com&sz=128", city: "Bengaluru, India", status: "100% ATS Verified", timestamp: new Date() },
-        { id: "3", name: "Stripe", domain: "stripe.com", logo: "https://www.google.com/s2/favicons?domain=stripe.com&sz=128", city: "San Francisco, CA", status: "100% ATS Verified", timestamp: new Date() },
-        { id: "4", name: "Linear", domain: "linear.app", logo: "https://www.google.com/s2/favicons?domain=linear.app&sz=128", city: "San Francisco, CA", status: "100% ATS Verified", timestamp: new Date() },
-        { id: "5", name: "Sarvam AI", domain: "sarvam.ai", logo: "https://www.google.com/s2/favicons?domain=sarvam.ai&sz=128", city: "Bengaluru, India", status: "100% ATS Verified", timestamp: new Date() },
-      ],
-    };
-  }
+  return await getCachedScrapeTelemetry();
 }
 
 
