@@ -463,36 +463,42 @@ export default function LandingPage({
           </div>
         </motion.div>
 
-        {/* ── Animated Findely Mascot Scout Banner ── */}
-        <motion.div
-          initial={{ scale: 0.85, opacity: 0, y: 15 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-3.5 px-4 py-2 rounded-2xl bg-white/95 dark:bg-[#1D2E1B]/95 border border-[#C8D2A6] dark:border-[#3D543A] shadow-xl backdrop-blur-xl mb-6 group cursor-pointer hover:border-[#A9C632] transition-all"
-          onClick={() => playTapSound()}
-        >
-          <motion.div
-            animate={{ y: [0, -4, 0], rotate: [0, 2, -2, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="w-10 h-10 rounded-xl bg-[#1D2E1B] p-1.5 shadow-md border-2 border-[#A9C632] flex items-center justify-center shrink-0 relative"
+        {/* ── Giant 10% Opacity Background Watermark Mascot ── */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] sm:w-[620px] md:w-[740px] h-[480px] sm:h-[620px] md:h-[740px] pointer-events-none -z-0 select-none opacity-[0.06] dark:opacity-[0.09] transition-opacity flex items-center justify-center">
+          <img
+            src="/logofinal.svg"
+            alt=""
+            className="w-full h-full object-contain filter contrast-125 scale-110"
+          />
+        </div>
+
+        {/* Top Badges & Live Countdown */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-6 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#A9C632]/15 border border-[#A9C632]/40 text-xs sm:text-sm font-extrabold text-[#1D2E1B] dark:text-[#A9C632] shadow-xs"
           >
-            <img src="/logofinal.svg" alt="Findely Mascot" className="w-full h-full object-contain" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#A9C632] border-2 border-[#1D2E1B] animate-ping" />
+            <Flame className="w-4 h-4 text-[#A9C632]" />
+            <span>100% Direct ATS Pipelines · No Ghost Roles</span>
           </motion.div>
-          <div className="text-left">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#A9C632] bg-[#A9C632]/20 px-2 py-0.2 rounded-md">
-                FINDELY SCOUT V1
-              </span>
-              <span className="text-[11px] font-mono text-[#546E50] dark:text-[#C8D2A6]">
-                Sync: <strong className="text-[#A9C632]">{countdown}</strong>
-              </span>
-            </div>
-            <p className="text-xs font-extrabold text-[#1D2E1B] dark:text-white mt-0.5">
-              100% Direct ATS Pipelines · No Ghost Roles · Zero Paywalls
-            </p>
-          </div>
-        </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 dark:bg-[#1D2E1B]/90 border border-[#C8D2A6] dark:border-[#3D543A] text-xs font-bold text-[#1D2E1B] dark:text-white shadow-xs backdrop-blur-md"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A9C632] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#A9C632]"></span>
+            </span>
+            <span><strong className="text-[#1D2E1B] dark:text-[#A9C632] font-black">+24 Startups</strong> Found Today</span>
+            <span className="text-[#C8D2A6] dark:text-[#3D543A]">•</span>
+            <span className="font-mono text-[11px] text-[#546E50] dark:text-[#C8D2A6]">Next Sync: <strong className="text-[#A9C632]">{countdown}</strong></span>
+          </motion.div>
+        </div>
 
         {/* Hero Title */}
         <div className="max-w-5xl mx-auto">
