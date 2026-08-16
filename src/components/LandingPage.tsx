@@ -359,18 +359,12 @@ export default function LandingPage({
             className="flex items-center gap-3 cursor-pointer group"
           >
             <div className="w-10 h-10 rounded-2xl bg-[#1D2E1B] p-1 flex items-center justify-center border border-[#C8D2A6]/50 shadow-md group-hover:scale-105 transition-transform overflow-hidden relative">
-              <img src="/findely cool with a bg.svg" alt="Findely Cool Mascot" className="w-full h-full object-contain" />
+              <img src="/findely smile with a bg main logo].svg" alt="Findely Main Logo" className="w-full h-full object-contain" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-black text-lg tracking-tight block leading-none">
-                  FINDELY
-                </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md bg-[#A9C632]/20 text-[#1D2E1B] dark:text-[#A9C632] border border-[#A9C632]/40 tracking-wider">
-                  <span>COOL</span>
-                  <span>🕶️</span>
-                </span>
-              </div>
+              <span className="font-black text-lg tracking-tight block leading-none">
+                FINDELY
+              </span>
               <span className="text-[11px] font-extrabold text-[#546E50] dark:text-[#C8D2A6] tracking-wider uppercase mt-0.5 block">
                 Spatial Career Engine
               </span>
@@ -378,15 +372,19 @@ export default function LandingPage({
           </div>
 
           {/* Center Links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-extrabold text-[#546E50] dark:text-[#C8D2A6]">
+          <nav className="hidden md:flex items-center gap-7 text-sm font-extrabold text-[#546E50] dark:text-[#C8D2A6]">
             <a href="#how-it-works" className="hover:text-[#1D2E1B] dark:hover:text-white transition-colors">
               How It Works
             </a>
             <a href="#features" className="hover:text-[#1D2E1B] dark:hover:text-white transition-colors">
               The Experience
             </a>
-            <a href="#why-i-built-this" className="hover:text-[#1D2E1B] dark:hover:text-white transition-colors">
-              The Story
+            <a 
+              href="#why-i-built-this" 
+              className="inline-flex items-center gap-1.5 hover:text-[#1D2E1B] dark:hover:text-white transition-colors px-2.5 py-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+            >
+              <span>The Story</span>
+              <span className="text-xs">🕶️</span>
             </a>
             <a href="#donate" className="hover:text-[#1D2E1B] dark:hover:text-white transition-colors">
               Support Free Tier
