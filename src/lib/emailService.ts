@@ -98,15 +98,28 @@ export async function sendOtpEmail({ to, name, otpCode }: SendOtpParams): Promis
 
     // If SMTP credentials exist, send real email via transporter
     if (smtpUser && smtpPass) {
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure: smtpPort === 465,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-      });
+      const isGmail = smtpUser.toLowerCase().includes("@gmail.com") || smtpHost.toLowerCase().includes("gmail");
+      const cleanPass = smtpPass.replace(/\s+/g, ""); // Strip Google app password 4-chunk spaces
+
+      const transporter = nodemailer.createTransport(
+        isGmail
+          ? {
+              service: "gmail",
+              auth: {
+                user: smtpUser,
+                pass: cleanPass,
+              },
+            }
+          : {
+              host: smtpHost,
+              port: smtpPort,
+              secure: smtpPort === 465,
+              auth: {
+                user: smtpUser,
+                pass: cleanPass,
+              },
+            }
+      );
 
       await transporter.sendMail({
         from: smtpFrom,
@@ -118,12 +131,15 @@ export async function sendOtpEmail({ to, name, otpCode }: SendOtpParams): Promis
 
       return { success: true };
     } else {
-      // If SMTP credentials not provided in env, log to console for development verification
-      console.log(`[AUTH-EMAIL-DISPATCH] Sent verification code [${otpCode}] to ${to}`);
-      return { success: true };
+      // If SMTP credentials not provided in env, return explicit guidance
+      console.warn(`[AUTH-EMAIL-DISPATCH] SMTP credentials missing. Generated code [${otpCode}] for ${to}`);
+      return { 
+        success: false, 
+        error: "Gmail SMTP not yet configured. Please add GMAIL_USER & GMAIL_APP_PASSWORD in your environment variables, or use 1-Click Google Sign-In." 
+      };
     }
   } catch (err: any) {
     console.error("sendOtpEmail error:", err);
-    return { success: false, error: err.message || "Failed to send email verification code" };
+    return { success: false, error: err.message || "Failed to send email verification code via Gmail SMTP." };
   }
 }

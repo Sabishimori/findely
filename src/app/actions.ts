@@ -43,6 +43,10 @@ export async function sendEmailOtp(data: { email: string; name?: string }) {
 
     if (!emailResult.success) {
       console.warn("Email delivery note:", emailResult.error);
+      return {
+        success: false,
+        error: emailResult.error || "Failed to dispatch verification code.",
+      };
     }
 
     return { 
