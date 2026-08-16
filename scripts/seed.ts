@@ -220,7 +220,7 @@ async function main() {
     },
   ]).returning().all();
 
-  const getComp = (name: string) => newCompanies.find(c => c.name === name)!;
+  const getComp = (name: string) => newCompanies.find((c: any) => c.name === name)!;
 
   // Now seed Jobs with timestamps (past 24h, past 7d, past 30d)
   const now = Date.now();

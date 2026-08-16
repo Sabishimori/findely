@@ -187,7 +187,7 @@ export default function CompanySheet({
     : (null as any);
 
   const rawJobs = data?.jobs || [];
-  const filteredJobs = rawJobs.filter((job) => {
+  const filteredJobs = rawJobs.filter((job: any) => {
     if (!selectedDepartment) return true;
     return (
       job.title.toLowerCase().includes(selectedDepartment.toLowerCase()) ||

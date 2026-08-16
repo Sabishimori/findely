@@ -224,7 +224,7 @@ export async function getAllMapData() {
       jobMap.set(j.company_id, list);
     }
 
-    return allCompanies.map((c) => {
+    return allCompanies.map((c: any) => {
       const companyJobs = jobMap.get(c.id) || [];
       
       let founders = [];
