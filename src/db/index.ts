@@ -2,8 +2,11 @@ import * as schema from './schema';
 import { createClient } from '@libsql/client';
 import { drizzle } from 'drizzle-orm/libsql';
 
-const tursoUrl = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
-const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN;
+const rawUrl = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
+const rawToken = process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN;
+
+const tursoUrl = rawUrl?.trim();
+const tursoAuthToken = rawToken?.trim();
 
 const isRemote = Boolean(
   tursoUrl && (tursoUrl.startsWith('libsql://') || tursoUrl.startsWith('https://'))
