@@ -51,3 +51,8 @@ next-env.d.ts
 sqlite.db*
 *.db
 *.sqlite
+
+# personal context files
+FINDELY_MASTER_LOG.md
+*MASTER_LOG*.md
+scripts/diagnose_open_positions.ts
