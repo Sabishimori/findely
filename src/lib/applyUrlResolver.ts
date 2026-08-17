@@ -15,51 +15,74 @@ export interface ApplyUrlContext {
 const VERIFIED_CAREER_PORTALS: Record<string, { portalUrl: string; searchUrlPattern?: (title: string, company: string) => string }> = {
   // AI & Frontier Labs
   "deepl.com": { 
-    portalUrl: "https://www.deepl.com/en/careers#roles",
-    searchUrlPattern: (title) => `https://www.google.com/search?q=site:deepl.com/careers+${encodeURIComponent(title)}`
+    portalUrl: "https://jobs.ashbyhq.com/deepl",
+    searchUrlPattern: () => "https://jobs.ashbyhq.com/deepl"
   },
   "openai.com": { 
-    portalUrl: "https://openai.com/careers/search/",
-    searchUrlPattern: (title) => `https://openai.com/careers/search/?q=${encodeURIComponent(title)}`
+    portalUrl: "https://jobs.ashbyhq.com/openai",
+    searchUrlPattern: () => "https://jobs.ashbyhq.com/openai"
   },
   "anthropic.com": { 
-    portalUrl: "https://jobs.lever.co/anthropic",
-    searchUrlPattern: (title) => `https://jobs.lever.co/anthropic?team=${encodeURIComponent(title)}`
+    portalUrl: "https://job-boards.greenhouse.io/anthropic",
+    searchUrlPattern: () => "https://job-boards.greenhouse.io/anthropic"
+  },
+  "cursor.com": {
+    portalUrl: "https://jobs.ashbyhq.com/cursor",
+    searchUrlPattern: () => "https://jobs.ashbyhq.com/cursor"
+  },
+  "supabase.com": {
+    portalUrl: "https://jobs.ashbyhq.com/supabase",
+    searchUrlPattern: () => "https://jobs.ashbyhq.com/supabase"
+  },
+  "linear.app": {
+    portalUrl: "https://jobs.ashbyhq.com/linear",
+    searchUrlPattern: () => "https://jobs.ashbyhq.com/linear"
+  },
+  "synthesia.io": {
+    portalUrl: "https://jobs.ashbyhq.com/synthesia",
+    searchUrlPattern: () => "https://jobs.ashbyhq.com/synthesia"
+  },
+  "lovable.dev": {
+    portalUrl: "https://jobs.ashbyhq.com/lovable",
+    searchUrlPattern: () => "https://jobs.ashbyhq.com/lovable"
+  },
+  "cognition.ai": {
+    portalUrl: "https://jobs.ashbyhq.com/cognition",
+    searchUrlPattern: () => "https://jobs.ashbyhq.com/cognition"
+  },
+  "sarvam.ai": {
+    portalUrl: "https://jobs.ashbyhq.com/sarvam",
+    searchUrlPattern: () => "https://jobs.ashbyhq.com/sarvam"
   },
   "mistral.ai": { 
-    portalUrl: "https://mistral.ai/careers/",
-    searchUrlPattern: (title) => `https://mistral.ai/careers/#open-positions`
+    portalUrl: "https://jobs.lever.co/mistral",
+    searchUrlPattern: () => "https://jobs.lever.co/mistral"
   },
   "cohere.com": { 
-    portalUrl: "https://cohere.com/careers",
-    searchUrlPattern: (title) => `https://cohere.com/careers#open-roles`
+    portalUrl: "https://jobs.lever.co/cohere",
+    searchUrlPattern: () => "https://jobs.lever.co/cohere"
   },
   "huggingface.co": { 
     portalUrl: "https://huggingface.co/jobs",
-    searchUrlPattern: (title) => `https://huggingface.co/jobs`
+    searchUrlPattern: () => "https://huggingface.co/jobs"
   },
   "perplexity.ai": { 
-    portalUrl: "https://www.perplexity.ai/careers",
-    searchUrlPattern: (title) => `https://www.perplexity.ai/careers`
+    portalUrl: "https://jobs.ashbyhq.com/perplexity",
+    searchUrlPattern: () => "https://jobs.ashbyhq.com/perplexity"
+  },
+  "elevenlabs.io": {
+    portalUrl: "https://jobs.ashbyhq.com/elevenlabs",
+    searchUrlPattern: () => "https://jobs.ashbyhq.com/elevenlabs"
   },
   "scale.com": { 
-    portalUrl: "https://scale.com/careers#openings",
-    searchUrlPattern: (title) => `https://scale.com/careers#openings`
+    portalUrl: "https://job-boards.greenhouse.io/scaleai",
+    searchUrlPattern: () => "https://job-boards.greenhouse.io/scaleai"
   },
   "midjourney.com": { 
     portalUrl: "https://www.midjourney.com/careers"
   },
-  "elevenlabs.io": { 
-    portalUrl: "https://elevenlabs.io/careers"
-  },
   "runwayml.com": { 
     portalUrl: "https://runwayml.com/careers#open-positions"
-  },
-  "cursor.com": { 
-    portalUrl: "https://www.cursor.com/careers"
-  },
-  "cognition.ai": { 
-    portalUrl: "https://www.cognition.ai/careers"
   },
   "poolside.ai": { 
     portalUrl: "https://poolside.ai/careers"
@@ -83,7 +106,7 @@ const VERIFIED_CAREER_PORTALS: Record<string, { portalUrl: string; searchUrlPatt
     portalUrl: "https://qdrant.tech/careers/"
   },
   "together.ai": { 
-    portalUrl: "https://www.together.ai/careers"
+    portalUrl: "https://together.ai/careers"
   },
   "groq.com": { 
     portalUrl: "https://groq.com/careers/"
@@ -94,23 +117,19 @@ const VERIFIED_CAREER_PORTALS: Record<string, { portalUrl: string; searchUrlPatt
 
   // Developer Tools & Design
   "figma.com": { 
-    portalUrl: "https://www.figma.com/careers/#open-positions",
-    searchUrlPattern: (title) => `https://boards.greenhouse.io/figma`
-  },
-  "linear.app": { 
-    portalUrl: "https://linear.app/careers"
+    portalUrl: "https://boards.greenhouse.io/figma",
+    searchUrlPattern: () => "https://boards.greenhouse.io/figma"
   },
   "notion.so": { 
     portalUrl: "https://www.notion.so/careers#open-roles"
   },
   "postman.com": { 
-    portalUrl: "https://www.postman.com/company/careers/open-positions/"
-  },
-  "supabase.com": { 
-    portalUrl: "https://supabase.com/careers#open-roles"
+    portalUrl: "https://job-boards.greenhouse.io/postman",
+    searchUrlPattern: () => "https://job-boards.greenhouse.io/postman"
   },
   "vercel.com": { 
-    portalUrl: "https://vercel.com/careers#roles"
+    portalUrl: "https://job-boards.greenhouse.io/vercel",
+    searchUrlPattern: () => "https://job-boards.greenhouse.io/vercel"
   },
   "replit.com": { 
     portalUrl: "https://replit.com/careers"
@@ -178,7 +197,6 @@ const VERIFIED_CAREER_PORTALS: Record<string, { portalUrl: string; searchUrlPatt
   },
 
   // Indian Tech & Unicorns
-  "sarvam.ai": { portalUrl: "https://sarvam.ai/careers" },
   "hasura.io": { portalUrl: "https://hasura.io/careers/" },
   "zeptonow.com": { portalUrl: "https://www.zeptonow.com/careers" },
   "blinkit.com": { portalUrl: "https://blinkit.com/careers" },
@@ -198,19 +216,18 @@ const VERIFIED_CAREER_PORTALS: Record<string, { portalUrl: string; searchUrlPatt
 
   // European Unicorns
   "spotify.com": { 
-    portalUrl: "https://www.lifeatspotify.com/jobs",
-    searchUrlPattern: (title) => `https://www.lifeatspotify.com/jobs?q=${encodeURIComponent(title)}`
+    portalUrl: "https://jobs.lever.co/spotify",
+    searchUrlPattern: () => "https://jobs.lever.co/spotify"
   },
   "revolut.com": { portalUrl: "https://www.revolut.com/careers/" },
-  "monzo.com": { portalUrl: "https://monzo.com/careers/" },
+  "monzo.com": { portalUrl: "https://job-boards.greenhouse.io/monzo" },
   "klarna.com": { portalUrl: "https://www.klarna.com/careers/" },
-  "wise.com": { portalUrl: "https://www.wise.jobs/" },
+  "wise.com": { portalUrl: "https://job-boards.greenhouse.io/wise" },
   "bolt.eu": { portalUrl: "https://bolt.eu/careers/positions/" },
   "n26.com": { portalUrl: "https://n26.com/en-eu/careers" },
   "deliveryhero.com": { portalUrl: "https://careers.deliveryhero.com/" },
   "personio.com": { portalUrl: "https://www.personio.com/about-personio/careers/" },
   "celonis.com": { portalUrl: "https://www.celonis.com/careers/jobs/" },
-  "synthesia.io": { portalUrl: "https://www.synthesia.io/careers" },
 };
 
 /**

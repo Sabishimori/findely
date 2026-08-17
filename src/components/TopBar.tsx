@@ -439,7 +439,7 @@ export default function TopBar({
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search roles (e.g. UI/UX, Frontend), companies, or cities..."
-            className={`w-full pl-11 pr-14 py-2.5 text-xs rounded-full border-2 transition-all focus:outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/25 shadow-xs ${
+            className={`w-full pl-11 pr-14 py-2.5 text-xs rounded-full border-2 transition-all outline-none focus:outline-none focus:border-[#A9C632] focus:ring-0 shadow-xs ${
               isDarkMode
                 ? "bg-[#1E2E1F] border-white/15 text-white placeholder:text-[#9EB296]"
                 : "bg-[#F7F9F2] border-[#C8D2A6] text-[#1D2E1B] placeholder:text-[#546E50]"

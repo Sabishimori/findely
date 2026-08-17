@@ -254,11 +254,14 @@ export default function LandingPage({
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date();
-      const nextCrawl = new Date();
-      nextCrawl.setUTCHours(24, 0, 0, 0); // Next midnight UTC
-      const diffMs = nextCrawl.getTime() - now.getTime();
+      const nextSync = new Date();
+      nextSync.setHours(17, 0, 0, 0); // 5:00 PM local daily sync
+      if (now.getTime() >= nextSync.getTime()) {
+        nextSync.setDate(nextSync.getDate() + 1); // Next day 5:00 PM
+      }
+      const diffMs = nextSync.getTime() - now.getTime();
       if (diffMs <= 0) {
-        setCountdown("Sync In Progress...");
+        setCountdown("Syncing Live Data...");
       } else {
         const hours = Math.floor(diffMs / (1000 * 60 * 60));
         const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));

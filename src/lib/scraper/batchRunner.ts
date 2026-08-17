@@ -87,13 +87,39 @@ export const TARGET_FRONTIER_STARTUPS: CompanyTarget[] = [
   {
     name: "OpenAI",
     domain: "openai.com",
-    atsType: "greenhouse",
+    atsType: "ashby",
     boardId: "openai",
     logoUrl: "https://logo.clearbit.com/openai.com",
     foundedYear: 2015,
     companySize: "1,500+ employees",
     founders: [{ name: "Sam Altman", role: "CEO" }, { name: "Greg Brockman", role: "President" }],
     techStack: ["Python", "PyTorch", "Kubernetes", "Rust", "TypeScript"],
+    primaryCountry: "United States",
+    primaryCity: "San Francisco",
+  },
+  {
+    name: "Cursor",
+    domain: "cursor.com",
+    atsType: "ashby",
+    boardId: "cursor",
+    logoUrl: "https://logo.clearbit.com/cursor.com",
+    foundedYear: 2023,
+    companySize: "40+ employees",
+    founders: [{ name: "Michael Truell", role: "CEO" }, { name: "Sualeh Asif", role: "CTO" }],
+    techStack: ["TypeScript", "Rust", "Python", "LLMs", "Electron"],
+    primaryCountry: "United States",
+    primaryCity: "San Francisco",
+  },
+  {
+    name: "Cognition AI",
+    domain: "cognition.ai",
+    atsType: "ashby",
+    boardId: "cognition",
+    logoUrl: "https://logo.clearbit.com/cognition.ai",
+    foundedYear: 2023,
+    companySize: "50+ employees",
+    founders: [{ name: "Scott Wu", role: "CEO" }],
+    techStack: ["Python", "PyTorch", "TypeScript", "AI Agents", "Rust"],
     primaryCountry: "United States",
     primaryCity: "San Francisco",
   },
@@ -152,7 +178,7 @@ export const TARGET_FRONTIER_STARTUPS: CompanyTarget[] = [
   {
     name: "Supabase",
     domain: "supabase.com",
-    atsType: "lever",
+    atsType: "ashby",
     boardId: "supabase",
     logoUrl: "https://logo.clearbit.com/supabase.com",
     foundedYear: 2020,
@@ -271,7 +297,7 @@ export const TARGET_FRONTIER_STARTUPS: CompanyTarget[] = [
   {
     name: "Mistral AI",
     domain: "mistral.ai",
-    atsType: "ashby",
+    atsType: "lever",
     boardId: "mistral",
     logoUrl: "https://logo.clearbit.com/mistral.ai",
     foundedYear: 2023,
@@ -284,7 +310,7 @@ export const TARGET_FRONTIER_STARTUPS: CompanyTarget[] = [
   {
     name: "DeepL",
     domain: "deepl.com",
-    atsType: "greenhouse",
+    atsType: "ashby",
     boardId: "deepl",
     logoUrl: "https://logo.clearbit.com/deepl.com",
     foundedYear: 2017,
@@ -295,9 +321,22 @@ export const TARGET_FRONTIER_STARTUPS: CompanyTarget[] = [
     primaryCity: "Berlin",
   },
   {
+    name: "Spotify",
+    domain: "spotify.com",
+    atsType: "lever",
+    boardId: "spotify",
+    logoUrl: "https://logo.clearbit.com/spotify.com",
+    foundedYear: 2006,
+    companySize: "9,000+ employees",
+    founders: [{ name: "Daniel Ek", role: "CEO" }, { name: "Martin Lorentzon", role: "Co-Founder" }],
+    techStack: ["Java", "Python", "C++", "GCP", "Kubernetes"],
+    primaryCountry: "Sweden",
+    primaryCity: "Stockholm",
+  },
+  {
     name: "Synthesia",
     domain: "synthesia.io",
-    atsType: "greenhouse",
+    atsType: "ashby",
     boardId: "synthesia",
     logoUrl: "https://logo.clearbit.com/synthesia.io",
     foundedYear: 2017,
@@ -500,7 +539,27 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
         });
       }
 
-      // Upsert jobs
+      // 1. Collect all live scraped apply URLs
+      const liveApplyUrls = new Set(result.jobs.map((j) => j.applyUrl));
+
+      // 2. Fetch existing active jobs for this company and purge closed/expired roles
+      const existingCompanyJobs = await db
+        .select()
+        .from(jobs)
+        .where(eq(jobs.company_id, companyId));
+
+      let purgedForCompany = 0;
+      for (const ej of existingCompanyJobs) {
+        if (ej.apply_url && !liveApplyUrls.has(ej.apply_url)) {
+          await db.delete(jobs).where(eq(jobs.id, ej.id));
+          purgedForCompany++;
+        }
+      }
+      if (purgedForCompany > 0) {
+        console.log(`  🗑️ Purged ${purgedForCompany} expired roles for ${result.name}`);
+      }
+
+      // 3. Upsert live active jobs
       for (const j of result.jobs) {
         const existingJob = await db
           .select()
