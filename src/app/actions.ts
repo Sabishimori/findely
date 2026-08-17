@@ -328,6 +328,14 @@ import { FALLBACK_COMPANIES } from "@/lib/fallbackData";
 
 // ── Map Data & Deep Company Intelligence (Optimized Edge Caching) ────
 
+// The initial Turso deployment uses an older jobs table. Read only its stable
+// columns so a partially migrated database cannot silently display demo data.
+function getCompatibleJobType(locationText: string | null) {
+  return /remote|anywhere|worldwide|distributed/i.test(locationText || "")
+    ? "Remote"
+    : "Full-time";
+}
+
 async function fetchMapDataFromDb() {
   try {
     const allCompanies = await db
@@ -362,9 +370,8 @@ async function fetchMapDataFromDb() {
         id: jobs.id,
         company_id: jobs.company_id,
         title: jobs.title,
+        description: jobs.description,
         salary_range: jobs.salary_range,
-        job_type: jobs.job_type,
-        experience_level: jobs.experience_level,
         apply_url: jobs.apply_url,
         location_text: jobs.location_text,
         posted_at: jobs.posted_at,
@@ -373,8 +380,14 @@ async function fetchMapDataFromDb() {
       .where(eq(jobs.is_active, true))
       .orderBy(desc(jobs.posted_at));
 
-    const jobMap = new Map<string, Array<typeof activeJobs[0]>>();
-    for (const j of activeJobs) {
+    const compatibleJobs = activeJobs.map((job) => ({
+      ...job,
+      job_type: getCompatibleJobType(job.location_text),
+      experience_level: "Not specified",
+    }));
+
+    const jobMap = new Map<string, Array<typeof compatibleJobs[0]>>();
+    for (const j of compatibleJobs) {
       const list = jobMap.get(j.company_id) || [];
       list.push(j);
       jobMap.set(j.company_id, list);
@@ -455,7 +468,7 @@ async function fetchMapDataFromDb() {
 
 export const getCachedMapData = unstable_cache(
   async () => fetchMapDataFromDb(),
-  ["findely-map-data-v2"],
+  ["findely-map-data-v3"],
   {
     revalidate: 180, // Cache for 3 minutes (sub-50ms instant edge responses)
     tags: ["map-data"],
@@ -473,8 +486,26 @@ export async function getCompanyWithJobs(companyId: string) {
     const cleanSearchName = companyId.replace(/-/g, " ").toLowerCase().trim();
     
     // Query by exact ID or by case-insensitive name matching
-    let companyRows = await db
-      .select()
+    const companyRows = await db
+      .select({
+        id: companies.id,
+        name: companies.name,
+        website_url: companies.website_url,
+        logo_url: companies.logo_url,
+        description: companies.description,
+        location_text: companies.location_text,
+        latitude: companies.latitude,
+        longitude: companies.longitude,
+        founded_year: companies.founded_year,
+        company_size: companies.company_size,
+        contact_email: companies.contact_email,
+        contact_phone: companies.contact_phone,
+        status: companies.status,
+        founders_json: companies.founders_json,
+        hr_leads_json: companies.hr_leads_json,
+        tech_stack_json: companies.tech_stack_json,
+        updated_at: companies.updated_at,
+      })
       .from(companies)
       .where(
         or(
@@ -497,13 +528,25 @@ export async function getCompanyWithJobs(companyId: string) {
 
     // Query ALL real live active jobs for this company using its verified database ID
     const rawCompanyJobs = await db
-      .select()
+      .select({
+        id: jobs.id,
+        company_id: jobs.company_id,
+        title: jobs.title,
+        description: jobs.description,
+        location_text: jobs.location_text,
+        salary_range: jobs.salary_range,
+        apply_url: jobs.apply_url,
+        is_active: jobs.is_active,
+        posted_at: jobs.posted_at,
+      })
       .from(jobs)
       .where(and(eq(jobs.company_id, company.id), eq(jobs.is_active, true)))
       .orderBy(desc(jobs.posted_at));
 
     const companyJobs = rawCompanyJobs.map((j) => ({
       ...j,
+      job_type: getCompatibleJobType(j.location_text),
+      experience_level: "Not specified",
       apply_url: resolveExactJobApplyUrl({
         companyName: company.name,
         websiteUrl: company.website_url,
@@ -512,10 +555,17 @@ export async function getCompanyWithJobs(companyId: string) {
       }),
     }));
 
-    const sources = await db
-      .select()
-      .from(scrape_sources)
-      .where(eq(scrape_sources.company_id, company.id));
+    let sources: Array<typeof scrape_sources.$inferSelect> = [];
+    try {
+      sources = await db
+        .select()
+        .from(scrape_sources)
+        .where(eq(scrape_sources.company_id, company.id));
+    } catch (sourceError) {
+      // This is optional metadata. Older Turso deployments do not have this
+      // table, but their live jobs must still be rendered.
+      console.warn("Company scrape-source metadata unavailable:", sourceError);
+    }
 
     let founders = [];
     let hrLeads = [];
@@ -1242,5 +1292,3 @@ export const getCachedScrapeTelemetry = unstable_cache(
 export async function getTodayScrapeTelemetry() {
   return await getCachedScrapeTelemetry();
 }
-
-

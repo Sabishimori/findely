@@ -469,6 +469,53 @@ export const TARGET_FRONTIER_STARTUPS: CompanyTarget[] = [
     techStack: ["C#", ".NET", "AWS", "React", "TypeScript"],
     primaryCountry: "New Zealand",
     primaryCity: "Wellington",
+  },
+
+  // ── 6. WORKDAY TECH POWERHOUSES ────────────────────────────────
+  {
+    name: "Autodesk",
+    domain: "autodesk.com",
+    atsType: "workday",
+    boardId: "autodesk",
+    workdayHost: "autodesk.wd1.myworkdayjobs.com",
+    workdayPath: "autodesk/Ext",
+    logoUrl: "https://logo.clearbit.com/autodesk.com",
+    foundedYear: 1982,
+    companySize: "14,000+ employees",
+    founders: [{ name: "John Walker", role: "Founder" }],
+    techStack: ["C++", "Python", "React", "AWS", "TypeScript"],
+    primaryCountry: "United States",
+    primaryCity: "San Francisco",
+  },
+  {
+    name: "Adobe",
+    domain: "adobe.com",
+    atsType: "workday",
+    boardId: "adobe",
+    workdayHost: "adobe.wd5.myworkdayjobs.com",
+    workdayPath: "adobe/external_experienced",
+    logoUrl: "https://logo.clearbit.com/adobe.com",
+    foundedYear: 1982,
+    companySize: "29,000+ employees",
+    founders: [{ name: "John Warnock", role: "Co-Founder" }, { name: "Charles Geschke", role: "Co-Founder" }],
+    techStack: ["C++", "Java", "React", "TypeScript", "Python"],
+    primaryCountry: "United States",
+    primaryCity: "San Jose",
+  },
+  {
+    name: "NVIDIA",
+    domain: "nvidia.com",
+    atsType: "workday",
+    boardId: "nvidia",
+    workdayHost: "nvidia.wd5.myworkdayjobs.com",
+    workdayPath: "nvidia/NVIDIAExternalCareerSite",
+    logoUrl: "https://logo.clearbit.com/nvidia.com",
+    foundedYear: 1993,
+    companySize: "29,000+ employees",
+    founders: [{ name: "Jensen Huang", role: "CEO" }],
+    techStack: ["CUDA", "C++", "Python", "PyTorch", "Deep Learning"],
+    primaryCountry: "United States",
+    primaryCity: "Santa Clara",
   }
 ];
 
@@ -596,6 +643,19 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
             validation_failures: 0,
           });
           jobsInserted++;
+        } else {
+          await db
+            .update(jobs)
+            .set({
+              title: j.title,
+              latitude: j.lat,
+              longitude: j.lng,
+              salary_range: j.salaryMin && j.salaryMax ? `$${(j.salaryMin/1000).toFixed(0)}k - $${(j.salaryMax/1000).toFixed(0)}k` : existingJob[0].salary_range,
+              job_type: j.locationType === "remote" ? "Remote" : "Full-time",
+              description: j.description || existingJob[0].description,
+              is_active: true,
+            })
+            .where(eq(jobs.id, existingJob[0].id));
         }
       }
 

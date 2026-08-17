@@ -78,6 +78,8 @@ async function exportToTurso() {
       founders_json TEXT,
       hr_leads_json TEXT,
       tech_stack_json TEXT,
+      source_track TEXT DEFAULT 'ats_api',
+      size_tier TEXT DEFAULT 'startup',
       claimed_by TEXT,
       status TEXT NOT NULL DEFAULT 'verified',
       created_at INTEGER,
@@ -88,18 +90,24 @@ async function exportToTurso() {
       id TEXT PRIMARY KEY,
       company_id TEXT NOT NULL,
       title TEXT NOT NULL,
-      role_category TEXT DEFAULT 'Engineering',
-      location_text TEXT,
-      work_mode TEXT DEFAULT 'hybrid',
-      salary_range TEXT,
       description TEXT,
-      skills_json TEXT,
-      apply_url TEXT DEFAULT '',
+      full_description TEXT,
+      location_text TEXT NOT NULL,
+      latitude REAL,
+      longitude REAL,
+      salary_range TEXT,
+      job_type TEXT DEFAULT 'Full-time',
+      experience_level TEXT DEFAULT 'Not specified',
+      geocode_status TEXT DEFAULT 'ok',
+      apply_url TEXT,
+      first_seen_at INTEGER,
+      last_seen_at INTEGER,
+      last_validated INTEGER,
+      validation_failures INTEGER DEFAULT 0,
+      validation_status TEXT DEFAULT 'pending',
       is_active INTEGER DEFAULT 1,
-      source_type TEXT DEFAULT 'direct_ats',
       posted_at INTEGER,
-      created_at INTEGER,
-      updated_at INTEGER
+      source_id TEXT
     );
 
     CREATE TABLE IF NOT EXISTS applications (
@@ -164,13 +172,13 @@ async function exportToTurso() {
       sql: `INSERT OR REPLACE INTO companies (
         id, name, website_url, logo_url, description, location_text, latitude, longitude,
         founded_year, company_size, contact_email, contact_phone, founders_json, hr_leads_json,
-        tech_stack_json, claimed_by, status, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        tech_stack_json, source_track, size_tier, claimed_by, status, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         cleanVal(c.id), cleanVal(c.name, 'Unnamed Company'), cleanVal(c.website_url, 'https://findely.app'), cleanVal(c.logo_url),
         cleanVal(c.description), cleanVal(c.location_text, 'Global'), cleanVal(c.latitude, 37.7749), cleanVal(c.longitude, -122.4194),
         cleanVal(c.founded_year), cleanVal(c.company_size), cleanVal(c.contact_email), cleanVal(c.contact_phone),
-        cleanVal(c.founders_json), cleanVal(c.hr_leads_json), cleanVal(c.tech_stack_json), cleanVal(c.claimed_by),
+        cleanVal(c.founders_json), cleanVal(c.hr_leads_json), cleanVal(c.tech_stack_json), cleanVal(c.source_track, 'ats_api'), cleanVal(c.size_tier, 'startup'), cleanVal(c.claimed_by),
         cleanVal(c.status, 'verified'), cleanVal(c.created_at, Date.now()), cleanVal(c.updated_at, Date.now())
       ]
     }));
@@ -184,17 +192,18 @@ async function exportToTurso() {
     const chunk = jobs.slice(i, i + 50);
     const statements = chunk.map((j) => ({
       sql: `INSERT OR REPLACE INTO jobs (
-        id, company_id, title, role_category, location_text, work_mode, salary_range,
-        description, skills_json, apply_url, is_active, source_type, posted_at, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        id, company_id, title, description, full_description, location_text, latitude, longitude,
+        salary_range, job_type, experience_level, geocode_status, apply_url, first_seen_at,
+        last_seen_at, last_validated, validation_failures, validation_status, is_active, posted_at, source_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         cleanVal(j.id), cleanVal(j.company_id), cleanVal(j.title, 'Open Role'),
-        cleanVal(j.role_category, 'Engineering'),
-        cleanVal(j.location_text, 'Global'), cleanVal(j.work_mode, 'hybrid'),
-        cleanVal(j.salary_range), cleanVal(j.description),
-        cleanVal(j.skills_json), cleanVal(j.apply_url, 'https://findely.app'),
-        cleanVal(j.is_active, 1), cleanVal(j.source_type, 'direct_ats'),
-        cleanVal(j.posted_at, Date.now()), cleanVal(j.created_at, Date.now()), cleanVal(j.updated_at, Date.now())
+        cleanVal(j.description), cleanVal(j.full_description), cleanVal(j.location_text, 'Remote'),
+        cleanVal(j.latitude), cleanVal(j.longitude), cleanVal(j.salary_range), cleanVal(j.job_type, 'Full-time'),
+        cleanVal(j.experience_level, 'Not specified'), cleanVal(j.geocode_status, 'ok'), cleanVal(j.apply_url),
+        cleanVal(j.first_seen_at, Date.now()), cleanVal(j.last_seen_at, Date.now()), cleanVal(j.last_validated),
+        cleanVal(j.validation_failures, 0), cleanVal(j.validation_status, 'pending'), cleanVal(j.is_active, 1),
+        cleanVal(j.posted_at, Date.now()), cleanVal(j.source_id)
       ]
     }));
     await turso.batch(statements, 'write');

@@ -3,12 +3,17 @@ import {
   scrapeGreenhouseBoard, 
   scrapeLeverBoard, 
   scrapeAshbyBoard, 
+  scrapeWorkdayBoard,
   scrapeRemotiveGlobalJobs 
 } from "../src/lib/scraper/atsEngine";
 import { TARGET_FRONTIER_STARTUPS } from "../src/lib/scraper/batchRunner";
 
-const tursoUrl = process.env.TURSO_DATABASE_URL || "libsql://findely-sabishimori.aws-ap-south-1.turso.io";
-const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJleHAiOjE4MTg0MDQyNTYsImlhdCI6MTc4Njg2ODI1NywiaWQiOiIwMWEwMDhkMS0xMjAxLTc5YmEtOWIwMi03YjJkYTE2NTI5MmUiLCJraWQiOiJIcEJPQ3ZqM1BuWHJlQk9sS2hmUlB3VGNLckh3U2NyckFfR0g5bDZlQXg4IiwicmlkIjoiY2RiZjIxZjktZGNjMy00M2ViLThlMzItZTZjMTk5Nzk5Mjc2In0.8Cy4YuS-XWZKTPWnZ9WkuDUg6Brq4_wOXNXljbmZ6drv7gisXEl91ZXkuejlAn1S_Av3xRnvMQcLA4BuqtOOCA";
+const tursoUrl = process.env.TURSO_DATABASE_URL?.trim();
+const tursoAuthToken = process.env.TURSO_AUTH_TOKEN?.trim();
+
+if (!tursoUrl || !tursoAuthToken) {
+  throw new Error("Missing TURSO_DATABASE_URL or TURSO_AUTH_TOKEN. Load .env.local before running this sync.");
+}
 
 const client = createClient({
   url: tursoUrl,
@@ -24,7 +29,7 @@ async function main() {
 
   for (const target of TARGET_FRONTIER_STARTUPS) {
     try {
-      console.log(`\nScanning direct ATS for ${target.name} (${target.atsType}: ${target.boardId})...`);
+      console.log(`\nScanning direct ATS for ${target.name} (${target.atsType}: ${target.boardId || target.workdayHost})...`);
       let result = null;
 
       if (target.atsType === "greenhouse") {
@@ -33,6 +38,8 @@ async function main() {
         result = await scrapeLeverBoard(target.name, target.boardId, target.domain, target.logoUrl);
       } else if (target.atsType === "ashby") {
         result = await scrapeAshbyBoard(target.name, target.boardId, target.domain, target.logoUrl);
+      } else if (target.atsType === "workday" && target.workdayHost && target.workdayPath) {
+        result = await scrapeWorkdayBoard(target.name, target.workdayHost, target.workdayPath, target.domain, target.logoUrl);
       }
 
       if (!result || !result.jobs || result.jobs.length === 0) {
@@ -63,15 +70,16 @@ async function main() {
             target.logoUrl || `https://www.google.com/s2/favicons?domain=${target.domain}&sz=128`,
             result.description || `${target.name} is a frontier technology company.`,
             target.primaryCity || "San Francisco, CA",
-            result.primaryLocation?.lat || 37.7749,
-            result.primaryLocation?.lng || -122.4194,
+            result.primaryLocation?.lat,
+            result.primaryLocation?.lng,
             Date.now(),
             Date.now(),
           ],
         });
       }
 
-      // Delete old jobs for this company and insert clean direct ATS roles in one lightning fast batch!
+      // Replace only after a successful ATS fetch. Each multi-location role is
+      // already expanded by atsEngine into one spatial row per office.
       const statements: InStatement[] = [
         {
           sql: "DELETE FROM jobs WHERE company_id = ?;",
@@ -93,17 +101,25 @@ async function main() {
         const workMode = j.locationType === "remote" ? "remote" : j.locationType === "hybrid" ? "hybrid" : "onsite";
 
         statements.push({
-          sql: `INSERT INTO jobs (id, company_id, title, role_category, location_text, work_mode, salary_range, description, skills_json, apply_url, is_active, source_type, posted_at, created_at, updated_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, '[]', ?, 1, 'direct_ats', ?, ?, ?);`,
+          sql: `INSERT INTO jobs (
+                  id, company_id, title, role_category, work_mode, source_type, skills_json,
+                  description, location_text, latitude, longitude, salary_range, 
+                  job_type, experience_level, geocode_status, apply_url, posted_at, 
+                  first_seen_at, last_seen_at, validation_status, validation_failures, is_active
+                ) VALUES (?, ?, ?, ?, ?, 'direct_ats', '[]', ?, ?, ?, ?, ?, ?, 'Not specified', ?, ?, ?, ?, ?, 'pending', 0, 1);`,
           args: [
             crypto.randomUUID(),
             companyId,
             j.title,
             roleCategory,
-            j.location || "San Francisco, CA",
             workMode,
-            j.salaryMin && j.salaryMax ? `$${(j.salaryMin/1000).toFixed(0)}k - $${(j.salaryMax/1000).toFixed(0)}k` : null,
             j.description || `${target.name} is hiring for ${j.title}.`,
+            j.location || "Remote",
+            j.lat,
+            j.lng,
+            j.salaryMin && j.salaryMax ? `$${(j.salaryMin/1000).toFixed(0)}k - $${(j.salaryMax/1000).toFixed(0)}k` : null,
+            j.locationType === "remote" ? "Remote" : "Full-time",
+            j.lat !== null && j.lng !== null ? "ok" : "broad_region",
             j.applyUrl,
             j.postedAt?.getTime() || Date.now(),
             Date.now(),
@@ -155,7 +171,7 @@ async function main() {
 
       const remotiveStatements: InStatement[] = [
         {
-          sql: "DELETE FROM jobs WHERE company_id = ? AND source_type = 'remotive';",
+          sql: "DELETE FROM jobs WHERE company_id = ?;",
           args: [companyId],
         }
       ];
@@ -163,15 +179,21 @@ async function main() {
       for (const j of comp.jobs) {
         if (!j.applyUrl) continue;
         remotiveStatements.push({
-          sql: `INSERT INTO jobs (id, company_id, title, role_category, location_text, work_mode, salary_range, description, skills_json, apply_url, is_active, source_type, posted_at, created_at, updated_at) 
-                VALUES (?, ?, ?, 'Engineering', ?, 'remote', ?, ?, '[]', ?, 1, 'remotive', ?, ?, ?);`,
+          sql: `INSERT INTO jobs (
+                  id, company_id, title, role_category, work_mode, source_type, skills_json,
+                  description, location_text, latitude, longitude, salary_range, 
+                  job_type, experience_level, geocode_status, apply_url, posted_at, 
+                  first_seen_at, last_seen_at, validation_status, validation_failures, is_active
+                ) VALUES (?, ?, ?, 'Engineering', 'remote', 'direct_ats', '[]', ?, ?, ?, ?, ?, 'Remote', 'Not specified', 'broad_region', ?, ?, ?, ?, 'pending', 0, 1);`,
           args: [
             crypto.randomUUID(),
             companyId,
             j.title,
-            j.location,
-            j.salaryMin && j.salaryMax ? `$${(j.salaryMin/1000).toFixed(0)}k - $${(j.salaryMax/1000).toFixed(0)}k` : null,
             j.description,
+            j.location,
+            j.lat,
+            j.lng,
+            j.salaryMin && j.salaryMax ? `$${(j.salaryMin/1000).toFixed(0)}k - $${(j.salaryMax/1000).toFixed(0)}k` : null,
             j.applyUrl,
             j.postedAt.getTime(),
             Date.now(),

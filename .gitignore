@@ -55,4 +55,6 @@ sqlite.db*
 # personal context files
 FINDELY_MASTER_LOG.md
 *MASTER_LOG*.md
+FINDELY_SCRAPER_FIX_SESSION_LOG.md
+*SESSION_LOG*.md
 scripts/diagnose_open_positions.ts
