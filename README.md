@@ -2,7 +2,7 @@
   <img src="public/main-logo.png" alt="Findely Logo" width="90" height="90" style="border-radius: 20px;" />
   <h1 align="center">Findely — Spatial Startup & High-Signal Job Discovery</h1>
   <p align="center">
-    <strong>Explore verified venture-backed startups and open engineering roles on an interactive 3D spatial map.</strong>
+    <strong>Explore verified frontier startups, global office networks, and live open roles on an interactive 3D spatial globe and map.</strong>
   </p>
   <p align="center">
     <a href="https://github.com/Sabishimori/findely/stargazers"><img src="https://img.shields.io/github/stars/Sabishimori/findely?color=A9C632&style=flat-square" alt="Stars" /></a>
@@ -16,19 +16,23 @@
 
 ## 🌟 What is Findely?
 
-**Findely** is a high-signal discovery platform designed for founders, engineers, and tech talents. Instead of wading through recruiter spam and generic job boards, Findely provides an **interactive 3D spatial globe and map** with real-time verified company intelligence, active open roles, founder socials, and direct ATS application links.
+**Findely** is a high-signal discovery platform designed for founders, engineers, and tech talents. Instead of wading through recruiter spam, outdated aggregators, and generic homepage bounces, Findely provides an **interactive 3D spatial globe and 2D map** with real-time verified company intelligence, global office networks, founder socials, and direct ATS application links with zero intermediate redirects.
 
 ---
 
 ## ✨ Key Features
 
-- 🌍 **Interactive 3D / 2.5D GPU Spatial Map**: Powered by MapLibre GL and WebGL with responsive pitch/bearing tilt controls, custom radar markers, and dark/light modes.
+- 🌍 **Interactive 3D / 2.5D GPU Spatial Globe & Map**: Powered by Three.js WebGL and MapLibre/Mapbox GL with custom radar markers, branch clustering, and dark/light spatial modes.
+- ⚡ **Zero-LLM Deterministic ATS Engine**: Direct REST/JSON fetchers for **Greenhouse, Lever, Ashby, and Workday CXS** with uncapped pagination, fetching 100% of live open positions.
+- 🏢 **Multi-Office Spatial Decomposition**: Automatically decomposes multi-location job listings into distinct office rows with exact coordinates per physical branch.
+- 📍 **Step 0 Geocoding Engine**: High-precision geocoding with broad-region and remote-location detection (`null` coordinates for remote/worldwide roles, preventing false San Francisco fallbacks).
+- 🚀 **Dual Ingestion (Track A & Track B)**: 
+  - **Track A**: Automated, high-speed ATS board extraction.
+  - **Track B**: Founder self-submission gated by 6-digit email OTP verification and pre-submission link validation.
+- 🛡️ **Automated Continuous Link Validator**: Background health check engine that validates HTTP status codes and title matching on every stored apply link.
 - 🪟 **Multi-Window Floating Portals**: Drag, minimize, cascade, and compare up to 5 company profiles side-by-side on top of the live map without losing your place.
-- ⚡ **Zero-Latency Event-Driven Job Tracker**: Instant optimistic UI saving (`<1ms`) with real-time cross-window synchronization and full Kanban stage tracking (Saved, Applied, Interviewing, Offered).
-- 🚩 **Community Moderation & Reporting**: Integrated flag/report system on every single job card and company dossier with dedicated verification moderation queue.
-- 🤖 **AgentReach & Gemini Pro Scraping Engine**: Automated discovery pipeline that crawls founder socials, careers pages, and ATS boards (Greenhouse, Lever, Ashby, Workable).
+- ⚡ **Zero-Latency Job Tracker**: Instant optimistic UI saving (`<1ms`) with real-time cross-window synchronization and full Kanban stage tracking.
 - 💌 **AI Email Outreach Generator**: Generates customized pitch emails for candidates directly to founders and hiring teams.
-- 🌓 **Day & Night Spatial Themes**: Smooth transition between Tactical Dark Mode (`#131E12`) and Crisp Minimalist Light Mode (`#F7F9F2`).
 
 ---
 
@@ -36,12 +40,12 @@
 
 | Layer | Technologies |
 |---|---|
-| **Framework** | [Next.js 15 (App Router)](https://nextjs.org/) + [React 19](https://react.dev/) |
+| **Framework** | [Next.js 16 (App Router, Turbopack)](https://nextjs.org/) + [React 19](https://react.dev/) |
 | **Language** | [TypeScript](https://www.typescriptlang.org/) |
-| **Styling & UI** | [Tailwind CSS](https://tailwindcss.com/) + [Motion](https://motion.dev/) |
-| **Mapping Engine** | [MapLibre GL](https://maplibre.org/) + Carto Voyager / Dark Matter Vector Tiles |
-| **Database & ORM** | [Drizzle ORM](https://orm.drizzle.team/) + SQLite / Better-SQLite3 |
-| **Authentication** | [NextAuth.js](https://next-auth.js.org/) (Google OAuth & Guest Mode) |
+| **Styling & UI** | [Tailwind CSS v4](https://tailwindcss.com/) + [Motion v13](https://motion.dev/) |
+| **3D & Mapping** | [Three.js](https://threejs.org/) + [MapLibre GL](https://maplibre.org/) / [Mapbox GL](https://www.mapbox.com/) |
+| **Database & ORM** | [Turso (LibSQL)](https://turso.tech/) + [SQLite](https://sqlite.org/) + [Drizzle ORM](https://orm.drizzle.team/) |
+| **Auth & Security** | [NextAuth.js](https://next-auth.js.org/) + Nodemailer Email OTP Gating |
 | **Icons & Assets** | [Lucide React](https://lucide.dev/) |
 
 ---
@@ -60,27 +64,31 @@ npm install
 ```
 
 ### 3. Setup Environment Variables
-Copy `.env.example` to `.env.local`:
-```bash
-cp .env.example .env.local
-```
-
-Fill in your configuration:
+Create `.env.local` in the root directory:
 ```env
-# Google OAuth (Optional for guest mode)
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-NEXTAUTH_SECRET=your_nextauth_secret
-NEXTAUTH_URL=http://localhost:3000
+# Database (Turso Cloud DB)
+TURSO_DATABASE_URL="libsql://your-db.turso.io"
+TURSO_AUTH_TOKEN="your-turso-auth-token"
 
-# Gemini AI (For scraper pipeline)
-GEMINI_API_KEY=your_gemini_api_key
+# Authentication & NextAuth
+NEXTAUTH_SECRET="your-random-nextauth-secret"
+NEXTAUTH_URL="http://localhost:3000"
+
+# Optional Email SMTP (for Track B Founder OTPs)
+EMAIL_SERVER_USER="your-email@gmail.com"
+EMAIL_SERVER_PASSWORD="your-app-password"
+EMAIL_SERVER_HOST="smtp.gmail.com"
+EMAIL_SERVER_PORT=587
+EMAIL_FROM="Findely <noreply@findely.dev>"
 ```
 
-### 4. Initialize Database & Seed Startups
+### 4. Migrate Database Schema & Sync Live ATS Jobs
 ```bash
-npx drizzle-kit push
-npm run db:seed
+# Run schema migrations
+npm run db:migrate:production
+
+# Ingest all live ATS roles into database (Greenhouse, Lever, Ashby, Workday)
+npm run scrape:live
 ```
 
 ### 5. Run the Local Development Server
@@ -88,37 +96,39 @@ npm run db:seed
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to explore the map!
+Open [http://localhost:3000](http://localhost:3000) in your browser to explore the map and live company intelligence!
 
 ---
 
-## 🌐 Deploy to Vercel / v0
+## 🧪 Testing & Verification
 
-Findely is 100% configured for instant one-click deployment:
+Run the dedicated test suites to verify each ATS integration and data pipeline:
 
-1. Push your code to your GitHub repository: `https://github.com/Sabishimori/findely`
-2. Go to [Vercel](https://vercel.com/new) or **v0 Project Import**.
-3. Select your repository `Sabishimori/findely`.
-4. Add your Environment Variables (`NEXTAUTH_SECRET`, etc.).
-5. Click **Deploy**! 🚀
+```bash
+# Full TypeScript Type Check
+npx tsc --noEmit
 
----
+# Greenhouse Pipeline Verification (Scale AI, Postman, Figma)
+npx tsx scripts/test_greenhouse_pipeline.ts
 
-## 🤝 Contributing to Findely UI
+# Lever Pipeline Verification (Spotify, Rover, Wealthfront)
+npx tsx scripts/test_lever_pipeline.ts
 
-Community contributions to the **Findely User Interface & Spatial Map** are warmly welcome!
+# Ashby Pipeline Verification (Linear, Supabase, DeepL)
+npx tsx scripts/test_ashby_pipeline.ts
 
-1. **Fork the Repository**: `https://github.com/Sabishimori/findely`
-2. **Create a Feature Branch**: `git checkout -b feature/awesome-ui-component`
-3. **Commit your Changes**: `git commit -m 'feat: add new spatial filter'`
-4. **Push to the Branch**: `git push origin feature/awesome-ui-component`
-5. **Open a Pull Request** 🚀
+# Workday Pipeline Verification (Autodesk, Adobe, NVIDIA)
+npx tsx scripts/test_workday_pipeline.ts
 
-> **Note**: The frontend client interface and spatial components are open source under the MIT License. Backend infrastructure credentials and production scraper API keys remain private.
+# Track B Founder OTP & Geocoding Verification
+npx tsx scripts/test_track_b_pipeline.ts
+
+# Database-Wide Parity Check (Office Networks vs. DB Roles)
+npx tsx scripts/verify_database_wide_job_counts.ts
+```
 
 ---
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).  
-Copyright © 2026 Findely / Sabishimori.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
