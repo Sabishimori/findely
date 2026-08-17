@@ -1,3 +1,5 @@
+import { matchesLocation } from "./locationMatcher";
+
 export interface OfficeLocation {
   flag: string;
   city: string;
@@ -339,33 +341,22 @@ function computeDynamicOfficeNetwork(baseBranches: any[], jobsList: any[]): any[
     const loc = (job.location_text || "").toLowerCase();
     
     for (const b of baseBranches) {
-      const city = b.city.toLowerCase();
-      let matches = false;
-      if (city.includes("remote")) {
-        matches = loc.includes("remote") || job.job_type?.toLowerCase().includes("remote");
-      } else {
-        const cleanCity = city.split("/")[0].split(",")[0].trim();
-        matches = loc.includes(cleanCity) || 
-          (cleanCity === "san francisco" && (loc.includes("sf") || loc.includes("san francisco"))) ||
-          (cleanCity === "new york" && (loc.includes("nyc") || loc.includes("new york"))) ||
-          (cleanCity === "bengaluru" && (loc.includes("bangalore") || loc.includes("bengaluru"))) ||
-          (cleanCity === "seattle" && (loc.includes("sea") || loc.includes("seattle"))) ||
-          (cleanCity === "chicago" && (loc.includes("chi") || loc.includes("chicago"))) ||
-          (cleanCity === "atlanta" && (loc.includes("atl") || loc.includes("atlanta")));
-      }
-      if (matches) {
+      if (matchesLocation(loc, b.city, job.job_type)) {
         branchCounts.set(b.city, (branchCounts.get(b.city) || 0) + 1);
       }
     }
   }
 
-  return baseBranches.map((b) => {
-    const realCount = branchCounts.get(b.city);
+  const updatedBranches = baseBranches.map((b) => {
+    const realCount = branchCounts.get(b.city) || 0;
     return {
       ...b,
-      jobs: realCount !== undefined && realCount > 0 ? realCount : (b.jobs || 1),
+      jobs: realCount,
     };
   });
+
+  // Filter out branches with 0 jobs, unless it's HQ
+  return updatedBranches.filter(b => b.jobs > 0 || b.isHQ);
 }
 
 export function getCompanyIntelligence(company: any): any {
@@ -523,7 +514,7 @@ export function getAllPinsForCompanies(companies: any[]): CompanyMapPin[] {
 
         const citySlug = branch.city.toLowerCase().replace(/[^a-z0-9]/g, "-");
         const matchingRoles = company.roles?.filter((r: any) =>
-          r.location_text?.toLowerCase().includes(branch.city.toLowerCase())
+          matchesLocation(r.location_text, branch.city, r.job_type)
         ) || [];
 
         pins.push({

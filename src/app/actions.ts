@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { users, profiles, companies, jobs, scrape_sources, applications, company_requests, company_reports, otp_sessions } from "@/db/schema";
-import { eq, and, or, isNull, desc, gt } from "drizzle-orm";
+import { eq, and, or, isNull, desc, gt, sql } from "drizzle-orm";
 import { revalidatePath, unstable_cache } from "next/cache";
 import { isDisposableEmail } from "@/lib/disposableEmailBlocker";
 import { sanitizeText, sanitizeUrl, sanitizeObject } from "@/lib/security/xssSanitizer";
@@ -468,27 +468,20 @@ export async function getAllMapData() {
 
 export async function getCompanyWithJobs(companyId: string) {
   try {
-    // 1. Query by exact ID first
+    const cleanSearchName = companyId.replace(/-/g, " ").toLowerCase().trim();
+    
+    // Query by exact ID or by case-insensitive name matching
     let companyRows = await db
       .select()
       .from(companies)
-      .where(eq(companies.id, companyId));
-
-    // 2. If not matched by exact ID, query by name (handles slugs and fallback IDs like "anthropic", "openai", etc.)
-    if (!companyRows || companyRows.length === 0) {
-      const cleanSearchName = companyId.replace(/-/g, " ").toLowerCase().trim();
-      const allDbCompanies = await db.select().from(companies);
-      const found = allDbCompanies.find(
-        (c) =>
-          c.id.toLowerCase() === companyId.toLowerCase() ||
-          c.name.toLowerCase() === cleanSearchName ||
-          c.name.toLowerCase().includes(cleanSearchName) ||
-          cleanSearchName.includes(c.name.toLowerCase())
+      .where(
+        or(
+          eq(companies.id, companyId),
+          sql`LOWER(${companies.name}) = ${cleanSearchName}`,
+          sql`LOWER(${companies.name}) LIKE ${'%' + cleanSearchName + '%'}`,
+          sql`${cleanSearchName} LIKE '%' || LOWER(${companies.name}) || '%'`
+        )
       );
-      if (found) {
-        companyRows = [found];
-      }
-    }
 
     const company = companyRows ? companyRows[0] : null;
 

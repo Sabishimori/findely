@@ -7,6 +7,7 @@ import { getCompanyIntelligence, CompanyIntelligence } from "@/lib/companyIntell
 import { resolveExactJobApplyUrl, resolveFounderLinkedinUrl, resolveCompanyLinkedinUrl } from "@/lib/applyUrlResolver";
 import { playTapSound } from "@/lib/soundFx";
 import { handleImageError, getCompanyLogoUrl } from "@/lib/logoResolver";
+import { matchesLocation } from "@/lib/locationMatcher";
 import EmailOutreachModal from "./EmailOutreachModal";
 import ReportCompanyModal from "./ReportCompanyModal";
 import { 
@@ -246,23 +247,7 @@ export default function FloatingPortalCard({
 
     let matchesBranch = true;
     if (selectedBranch) {
-      const cleanBranch = selectedBranch.toLowerCase().trim();
-      const cityPart = cleanBranch.split("/")[0].split(",")[0].trim();
-      
-      if (cleanBranch.includes("remote")) {
-        matchesBranch = !!(job.job_type?.toLowerCase().includes("remote")) || !!(job.location_text?.toLowerCase().includes("remote"));
-      } else {
-        const loc = (job.location_text || "").toLowerCase();
-        matchesBranch = !!(
-          loc.includes(cityPart) ||
-          (cityPart === "san francisco" && (loc.includes("sf") || loc.includes("san francisco"))) ||
-          (cityPart === "new york" && (loc.includes("nyc") || loc.includes("new york"))) ||
-          (cityPart === "bengaluru" && (loc.includes("bangalore") || loc.includes("bengaluru"))) ||
-          (cityPart === "seattle" && (loc.includes("sea") || loc.includes("seattle"))) ||
-          (cityPart === "chicago" && (loc.includes("chi") || loc.includes("chicago"))) ||
-          (cityPart === "atlanta" && (loc.includes("atl") || loc.includes("atlanta")))
-        );
-      }
+      matchesBranch = matchesLocation(job.location_text, selectedBranch, job.job_type);
     }
 
     return matchesDept && matchesBranch;
