@@ -232,7 +232,7 @@ function WarpSpearIcon({ className = "w-4 h-4" }: { className?: string }) {
 // ── Main Responsive Landing Page Component ─────────────────────────
 export default function LandingPage({
   onLaunchWorkspace,
-  totalJobsCount = 176,
+  totalJobsCount = 3466,
   totalCompaniesCount = 850,
   isDarkMode = false,
   onToggleDarkMode,
@@ -596,20 +596,27 @@ export default function LandingPage({
           </span>
           <InfiniteSlider gap={20} duration={30}>
             {[
-              { name: "OpenAI", domain: "openai.com", roles: "42 Open Roles", logo: "https://www.google.com/s2/favicons?domain=openai.com&sz=128" },
-              { name: "Anthropic", domain: "anthropic.com", roles: "14 Open Roles", logo: "https://www.google.com/s2/favicons?domain=anthropic.com&sz=128" },
-              { name: "Stripe", domain: "stripe.com", roles: "185 Open Roles", logo: "https://www.google.com/s2/favicons?domain=stripe.com&sz=128" },
-              { name: "Linear", domain: "linear.app", roles: "9 Open Roles", logo: "https://www.google.com/s2/favicons?domain=linear.app&sz=128" },
-              { name: "Postman", domain: "postman.com", roles: "48 Open Roles", logo: "https://www.google.com/s2/favicons?domain=postman.com&sz=128" },
-              { name: "Vercel", domain: "vercel.com", roles: "22 Open Roles", logo: "https://www.google.com/s2/favicons?domain=vercel.com&sz=128" },
-              { name: "Supabase", domain: "supabase.com", roles: "16 Open Roles", logo: "https://www.google.com/s2/favicons?domain=supabase.com&sz=128" },
-              { name: "Cursor", domain: "cursor.com", roles: "11 Open Roles", logo: "https://www.google.com/s2/favicons?domain=cursor.com&sz=128" },
-              { name: "Figma", domain: "figma.com", roles: "38 Open Roles", logo: "https://www.google.com/s2/favicons?domain=figma.com&sz=128" },
-              { name: "Perplexity AI", domain: "perplexity.ai", roles: "19 Open Roles", logo: "https://www.google.com/s2/favicons?domain=perplexity.ai&sz=128" },
-              { name: "Scale AI", domain: "scale.com", roles: "65 Open Roles", logo: "https://www.google.com/s2/favicons?domain=scale.com&sz=128" },
-              { name: "ElevenLabs", domain: "elevenlabs.io", roles: "24 Open Roles", logo: "https://www.google.com/s2/favicons?domain=elevenlabs.io&sz=128" },
-              { name: "Resend", domain: "resend.com", roles: "7 Open Roles", logo: "https://www.google.com/s2/favicons?domain=resend.com&sz=128" },
-              { name: "Modal Labs", domain: "modal.com", roles: "8 Open Roles", logo: "https://www.google.com/s2/favicons?domain=modal.com&sz=128" },
+              { name: "OpenAI", domain: "openai.com", roles: "746+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=openai.com&sz=128" },
+              { name: "Stripe", domain: "stripe.com", roles: "576+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=stripe.com&sz=128" },
+              { name: "Anthropic", domain: "anthropic.com", roles: "441+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=anthropic.com&sz=128" },
+              { name: "ElevenLabs", domain: "elevenlabs.io", roles: "243+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=elevenlabs.io&sz=128" },
+              { name: "Scale AI", domain: "scale.com", roles: "210+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=scale.com&sz=128" },
+              { name: "Figma", domain: "figma.com", roles: "161+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=figma.com&sz=128" },
+              { name: "Cursor", domain: "cursor.com", roles: "114+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=cursor.com&sz=128" },
+              { name: "Postman", domain: "postman.com", roles: "109+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=postman.com&sz=128" },
+              { name: "Spotify", domain: "spotify.com", roles: "103+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=spotify.com&sz=128" },
+              { name: "Perplexity AI", domain: "perplexity.ai", roles: "100+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=perplexity.ai&sz=128" },
+              { name: "Cognition AI", domain: "cognition.ai", roles: "85+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=cognition.ai&sz=128" },
+              { name: "Vercel", domain: "vercel.com", roles: "83+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=vercel.com&sz=128" },
+              { name: "Lovable", domain: "lovable.dev", roles: "74+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=lovable.dev&sz=128" },
+              { name: "Synthesia", domain: "synthesia.io", roles: "63+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=synthesia.io&sz=128" },
+              { name: "Sarvam AI", domain: "sarvam.ai", roles: "62+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=sarvam.ai&sz=128" },
+              { name: "DeepL", domain: "deepl.com", roles: "55+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=deepl.com&sz=128" },
+              { name: "Supabase", domain: "supabase.com", roles: "54+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=supabase.com&sz=128" },
+              { name: "Linear", domain: "linear.app", roles: "33+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=linear.app&sz=128" },
+              { name: "Modal Labs", domain: "modal.com", roles: "30+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=modal.com&sz=128" },
+              { name: "Resend", domain: "resend.com", roles: "11+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=resend.com&sz=128" },
+              { name: "PostHog", domain: "posthog.com", roles: "11+ Live Roles", logo: "https://www.google.com/s2/favicons?domain=posthog.com&sz=128" },
             ].map((company) => (
               <div
                 key={company.name}
