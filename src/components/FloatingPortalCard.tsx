@@ -236,7 +236,7 @@ export default function FloatingPortalCard({
     : (null as any);
 
   const rawJobs: any[] = data?.jobs || [];
-  const filteredJobs = rawJobs.filter((job: any) => {
+  const directBranchMatches = rawJobs.filter((job: any) => {
     let matchesDept = true;
     if (selectedDepartment) {
       matchesDept =
@@ -250,12 +250,29 @@ export default function FloatingPortalCard({
       if (cleanBranch.includes("remote")) {
         matchesBranch = !!(job.job_type?.toLowerCase().includes("remote")) || !!(job.location_text?.toLowerCase().includes("remote"));
       } else {
-        matchesBranch = !!(job.location_text?.toLowerCase().includes(cleanBranch.split("/")[0].trim()));
+        const cityPart = cleanBranch.split("/")[0].trim();
+        matchesBranch = !!(job.location_text && (
+          job.location_text.toLowerCase().includes(cityPart) ||
+          job.location_text.toLowerCase().includes("remote") ||
+          job.job_type?.toLowerCase().includes("remote")
+        ));
       }
     }
 
     return matchesDept && matchesBranch;
   });
+
+  const isBranchFallback = selectedBranch && directBranchMatches.length === 0 && rawJobs.length > 0;
+
+  const filteredJobs = directBranchMatches.length > 0 
+    ? directBranchMatches 
+    : rawJobs.filter((job: any) => {
+        if (!selectedDepartment) return true;
+        return (
+          job.title.toLowerCase().includes(selectedDepartment.toLowerCase()) ||
+          !!(job.location_text && job.location_text.toLowerCase().includes(selectedDepartment.toLowerCase()))
+        );
+      });
 
   const sortedJobs = [...filteredJobs].sort((a, b) => {
     if (!highlightJobTitle) return 0;
@@ -764,14 +781,16 @@ export default function FloatingPortalCard({
               )}
 
               {selectedBranch && (
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] border border-[#A9C632] text-xs shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 p-2.5 rounded-xl bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] border border-[#A9C632] text-xs shadow-xs">
                   <span className="font-bold flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5" />
-                    Branch Filter: {selectedBranch}
+                    <MapPin className="w-3.5 h-3.5 shrink-0" />
+                    {isBranchFallback 
+                      ? `Viewing all ${data?.name || "company"} positions (Eligible for ${selectedBranch} / Remote candidates)`
+                      : `Branch Filter: ${selectedBranch}`}
                   </span>
                   <button
                     onClick={() => setSelectedBranch(null)}
-                    className="text-xs font-bold underline cursor-pointer hover:opacity-80"
+                    className="text-xs font-bold underline cursor-pointer hover:opacity-80 shrink-0 self-end sm:self-auto"
                   >
                     Show All Locations
                   </button>

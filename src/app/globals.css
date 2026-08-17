@@ -94,16 +94,17 @@
   }
 }
 
-/* WCAG 2.1 AA Keyboard Focus Outlines */
-button:focus-visible,
-a:focus-visible,
+/* Clean Focus Styling Without Sharp Outline Box */
+input:focus,
 input:focus-visible,
+button:focus,
+button:focus-visible,
+select:focus,
 select:focus-visible,
-textarea:focus-visible,
-[role="button"]:focus-visible {
-  outline: 2px solid #A9C632 !important;
-  outline-offset: 2px !important;
-  border-radius: inherit;
+textarea:focus,
+textarea:focus-visible {
+  outline: none !important;
+  outline-offset: 0px !important;
 }
 
 /* Force Urbanist everywhere */

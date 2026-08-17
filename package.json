@@ -13,7 +13,8 @@
     "discover": "tsx scripts/discover.ts",
     "sync": "tsx scripts/sync.ts",
     "cron": "tsx scripts/daily-scheduler.ts",
-    "db:turso-sync": "tsx scripts/export-to-turso.ts"
+    "db:turso-sync": "tsx scripts/export-to-turso.ts",
+    "scrape:live": "tsx scripts/sync-direct-ats-urls.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
