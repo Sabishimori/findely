@@ -7,9 +7,10 @@
 export interface GeocodedLocation {
   city: string;
   country: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   locationType: "onsite" | "hybrid" | "remote";
+  isBroadRegion?: boolean;
 }
 
 export const CITY_COORDINATES: Record<string, { lat: number; lng: number; country: string }> = {
@@ -141,6 +142,34 @@ export const CITY_COORDINATES: Record<string, { lat: number; lng: number; countr
   "queenstown": { lat: -45.0312, lng: 168.6626, country: "New Zealand" },
 };
 
+const BROAD_REGION_PATTERNS = [
+  /^remote$/i,
+  /^worldwide$/i,
+  /^global$/i,
+  /^anywhere$/i,
+  /^distributed$/i,
+  /^wfh$/i,
+  /^virtual$/i,
+  /^work from anywhere$/i,
+  /^(?:europe|eu|emea|european union)(?:\s*\(?remote\)?)?$/i,
+  /^(?:north america|amer|namer|us\/ca|latam|south america)(?:\s*\(?remote\)?)?$/i,
+  /^(?:apac|asia pacific|asia|australasia)(?:\s*\(?remote\)?)?$/i,
+  /^(?:us|usa|united states|canada|uk|germany|france|india|japan|korea|australia)\s+(?:remote|nationwide|virtual)$/i,
+  /^(?:remote|virtual)\s+(?:us|usa|united states|canada|uk|germany|france|india|japan|korea|australia)$/i,
+  /^(?:remote\s*[-–—/]\s*(?:us|usa|amer|eu|europe|apac|latam|global|worldwide|emea|india|uk|germany))$/i,
+  /^(?:(?:us|usa|amer|eu|europe|apac|latam|global|worldwide|emea|india|uk|germany)\s*[-–—/]\s*remote)$/i,
+  /.*remote\s*-\s*(?:us|amer|eu|emea|apac|latam|global|worldwide|india).*/i,
+  /.*(?:us|amer|eu|emea|apac|latam|global|worldwide|india)\s*-\s*remote.*/i,
+  /.*(?:remote\s*,\s*(?:us|usa|india|uk|germany|france|japan|canada)).*/i,
+  /.*(?:(?:us|usa|india|uk|germany|france|japan|canada)\s*,\s*remote).*/i,
+];
+
+export function isBroadRegionLocation(rawLocation?: string): boolean {
+  if (!rawLocation) return true;
+  const s = rawLocation.trim();
+  return BROAD_REGION_PATTERNS.some((p) => p.test(s));
+}
+
 /**
  * Geocode an arbitrary location string from an ATS job post
  */
@@ -149,15 +178,28 @@ export function geocodeLocation(rawLocation?: string): GeocodedLocation {
     return {
       city: "Remote",
       country: "Worldwide",
-      lat: 37.7749,
-      lng: -122.4194,
+      lat: null,
+      lng: null,
       locationType: "remote",
+      isBroadRegion: true,
     };
   }
 
   const normalized = rawLocation.toLowerCase().trim();
 
-  // Detect Remote status
+  // 1. Broad region / purely remote check (e.g. "Europe", "Remote", "North America", "AMER")
+  if (isBroadRegionLocation(rawLocation)) {
+    return {
+      city: rawLocation.trim(),
+      country: "Remote / Multi-region",
+      lat: null,
+      lng: null,
+      locationType: "remote",
+      isBroadRegion: true,
+    };
+  }
+
+  // Detect Remote & Hybrid modifiers for real cities (e.g. "London (Remote)" or "Berlin (Hybrid)")
   const isRemote = 
     normalized.includes("remote") || 
     normalized.includes("anywhere") || 
@@ -166,7 +208,7 @@ export function geocodeLocation(rawLocation?: string): GeocodedLocation {
 
   const isHybrid = normalized.includes("hybrid");
 
-  // Check matching city
+  // 2. Check matching city dictionary
   for (const [key, coords] of Object.entries(CITY_COORDINATES)) {
     if (normalized.includes(key)) {
       // Add slight jitter (0.002 to 0.005) so multiple pins don't overlap completely
@@ -179,45 +221,48 @@ export function geocodeLocation(rawLocation?: string): GeocodedLocation {
         lat: Number((coords.lat + jitterLat).toFixed(6)),
         lng: Number((coords.lng + jitterLng).toFixed(6)),
         locationType: isRemote ? "remote" : isHybrid ? "hybrid" : "onsite",
+        isBroadRegion: false,
       };
     }
   }
 
-  // Country fallback checks
+  // 3. Specific Country fallback checks
   if (normalized.includes("india")) {
-    return { city: "Bengaluru", country: "India", lat: 12.9716, lng: 77.5946, locationType: isRemote ? "remote" : "onsite" };
+    return { city: "Bengaluru", country: "India", lat: 12.9716, lng: 77.5946, locationType: isRemote ? "remote" : "onsite", isBroadRegion: false };
   }
   if (normalized.includes("japan")) {
-    return { city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, locationType: isRemote ? "remote" : "onsite" };
+    return { city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, locationType: isRemote ? "remote" : "onsite", isBroadRegion: false };
   }
   if (normalized.includes("korea")) {
-    return { city: "Seoul", country: "South Korea", lat: 37.5665, lng: 126.9780, locationType: isRemote ? "remote" : "onsite" };
+    return { city: "Seoul", country: "South Korea", lat: 37.5665, lng: 126.9780, locationType: isRemote ? "remote" : "onsite", isBroadRegion: false };
   }
   if (normalized.includes("uk") || normalized.includes("united kingdom")) {
-    return { city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, locationType: isRemote ? "remote" : "onsite" };
+    return { city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, locationType: isRemote ? "remote" : "onsite", isBroadRegion: false };
   }
   if (normalized.includes("germany")) {
-    return { city: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050, locationType: isRemote ? "remote" : "onsite" };
+    return { city: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050, locationType: isRemote ? "remote" : "onsite", isBroadRegion: false };
   }
   if (normalized.includes("france")) {
-    return { city: "Paris", country: "France", lat: 48.8566, lng: 2.3522, locationType: isRemote ? "remote" : "onsite" };
+    return { city: "Paris", country: "France", lat: 48.8566, lng: 2.3522, locationType: isRemote ? "remote" : "onsite", isBroadRegion: false };
   }
   if (normalized.includes("russia")) {
-    return { city: "Moscow", country: "Russia", lat: 55.7558, lng: 37.6173, locationType: isRemote ? "remote" : "onsite" };
+    return { city: "Moscow", country: "Russia", lat: 55.7558, lng: 37.6173, locationType: isRemote ? "remote" : "onsite", isBroadRegion: false };
   }
   if (normalized.includes("china")) {
-    return { city: "Beijing", country: "China", lat: 39.9042, lng: 116.4074, locationType: isRemote ? "remote" : "onsite" };
+    return { city: "Beijing", country: "China", lat: 39.9042, lng: 116.4074, locationType: isRemote ? "remote" : "onsite", isBroadRegion: false };
   }
   if (normalized.includes("australia")) {
-    return { city: "Sydney", country: "Australia", lat: -33.8688, lng: 151.2093, locationType: isRemote ? "remote" : "onsite" };
+    return { city: "Sydney", country: "Australia", lat: -33.8688, lng: 151.2093, locationType: isRemote ? "remote" : "onsite", isBroadRegion: false };
   }
-  // Default fallback if unknown city
+
+  // Default fallback if unknown city — explicitly set null coordinates rather than guessing SF
   return {
-    city: rawLocation.split(",")[0]?.trim() || "San Francisco",
-    country: "United States",
-    lat: 37.7749 + (Math.random() - 0.5) * 0.01,
-    lng: -122.4194 + (Math.random() - 0.5) * 0.01,
+    city: rawLocation.split(",")[0]?.trim() || "Remote",
+    country: isRemote ? "Remote" : "Unknown",
+    lat: null,
+    lng: null,
     locationType: isRemote ? "remote" : isHybrid ? "hybrid" : "onsite",
+    isBroadRegion: true,
   };
 }
 

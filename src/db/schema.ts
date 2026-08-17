@@ -56,6 +56,10 @@ export const companies = sqliteTable('companies', {
   hr_leads_json: text('hr_leads_json'), // JSON array of [{ name, role, linkedin_url, avatar_url }]
   tech_stack_json: text('tech_stack_json'), // JSON array of string tags
   
+  // Track & Tier
+  source_track: text('source_track').default('ats_api'), // 'ats_api' | 'founder_submitted'
+  size_tier: text('size_tier').default('startup'), // 'startup' | 'growth' | 'enterprise'
+  
   claimed_by: text('claimed_by').references(() => users.id),
   status: text('status').notNull().default('verified'), // 'unverified' | 'verified' | 'flagged'
   created_at: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
@@ -91,6 +95,9 @@ export const jobs = sqliteTable('jobs', {
   posted_at: integer('posted_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
   first_seen_at: integer('first_seen_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
   last_seen_at: integer('last_seen_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+  last_validated: integer('last_validated', { mode: 'timestamp' }),
+  validation_failures: integer('validation_failures').default(0),
+  validation_status: text('validation_status').default('pending'), // 'pending' | 'valid' | 'flagged' | 'failed'
   is_active: integer('is_active', { mode: 'boolean' }).default(true),
   source_id: text('source_id').references(() => scrape_sources.id),
 });

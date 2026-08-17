@@ -5,11 +5,12 @@
 
 import { db } from "@/db";
 import { companies, jobs } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { 
   scrapeGreenhouseBoard, 
   scrapeLeverBoard, 
   scrapeAshbyBoard, 
+  scrapeWorkdayBoard,
   scrapeRemotiveGlobalJobs,
   ScrapedCompanyResult 
 } from "./atsEngine";
@@ -17,8 +18,10 @@ import {
 export interface CompanyTarget {
   name: string;
   domain: string;
-  atsType: "greenhouse" | "lever" | "ashby";
+  atsType: "greenhouse" | "lever" | "ashby" | "workday";
   boardId: string;
+  workdayHost?: string;
+  workdayPath?: string;
   logoUrl?: string;
   foundedYear?: number;
   companySize?: string;
@@ -487,6 +490,8 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
         result = await scrapeLeverBoard(target.name, target.boardId, target.domain, target.logoUrl);
       } else if (target.atsType === "ashby") {
         result = await scrapeAshbyBoard(target.name, target.boardId, target.domain, target.logoUrl);
+      } else if (target.atsType === "workday" && target.workdayHost && target.workdayPath) {
+        result = await scrapeWorkdayBoard(target.name, target.workdayHost, target.workdayPath, target.domain, target.logoUrl);
       }
 
       if (!result || result.jobs.length === 0) {
@@ -539,8 +544,8 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
         });
       }
 
-      // 1. Collect all live scraped apply URLs
-      const liveApplyUrls = new Set(result.jobs.map((j) => j.applyUrl));
+      // 1. Collect all live scraped (applyUrl + location) pairs
+      const liveRoleKeys = new Set(result.jobs.map((j) => `${j.applyUrl}:::${j.location}`));
 
       // 2. Fetch existing active jobs for this company and purge closed/expired roles
       const existingCompanyJobs = await db
@@ -550,7 +555,8 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
 
       let purgedForCompany = 0;
       for (const ej of existingCompanyJobs) {
-        if (ej.apply_url && !liveApplyUrls.has(ej.apply_url)) {
+        const ejKey = `${ej.apply_url}:::${ej.location_text}`;
+        if (ej.apply_url && !liveRoleKeys.has(ejKey)) {
           await db.delete(jobs).where(eq(jobs.id, ej.id));
           purgedForCompany++;
         }
@@ -559,12 +565,18 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
         console.log(`  🗑️ Purged ${purgedForCompany} expired roles for ${result.name}`);
       }
 
-      // 3. Upsert live active jobs
+      // 3. Upsert live active jobs (each office gets its own geocoded row)
       for (const j of result.jobs) {
         const existingJob = await db
           .select()
           .from(jobs)
-          .where(eq(jobs.apply_url, j.applyUrl));
+          .where(
+            and(
+              eq(jobs.company_id, companyId),
+              eq(jobs.apply_url, j.applyUrl),
+              eq(jobs.location_text, j.location)
+            )
+          );
 
         if (existingJob.length === 0) {
           await db.insert(jobs).values({
@@ -580,6 +592,8 @@ export async function runBatchScrape(targets: CompanyTarget[] = TARGET_FRONTIER_
             description: j.description,
             posted_at: j.postedAt,
             is_active: true,
+            validation_status: "pending",
+            validation_failures: 0,
           });
           jobsInserted++;
         }

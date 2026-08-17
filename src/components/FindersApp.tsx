@@ -10,6 +10,7 @@ import UnifiedTrackerView from "./UnifiedTrackerView";
 import VerificationQueueView from "./VerificationQueueView";
 import FilterDrawer, { FilterOptions } from "./FilterDrawer";
 import RequestCompanyModal, { SpatialLocationInfo } from "./RequestCompanyModal";
+import FounderSubmissionModal from "./FounderSubmissionModal";
 import AuthModal from "./AuthModal";
 import LandingPage from "./LandingPage";
 import JobListDrawer from "./JobListDrawer";
@@ -40,6 +41,7 @@ export default function FindersApp({
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
   const [searchQuery, setSearchQuery] = useState("");
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const [showFounderModal, setShowFounderModal] = useState(false);
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showSplashScreen, setShowSplashScreen] = useState(true);
@@ -490,6 +492,15 @@ export default function FindersApp({
         }}
         spatialLocation={spatialPinLocation}
         isDarkMode={isDarkMode}
+      />
+
+      <FounderSubmissionModal
+        isOpen={showFounderModal}
+        onClose={() => setShowFounderModal(false)}
+        onSuccess={() => {
+          loadCompanies();
+          setShowFounderModal(false);
+        }}
       />
 
       <AuthModal isDarkMode={isDarkMode} onSuccess={() => setShowLandingPage(false)} />

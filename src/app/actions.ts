@@ -8,6 +8,8 @@ import { isDisposableEmail } from "@/lib/disposableEmailBlocker";
 import { sanitizeText, sanitizeUrl, sanitizeObject } from "@/lib/security/xssSanitizer";
 import { resolveExactJobApplyUrl, resolveFounderLinkedinUrl } from "@/lib/applyUrlResolver";
 import { sendOtpEmail } from "@/lib/emailService";
+import { geocodeLocation } from "@/lib/scraper/geocoder";
+import { validateJobApplyUrl } from "@/lib/scraper/validator";
 
 // ── Real Email OTP Verification Actions ──────────────────────────────────
 
@@ -902,6 +904,155 @@ export async function getCompanyVerificationQueue() {
     .select()
     .from(company_requests)
     .orderBy(desc(company_requests.created_at));
+}
+
+// ── Track B: Founder Self-Submission Flow (OTP Gated + Validator Checked) ─
+
+export interface FounderListingSubmissionParams {
+  email: string;
+  otpCode: string;
+  companyName: string;
+  websiteUrl: string;
+  officeCity: string;
+  roleTitle: string;
+  department?: string;
+  salaryRange?: string;
+  jobType?: string;
+  techStack?: string[];
+  applyUrl: string;
+  founderName?: string;
+  founderRole?: string;
+  founderLinkedin?: string;
+  companyDescription?: string;
+}
+
+export async function submitFounderRoleListing(data: FounderListingSubmissionParams) {
+  try {
+    const cleanEmail = sanitizeText(data.email?.trim().toLowerCase() || "");
+    const cleanCode = data.otpCode?.trim().replace(/\D/g, "");
+
+    // 1. Verify OTP Session (blocks spam / unverified submissions)
+    if (!cleanEmail || !cleanCode || cleanCode.length < 6) {
+      return { success: false, error: "Please enter a valid email and 6-digit verification code." };
+    }
+
+    const verifiedSessions = await db
+      .select()
+      .from(otp_sessions)
+      .where(and(eq(otp_sessions.email, cleanEmail), eq(otp_sessions.verified, true)))
+      .orderBy(desc(otp_sessions.created_at))
+      .limit(1);
+
+    if (verifiedSessions.length === 0) {
+      const pending = await db
+        .select()
+        .from(otp_sessions)
+        .where(and(eq(otp_sessions.email, cleanEmail), eq(otp_sessions.verified, false)))
+        .orderBy(desc(otp_sessions.created_at))
+        .limit(1);
+
+      if (!pending[0] || pending[0].otp_code.trim() !== cleanCode || new Date() > pending[0].expires_at) {
+        return { success: false, error: "Invalid or expired verification code. Please request a new code." };
+      }
+
+      await db.update(otp_sessions).set({ verified: true }).where(eq(otp_sessions.id, pending[0].id)).run();
+    }
+
+    // 2. Validate URL Liveness using the Unified Validator (Catches dead links immediately)
+    const sanitizedApplyUrl = sanitizeUrl(data.applyUrl);
+    const valResult = await validateJobApplyUrl({
+      id: "founder_sub_" + Date.now(),
+      title: data.roleTitle,
+      apply_url: sanitizedApplyUrl,
+      validation_failures: 0,
+    });
+
+    if (!valResult.isValid && valResult.httpStatus !== 403) {
+      return {
+        success: false,
+        error: `Job apply URL could not be validated (HTTP ${valResult.httpStatus || 404}: ${valResult.reason || "Destination unreachable"}). Please check the link.`,
+      };
+    }
+
+    // 3. Geocode location using Step 0 validated logic (Preserves null coords for broad/remote)
+    const cleanLoc = sanitizeText(data.officeCity || "Remote");
+    const geo = geocodeLocation(cleanLoc);
+
+    // 4. Company Upsert
+    const cleanCompanyName = sanitizeText(data.companyName);
+    const existingCompany = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.name, cleanCompanyName))
+      .limit(1);
+
+    let companyId: string;
+    let domain = "startup.io";
+    try {
+      domain = new URL(data.websiteUrl).hostname.replace(/^www\./, "");
+    } catch (_) {}
+
+    if (existingCompany.length > 0) {
+      companyId = existingCompany[0].id;
+    } else {
+      companyId = crypto.randomUUID();
+      const foundersList = data.founderName
+        ? [{ name: sanitizeText(data.founderName), role: sanitizeText(data.founderRole || "Founder"), linkedin_url: data.founderLinkedin ? sanitizeUrl(data.founderLinkedin) : undefined }]
+        : [{ name: `${cleanCompanyName} Founders`, role: "Founders" }];
+
+      await db.insert(companies).values({
+        id: companyId,
+        name: cleanCompanyName,
+        website_url: sanitizeUrl(data.websiteUrl) || data.websiteUrl || "https://findely.com",
+        description: sanitizeText(data.companyDescription || `Frontier technology team building next-generation products at ${cleanCompanyName}.`),
+        location_text: geo.city,
+        latitude: geo.lat,
+        longitude: geo.lng,
+        logo_url: `https://logo.clearbit.com/${domain}`,
+        status: "verified",
+        source_track: "founder_submitted",
+        size_tier: "startup",
+        founded_year: new Date().getFullYear(),
+        company_size: "1-20 employees",
+        founders_json: JSON.stringify(foundersList),
+        tech_stack_json: data.techStack ? JSON.stringify(data.techStack) : JSON.stringify(["TypeScript", "React", "Node.js"]),
+      });
+    }
+
+    // 5. Insert Job Listing into Unified Schema
+    const jobId = crypto.randomUUID();
+    await db.insert(jobs).values({
+      id: jobId,
+      company_id: companyId,
+      title: sanitizeText(data.roleTitle),
+      salary_range: sanitizeText(data.salaryRange || "$140,000 - $200,000"),
+      job_type: data.jobType || (geo.locationType === "remote" ? "Full-time · Remote" : "Full-time · Onsite"),
+      experience_level: "Mid-Senior",
+      description: `Verified founder-submitted role: ${data.roleTitle} at ${cleanCompanyName}. Department: ${data.department || "Engineering"}.`,
+      location_text: cleanLoc,
+      latitude: geo.lat,
+      longitude: geo.lng,
+      apply_url: sanitizedApplyUrl,
+      posted_at: new Date(),
+      is_active: true,
+      last_validated: new Date(),
+      validation_failures: 0,
+      validation_status: "active",
+    });
+
+    try {
+      revalidatePath("/");
+    } catch (_) {}
+    return {
+      success: true,
+      companyId,
+      jobId,
+      message: `Role "${data.roleTitle}" successfully published directly to Findely map!`,
+    };
+  } catch (err: any) {
+    console.error("submitFounderRoleListing error:", err);
+    return { success: false, error: err.message || "Failed to submit role listing." };
+  }
 }
 
 // ── Manual Add Job ──────────────────────────────────────────
