@@ -67,6 +67,7 @@ export default function CompanySheet({
   const [activeTab, setActiveTab] = useState<"details" | "jobs">("details");
   const [showAllLocations, setShowAllLocations] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
+  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
 
   // Report Modal State
   const [showReportModal, setShowReportModal] = useState(false);
@@ -205,11 +206,35 @@ export default function CompanySheet({
 
   const rawJobs = data?.jobs || [];
   const filteredJobs = rawJobs.filter((job: any) => {
-    if (!selectedDepartment) return true;
-    return (
-      job.title.toLowerCase().includes(selectedDepartment.toLowerCase()) ||
-      (job.location_text && job.location_text.toLowerCase().includes(selectedDepartment.toLowerCase()))
-    );
+    let matchesDept = true;
+    if (selectedDepartment) {
+      matchesDept =
+        job.title.toLowerCase().includes(selectedDepartment.toLowerCase()) ||
+        !!(job.location_text && job.location_text.toLowerCase().includes(selectedDepartment.toLowerCase()));
+    }
+
+    let matchesBranch = true;
+    if (selectedBranch) {
+      const cleanBranch = selectedBranch.toLowerCase().trim();
+      const cityPart = cleanBranch.split("/")[0].split(",")[0].trim();
+      
+      if (cleanBranch.includes("remote")) {
+        matchesBranch = !!(job.job_type?.toLowerCase().includes("remote")) || !!(job.location_text?.toLowerCase().includes("remote"));
+      } else {
+        const loc = (job.location_text || "").toLowerCase();
+        matchesBranch = !!(
+          loc.includes(cityPart) ||
+          (cityPart === "san francisco" && (loc.includes("sf") || loc.includes("san francisco"))) ||
+          (cityPart === "new york" && (loc.includes("nyc") || loc.includes("new york"))) ||
+          (cityPart === "bengaluru" && (loc.includes("bangalore") || loc.includes("bengaluru"))) ||
+          (cityPart === "seattle" && (loc.includes("sea") || loc.includes("seattle"))) ||
+          (cityPart === "chicago" && (loc.includes("chi") || loc.includes("chicago"))) ||
+          (cityPart === "atlanta" && (loc.includes("atl") || loc.includes("atlanta")))
+        );
+      }
+    }
+
+    return matchesDept && matchesBranch;
   });
 
   const sortedJobs = [...filteredJobs].sort((a, b) => {
@@ -492,6 +517,8 @@ export default function CompanySheet({
                             <button
                               key={idx}
                               onClick={() => {
+                                setSelectedBranch(loc.city);
+                                setActiveTab("jobs");
                                 if (loc.lat && loc.lng) {
                                   window.dispatchEvent(
                                     new CustomEvent("fly-to-coords", {
@@ -533,9 +560,9 @@ export default function CompanySheet({
                         </div>
                       </div>
 
-                      {/* Departments */}
-                      <div className="space-y-2">
-                        <h3 className="font-bold uppercase tracking-wider text-[11px]">Departments ({intel.departments.length})</h3>
+                      {/* Departments Breakdown */}
+                      <div className="space-y-2.5">
+                        <h3 className="font-bold uppercase tracking-wider text-[11px]">Departments Breakdown</h3>
                         <div className="flex flex-wrap gap-1.5">
                           {intel.departments.map((dept, i) => (
                             <button
@@ -580,6 +607,21 @@ export default function CompanySheet({
                             className="text-xs font-bold underline hover:text-[#1D2E1B] cursor-pointer"
                           >
                             Clear Filter
+                          </button>
+                        </div>
+                      )}
+
+                      {selectedBranch && (
+                        <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] border border-[#A9C632] text-xs">
+                          <span className="font-bold flex items-center gap-1.5">
+                            <MapPin className="w-3.5 h-3.5 shrink-0" />
+                            Branch: {selectedBranch}
+                          </span>
+                          <button
+                            onClick={() => setSelectedBranch(null)}
+                            className="text-xs font-bold underline cursor-pointer hover:opacity-80"
+                          >
+                            Show All Locations
                           </button>
                         </div>
                       )}

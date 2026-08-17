@@ -328,27 +328,65 @@ const COMPANY_PRESETS: Record<string, Partial<CompanyIntelligence>> = {
   }
 };
 
-export function getCompanyIntelligence(company: {
-  name: string;
-  description?: string | null;
-  founded_year?: number | null;
-  company_size?: string | null;
-  location_text?: string | null;
-  jobs?: any[];
-}): CompanyIntelligence {
-  const normName = company.name.toLowerCase().trim();
+function computeDynamicOfficeNetwork(baseBranches: any[], jobsList: any[]): any[] {
+  if (!jobsList || jobsList.length === 0) {
+    return baseBranches;
+  }
+
+  const branchCounts = new Map<string, number>();
+  
+  for (const job of jobsList) {
+    const loc = (job.location_text || "").toLowerCase();
+    
+    for (const b of baseBranches) {
+      const city = b.city.toLowerCase();
+      let matches = false;
+      if (city.includes("remote")) {
+        matches = loc.includes("remote") || job.job_type?.toLowerCase().includes("remote");
+      } else {
+        const cleanCity = city.split("/")[0].split(",")[0].trim();
+        matches = loc.includes(cleanCity) || 
+          (cleanCity === "san francisco" && (loc.includes("sf") || loc.includes("san francisco"))) ||
+          (cleanCity === "new york" && (loc.includes("nyc") || loc.includes("new york"))) ||
+          (cleanCity === "bengaluru" && (loc.includes("bangalore") || loc.includes("bengaluru"))) ||
+          (cleanCity === "seattle" && (loc.includes("sea") || loc.includes("seattle"))) ||
+          (cleanCity === "chicago" && (loc.includes("chi") || loc.includes("chicago"))) ||
+          (cleanCity === "atlanta" && (loc.includes("atl") || loc.includes("atlanta")));
+      }
+      if (matches) {
+        branchCounts.set(b.city, (branchCounts.get(b.city) || 0) + 1);
+      }
+    }
+  }
+
+  return baseBranches.map((b) => {
+    const realCount = branchCounts.get(b.city);
+    return {
+      ...b,
+      jobs: realCount !== undefined && realCount > 0 ? realCount : (b.jobs || 1),
+    };
+  });
+}
+
+export function getCompanyIntelligence(company: any): any {
+  const normName = (company.name || "").toLowerCase();
+  const rawJobs = company.jobs || company.roles || [];
 
   // If Anthropic
   if (normName.includes("anthropic")) {
+    const dynamicBranches = computeDynamicOfficeNetwork(ANTHROPIC_INTELLIGENCE.officeNetwork, rawJobs);
     return {
       ...ANTHROPIC_INTELLIGENCE,
-      openPositionsCount: company.jobs && company.jobs.length > 0 ? company.jobs.length : ANTHROPIC_INTELLIGENCE.openPositionsCount
+      officeNetwork: dynamicBranches,
+      openPositionsCount: rawJobs.length > 0 ? rawJobs.length : ANTHROPIC_INTELLIGENCE.openPositionsCount
     };
   }
 
   // Check presets
   for (const [key, preset] of Object.entries(COMPANY_PRESETS)) {
     if (normName.includes(key)) {
+      const presetBranches = preset.officeNetwork || ANTHROPIC_INTELLIGENCE.officeNetwork;
+      const dynamicBranches = computeDynamicOfficeNetwork(presetBranches, rawJobs);
       return {
         ...ANTHROPIC_INTELLIGENCE,
         ...preset,
@@ -356,7 +394,8 @@ export function getCompanyIntelligence(company: {
         teamSize: company.company_size || preset.teamSize || "500+ employees",
         about: company.description || preset.about || ANTHROPIC_INTELLIGENCE.about,
         officeAddress: company.location_text || preset.officeAddress || "San Francisco, CA, United States",
-        openPositionsCount: company.jobs && company.jobs.length > 0 ? company.jobs.length : (preset.openPositionsCount || 45)
+        officeNetwork: dynamicBranches,
+        openPositionsCount: rawJobs.length > 0 ? rawJobs.length : (preset.openPositionsCount || 45)
       };
     }
   }

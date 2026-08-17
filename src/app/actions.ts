@@ -468,12 +468,29 @@ export async function getAllMapData() {
 
 export async function getCompanyWithJobs(companyId: string) {
   try {
-    const companyRows = await db
+    // 1. Query by exact ID first
+    let companyRows = await db
       .select()
       .from(companies)
       .where(eq(companies.id, companyId));
 
-    const company = companyRows[0];
+    // 2. If not matched by exact ID, query by name (handles slugs and fallback IDs like "anthropic", "openai", etc.)
+    if (!companyRows || companyRows.length === 0) {
+      const cleanSearchName = companyId.replace(/-/g, " ").toLowerCase().trim();
+      const allDbCompanies = await db.select().from(companies);
+      const found = allDbCompanies.find(
+        (c) =>
+          c.id.toLowerCase() === companyId.toLowerCase() ||
+          c.name.toLowerCase() === cleanSearchName ||
+          c.name.toLowerCase().includes(cleanSearchName) ||
+          cleanSearchName.includes(c.name.toLowerCase())
+      );
+      if (found) {
+        companyRows = [found];
+      }
+    }
+
+    const company = companyRows ? companyRows[0] : null;
 
     if (!company) {
       const fallback = FALLBACK_COMPANIES.find(
@@ -483,10 +500,11 @@ export async function getCompanyWithJobs(companyId: string) {
       return null;
     }
 
+    // Query ALL real live active jobs for this company using its verified database ID
     const rawCompanyJobs = await db
       .select()
       .from(jobs)
-      .where(and(eq(jobs.company_id, companyId), eq(jobs.is_active, true)))
+      .where(and(eq(jobs.company_id, company.id), eq(jobs.is_active, true)))
       .orderBy(desc(jobs.posted_at));
 
     const companyJobs = rawCompanyJobs.map((j) => ({
@@ -502,7 +520,7 @@ export async function getCompanyWithJobs(companyId: string) {
     const sources = await db
       .select()
       .from(scrape_sources)
-      .where(eq(scrape_sources.company_id, companyId));
+      .where(eq(scrape_sources.company_id, company.id));
 
     let founders = [];
     let hrLeads = [];
