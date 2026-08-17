@@ -330,121 +330,160 @@ const COMPANY_PRESETS: Record<string, Partial<CompanyIntelligence>> = {
   }
 };
 
-function computeDynamicOfficeNetwork(baseBranches: any[], jobsList: any[]): any[] {
-  if (!jobsList || jobsList.length === 0) {
-    return baseBranches;
+import { geocodeLocation } from "./scraper/geocoder";
+
+export function getFlagForCountryOrCity(locStr: string): string {
+  const s = (locStr || "").toLowerCase();
+  if (s.includes("india") || s.includes("bengaluru") || s.includes("bangalore") || s.includes("mumbai") || s.includes("delhi") || s.includes("noida") || s.includes("gurgaon") || s.includes("hyderabad") || s.includes("indiranagar") || s.includes("pune") || s.includes("chennai")) return "🇮🇳";
+  if (s.includes("united states") || s.includes("usa") || s.includes("san francisco") || s.includes("new york") || s.includes("seattle") || s.includes("austin") || s.includes("boston") || s.includes("chicago") || s.includes("los angeles") || s.includes("santa clara") || s.includes("san jose") || s.includes("california") || s.includes("palo alto") || s.includes("mountain view") || s.includes("sunnyvale") || s.includes("denver") || s.includes("atlanta") || s.includes(", ca") || s.includes(", ny") || s.includes(", wa") || s.includes(", tx") || s.includes(", ma") || s.includes(", il")) return "🇺🇸";
+  if (s.includes("united kingdom") || s.includes("uk") || s.includes("london") || s.includes("cambridge") || s.includes("oxford") || s.includes("manchester") || s.includes("edinburgh")) return "🇬🇧";
+  if (s.includes("germany") || s.includes("berlin") || s.includes("munich") || s.includes("frankfurt") || s.includes("hamburg") || s.includes("cologne")) return "🇩🇪";
+  if (s.includes("france") || s.includes("paris") || s.includes("lyon")) return "🇫🇷";
+  if (s.includes("japan") || s.includes("tokyo") || s.includes("osaka") || s.includes("kyoto")) return "🇯🇵";
+  if (s.includes("korea") || s.includes("seoul")) return "🇰🇷";
+  if (s.includes("singapore")) return "🇸🇬";
+  if (s.includes("australia") || s.includes("sydney") || s.includes("melbourne") || s.includes("brisbane")) return "🇦🇺";
+  if (s.includes("new zealand") || s.includes("wellington") || s.includes("auckland")) return "🇳🇿";
+  if (s.includes("canada") || s.includes("toronto") || s.includes("vancouver") || s.includes("montreal") || s.includes("waterloo")) return "🇨🇦";
+  if (s.includes("sweden") || s.includes("stockholm")) return "🇸🇪";
+  if (s.includes("netherlands") || s.includes("amsterdam")) return "🇳🇱";
+  if (s.includes("ireland") || s.includes("dublin")) return "🇮🇪";
+  if (s.includes("switzerland") || s.includes("zurich") || s.includes("geneva")) return "🇨🇭";
+  if (s.includes("israel") || s.includes("tel aviv") || s.includes("yokneam")) return "🇮🇱";
+  if (s.includes("spain") || s.includes("barcelona") || s.includes("madrid")) return "🇪🇸";
+  if (s.includes("remote") || s.includes("worldwide") || s.includes("global") || s.includes("anywhere")) return "🌐";
+  return "📍";
+}
+
+export function computeDynamicOfficeNetwork(
+  companyLocation: string,
+  rawJobs: any[],
+  hqCoords?: { lat?: number | null; lng?: number | null }
+): OfficeLocation[] {
+  const normHQ = (companyLocation || "San Francisco, CA").trim();
+  const hqGeo = geocodeLocation(normHQ);
+  const hqCity = hqGeo.city || normHQ.split(",")[0] || "Headquarters";
+  const hqCountry = hqGeo.country || "Global";
+
+  if (!rawJobs || rawJobs.length === 0) {
+    return [
+      {
+        flag: getFlagForCountryOrCity(normHQ),
+        city: hqCity,
+        country: hqCountry,
+        lat: (hqCoords?.lat !== undefined && hqCoords?.lat !== null) ? hqCoords.lat : (hqGeo.lat || 37.7749),
+        lng: (hqCoords?.lng !== undefined && hqCoords?.lng !== null) ? hqCoords.lng : (hqGeo.lng || -122.4194),
+        jobs: 0,
+        isHQ: true,
+      },
+    ];
   }
 
-  const branchCounts = new Map<string, number>();
-  
-  for (const job of jobsList) {
-    const loc = (job.location_text || "").toLowerCase();
-    
-    for (const b of baseBranches) {
-      if (matchesLocation(loc, b.city, job.job_type)) {
-        branchCounts.set(b.city, (branchCounts.get(b.city) || 0) + 1);
-      }
+  // Aggregate real jobs by resolved location
+  const branchMap = new Map<string, {
+    flag: string;
+    city: string;
+    country: string;
+    lat: number;
+    lng: number;
+    jobs: number;
+    isHQ: boolean;
+  }>();
+
+  for (const job of rawJobs) {
+    const rawLoc = (job.location_text || job.location || "").trim();
+    const geo = geocodeLocation(rawLoc || normHQ);
+
+    // Clean display city name
+    const cityKey = (geo.city || rawLoc || hqCity).trim();
+    const normalizedKey = cityKey.toLowerCase();
+
+    const isJobHQ = (
+      normalizedKey === hqCity.toLowerCase() ||
+      (geo.lat !== null && hqGeo.lat !== null && Math.abs(geo.lat - hqGeo.lat) < 0.1 && geo.lng !== null && hqGeo.lng !== null && Math.abs(geo.lng - hqGeo.lng) < 0.1)
+    );
+
+    const existing = branchMap.get(normalizedKey);
+    if (existing) {
+      existing.jobs += 1;
+      if (isJobHQ) existing.isHQ = true;
+    } else {
+      const flag = getFlagForCountryOrCity(rawLoc || geo.country);
+      const lat = (job.latitude !== null && job.latitude !== undefined) 
+        ? job.latitude 
+        : (geo.lat ?? (isJobHQ ? (hqCoords?.lat ?? hqGeo.lat ?? 37.7749) : 0));
+      const lng = (job.longitude !== null && job.longitude !== undefined) 
+        ? job.longitude 
+        : (geo.lng ?? (isJobHQ ? (hqCoords?.lng ?? hqGeo.lng ?? -122.4194) : 0));
+
+      branchMap.set(normalizedKey, {
+        flag,
+        city: geo.city || rawLoc || hqCity,
+        country: geo.country || (geo.isBroadRegion ? "Remote" : "Global"),
+        lat,
+        lng,
+        jobs: 1,
+        isHQ: isJobHQ,
+      });
     }
   }
 
-  const updatedBranches = baseBranches.map((b) => {
-    const realCount = branchCounts.get(b.city) || 0;
-    return {
-      ...b,
-      jobs: realCount,
-    };
+  const branches = Array.from(branchMap.values());
+
+  // Ensure there is at least one designated HQ branch
+  const hasHQ = branches.some((b) => b.isHQ);
+  if (!hasHQ && branches.length > 0) {
+    branches[0].isHQ = true;
+  }
+
+  // Sort branches: HQ first, then descending by real job count
+  branches.sort((a, b) => {
+    if (a.isHQ && !b.isHQ) return -1;
+    if (!a.isHQ && b.isHQ) return 1;
+    return b.jobs - a.jobs;
   });
 
-  // Filter out branches with 0 jobs, unless it's HQ
-  return updatedBranches.filter(b => b.jobs > 0 || b.isHQ);
+  return branches;
 }
 
-export function getCompanyIntelligence(company: any): any {
+export function getCompanyIntelligence(company: any): CompanyIntelligence {
   const normName = (company.name || "").toLowerCase();
   const rawJobs = company.jobs || company.roles || [];
+  const rawLoc = company.location_text || "San Francisco, CA, USA";
+  const hqCoords = { lat: company.latitude, lng: company.longitude };
 
-  // If Anthropic
+  const dynamicOfficeNetwork = computeDynamicOfficeNetwork(rawLoc, rawJobs, hqCoords);
+  const actualPositionsCount = rawJobs.length;
+
+  // 1. Anthropic Preset
   if (normName.includes("anthropic")) {
-    const dynamicBranches = computeDynamicOfficeNetwork(ANTHROPIC_INTELLIGENCE.officeNetwork, rawJobs);
     return {
       ...ANTHROPIC_INTELLIGENCE,
-      officeNetwork: dynamicBranches,
-      openPositionsCount: rawJobs.length > 0 ? rawJobs.length : ANTHROPIC_INTELLIGENCE.openPositionsCount
+      officeAddress: rawLoc,
+      officeNetwork: dynamicOfficeNetwork,
+      totalLocationsCount: dynamicOfficeNetwork.length,
+      openPositionsCount: actualPositionsCount > 0 ? actualPositionsCount : ANTHROPIC_INTELLIGENCE.openPositionsCount,
     };
   }
 
-  // Check presets
+  // 2. Named Presets
   for (const [key, preset] of Object.entries(COMPANY_PRESETS)) {
     if (normName.includes(key)) {
-      const presetBranches = preset.officeNetwork || ANTHROPIC_INTELLIGENCE.officeNetwork;
-      const dynamicBranches = computeDynamicOfficeNetwork(presetBranches, rawJobs);
       return {
         ...ANTHROPIC_INTELLIGENCE,
         ...preset,
         founded: company.founded_year || preset.founded || 2020,
         teamSize: company.company_size || preset.teamSize || "500+ employees",
         about: company.description || preset.about || ANTHROPIC_INTELLIGENCE.about,
-        officeAddress: company.location_text || preset.officeAddress || "San Francisco, CA, United States",
-        officeNetwork: dynamicBranches,
-        openPositionsCount: rawJobs.length > 0 ? rawJobs.length : (preset.openPositionsCount || 45)
+        officeAddress: rawLoc,
+        officeNetwork: dynamicOfficeNetwork,
+        totalLocationsCount: dynamicOfficeNetwork.length,
+        openPositionsCount: actualPositionsCount > 0 ? actualPositionsCount : (preset.openPositionsCount || 0),
       };
     }
   }
 
-  const rawLoc = company.location_text || "San Francisco, CA, USA";
-  const isIndia = rawLoc.toLowerCase().includes("india") || rawLoc.toLowerCase().includes("bengaluru") || rawLoc.toLowerCase().includes("mumbai");
-  const isEurope = rawLoc.toLowerCase().includes("uk") || rawLoc.toLowerCase().includes("london") || rawLoc.toLowerCase().includes("paris") || rawLoc.toLowerCase().includes("sweden") || rawLoc.toLowerCase().includes("germany");
-  const isJapan = rawLoc.toLowerCase().includes("japan") || rawLoc.toLowerCase().includes("tokyo");
-  const isKorea = rawLoc.toLowerCase().includes("korea") || rawLoc.toLowerCase().includes("seoul");
-  const isAus = rawLoc.toLowerCase().includes("australia") || rawLoc.toLowerCase().includes("sydney") || rawLoc.toLowerCase().includes("new zealand");
-
-  let branches: OfficeLocation[] = [];
-
-  if (isIndia) {
-    branches = [
-      { flag: "🇮🇳", city: rawLoc.split(",")[0] || "Bengaluru", country: "India", lat: 12.9716, lng: 77.5946, jobs: Math.max(18, (company.jobs?.length || 2)), isHQ: true },
-      { flag: "🇮🇳", city: "Mumbai", country: "India", lat: 19.0760, lng: 72.8777, jobs: 8 },
-      { flag: "🇮🇳", city: "Delhi / NCR", country: "India", lat: 28.6139, lng: 77.2090, jobs: 6 },
-      { flag: "🇺🇸", city: "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: 12 },
-      { flag: "🇯🇵", city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, jobs: 4 },
-      { flag: "🌐", city: "Worldwide Remote", country: "Global", lat: 12.9716, lng: 77.5946, jobs: Math.max(10, company.jobs?.length || 3) }
-    ];
-  } else if (isEurope) {
-    branches = [
-      { flag: "🇪🇺", city: rawLoc.split(",")[0] || "London", country: "Europe", lat: 51.5074, lng: -0.1278, jobs: Math.max(20, (company.jobs?.length || 2)), isHQ: true },
-      { flag: "🇩🇪", city: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050, jobs: 14 },
-      { flag: "🇫🇷", city: "Paris", country: "France", lat: 48.8566, lng: 2.3522, jobs: 9 },
-      { flag: "🇺🇸", city: "New York", country: "United States", lat: 40.7128, lng: -74.0060, jobs: 11 },
-      { flag: "🇮🇳", city: "Bengaluru", country: "India", lat: 12.9716, lng: 77.5946, jobs: 6 },
-      { flag: "🌐", city: "Worldwide Remote", country: "Global", lat: 51.5074, lng: -0.1278, jobs: 15 }
-    ];
-  } else if (isJapan || isKorea) {
-    branches = [
-      { flag: isJapan ? "🇯🇵" : "🇰🇷", city: rawLoc.split(",")[0] || (isJapan ? "Tokyo" : "Seoul"), country: isJapan ? "Japan" : "South Korea", lat: isJapan ? 35.6762 : 37.5665, lng: isJapan ? 139.6503 : 126.9780, jobs: Math.max(16, (company.jobs?.length || 2)), isHQ: true },
-      { flag: "🇺🇸", city: "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: 8 },
-      { flag: "🇸🇬", city: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198, jobs: 5 },
-      { flag: "🌐", city: "Worldwide Remote", country: "Global", lat: 35.6762, lng: 139.6503, jobs: 10 }
-    ];
-  } else if (isAus) {
-    branches = [
-      { flag: "🇦🇺", city: rawLoc.split(",")[0] || "Sydney", country: "Australia", lat: -33.8688, lng: 151.2093, jobs: Math.max(22, (company.jobs?.length || 2)), isHQ: true },
-      { flag: "🇦🇺", city: "Melbourne", country: "Australia", lat: -37.8136, lng: 144.9631, jobs: 9 },
-      { flag: "🇺🇸", city: "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: 14 },
-      { flag: "🇳🇿", city: "Auckland", country: "New Zealand", lat: -36.8485, lng: 174.7633, jobs: 4 },
-      { flag: "🌐", city: "Worldwide Remote", country: "Global", lat: -33.8688, lng: 151.2093, jobs: 18 }
-    ];
-  } else {
-    // Standard USA / Global Tech Powerhouse
-    branches = [
-      { flag: "🇺🇸", city: rawLoc.split(",")[0] || "San Francisco", country: "United States", lat: 37.7749, lng: -122.4194, jobs: Math.max(25, (company.jobs?.length || 2)), isHQ: true },
-      { flag: "🇺🇸", city: "New York", country: "United States", lat: 40.7128, lng: -74.0060, jobs: 18 },
-      { flag: "🇬🇧", city: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, jobs: 12 },
-      { flag: "🇮🇳", city: "Bengaluru", country: "India", lat: 12.9716, lng: 77.5946, jobs: 10 },
-      { flag: "🇯🇵", city: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, jobs: 7 },
-      { flag: "🌐", city: "Worldwide Remote", country: "Global", lat: 37.7749, lng: -122.4194, jobs: 24 }
-    ];
-  }
-
+  // 3. General Companies (CRED, Scale AI, Linear, Autodesk, NVIDIA, Adobe, etc.)
   return {
     industry: ["Technology", "Software", "AI / ML", "SaaS"],
     businessModel: ["B2B", "Enterprise"],
@@ -457,11 +496,11 @@ export function getCompanyIntelligence(company: any): any {
     valuation: "$350M",
     benefits: ANTHROPIC_INTELLIGENCE.benefits,
     officeAddress: rawLoc,
-    officeNetwork: branches,
-    totalLocationsCount: branches.length,
+    officeNetwork: dynamicOfficeNetwork,
+    totalLocationsCount: dynamicOfficeNetwork.length,
     departments: ANTHROPIC_INTELLIGENCE.departments,
     teamSize: company.company_size || "100-500 employees",
-    openPositionsCount: company.jobs?.length || 12
+    openPositionsCount: actualPositionsCount,
   };
 }
 
