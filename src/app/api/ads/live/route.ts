@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { advertisements } from "@/db/schema";
-import { eq, desc, gt } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -18,75 +18,33 @@ export interface LiveAdResponseItem {
   jobCount?: number;
 }
 
-const DEFAULT_ECOSYSTEM_ADS: LiveAdResponseItem[] = [
+const DEFAULT_FREE_SLOTS: LiveAdResponseItem[] = [
   {
-    id: "ad-freshworks",
-    name: "Freshworks",
-    tagline: "Global SaaS Customer Engagement Suite • 153 Live Roles",
-    badgeType: "FEATURED",
-    websiteUrl: "https://freshworks.com",
-    logoUrl: "https://logo.clearbit.com/freshworks.com",
-    location: "Chennai & Bengaluru",
-    companyId: "company-freshworks",
-    jobCount: 153,
-  },
-  {
-    id: "slot-open-1",
-    name: "Your Startup Here",
-    tagline: "Reach 50,000+ Active Software Engineers & Founders Daily",
+    id: "free-slot-1",
+    name: "Claim Free Spot ⚡",
+    tagline: "Feature your startup, tool, or hiring in Findely's live spotlight • 100% Free",
     badgeType: "AVAILABLE_SLOT",
     websiteUrl: "",
     isAvailableSlot: true,
-    location: "Spotlight Slot 1",
+    location: "Global",
   },
   {
-    id: "ad-jumbo",
-    name: "Jumbo",
-    tagline: "Smart Wealth Management & Liquidity for High-Growth Founders",
-    badgeType: "AD",
-    websiteUrl: "https://jumbowealth.com",
-    logoUrl: "https://www.google.com/s2/favicons?domain=jumbowealth.com&sz=128",
-    location: "Bengaluru",
-  },
-  {
-    id: "ad-canva",
-    name: "Canva",
-    tagline: "Visual Communication & AI Creative Suite • 249 Open Roles",
-    badgeType: "FEATURED",
-    websiteUrl: "https://canva.com",
-    logoUrl: "https://logo.clearbit.com/canva.com",
-    location: "Sydney & Global",
-    companyId: "company-canva",
-    jobCount: 249,
-  },
-  {
-    id: "slot-open-2",
-    name: "Promote Your Launch",
-    tagline: "Get Featured in the Live Ticker & Fly-to Map Pin • Instant Activation",
+    id: "free-slot-2",
+    name: "Promote Your Launch 🚀",
+    tagline: "Broadcast your product to 50,000+ software engineers & founders • Zero Cost",
     badgeType: "AVAILABLE_SLOT",
     websiteUrl: "",
     isAvailableSlot: true,
-    location: "Spotlight Slot 2",
+    location: "Spotlight",
   },
   {
-    id: "ad-talboss",
-    name: "TalBoss",
-    tagline: "AI-Powered Founding Engineer Sourcing & Executive Hiring",
-    badgeType: "AD",
-    websiteUrl: "https://talboss.ai",
-    logoUrl: "https://www.google.com/s2/favicons?domain=talboss.ai&sz=128",
-    location: "Bengaluru & SF",
-  },
-  {
-    id: "ad-phonepe",
-    name: "PhonePe",
-    tagline: "India's Digital Payments & Financial Services Powerhouse • 77 Roles",
-    badgeType: "BOOST",
-    websiteUrl: "https://phonepe.com",
-    logoUrl: "https://logo.clearbit.com/phonepe.com",
-    location: "Bengaluru",
-    companyId: "company-phonepe",
-    jobCount: 77,
+    id: "free-slot-3",
+    name: "Post Your Hiring Surge ✨",
+    tagline: "Instant 1-click live spotlight placement for frontier builders and startups",
+    badgeType: "AVAILABLE_SLOT",
+    websiteUrl: "",
+    isAvailableSlot: true,
+    location: "Live Stream",
   },
 ];
 
@@ -94,14 +52,13 @@ export async function GET() {
   try {
     let dbAds: any[] = [];
     try {
-      // Ensure the table exists in SQLite/Turso
       dbAds = await db
         .select()
         .from(advertisements)
         .where(eq(advertisements.status, "active"))
         .orderBy(desc(advertisements.created_at));
     } catch (dbErr) {
-      console.warn("[Advertisements API]: Table lookup fallback to default ecosystem ads", dbErr);
+      console.warn("[Advertisements API]: Table lookup fallback", dbErr);
     }
 
     const formattedDbAds: LiveAdResponseItem[] = dbAds.map((ad) => ({
@@ -115,8 +72,8 @@ export async function GET() {
       isAvailableSlot: false,
     }));
 
-    // Merge live paid ads with default ecosystem slots
-    const combinedAds = [...formattedDbAds, ...DEFAULT_ECOSYSTEM_ADS];
+    // Combine verified user ads with free available slot reservation prompts
+    const combinedAds = [...formattedDbAds, ...DEFAULT_FREE_SLOTS];
 
     return NextResponse.json({
       success: true,
@@ -127,7 +84,7 @@ export async function GET() {
     console.error("[Ads Live API Error]:", error);
     return NextResponse.json({
       success: true,
-      ads: DEFAULT_ECOSYSTEM_ADS,
+      ads: DEFAULT_FREE_SLOTS,
       activePaidCount: 0,
     });
   }

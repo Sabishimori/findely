@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, Zap, Megaphone, Plus } from "lucide-react";
+import { Zap, Megaphone, Plus, Sparkles } from "lucide-react";
 import { CompanyMapItem } from "./MapComponent";
 import { getCompanyLogoUrl, handleImageError } from "@/lib/logoResolver";
 
@@ -19,129 +19,33 @@ export interface SponsoredAdItem {
   isAvailableSlot?: boolean;
 }
 
-const DEFAULT_SPONSORED_ADS: SponsoredAdItem[] = [
+const DEFAULT_FREE_SLOTS: SponsoredAdItem[] = [
   {
-    id: "ad-freshworks",
-    name: "Freshworks",
-    tagline: "Global SaaS Customer Engagement Suite • 153 Live Roles",
-    badgeType: "FEATURED",
-    websiteUrl: "https://freshworks.com",
-    logoUrl: "https://logo.clearbit.com/freshworks.com",
-    jobCount: 153,
-    location: "Chennai & Bengaluru",
-    companyId: "company-freshworks",
-  },
-  {
-    id: "slot-available-1",
-    name: "Available Ad Slot",
-    tagline: "Promote Your Startup to 50,000+ Engineers • Instant Live Placement",
+    id: "slot-free-1",
+    name: "Claim Free Spotlight ⚡",
+    tagline: "Feature your startup, dev tool, or open roles in Findely's live marquee • 100% Free",
     badgeType: "AVAILABLE_SLOT",
     websiteUrl: "",
     isAvailableSlot: true,
     location: "Global",
   },
   {
-    id: "ad-jumbo",
-    name: "Jumbo",
-    tagline: "Smart Wealth Management & Liquidity for High-Growth Founders",
-    badgeType: "AD",
-    websiteUrl: "https://jumbowealth.com",
-    logoUrl: "https://www.google.com/s2/favicons?domain=jumbowealth.com&sz=128",
-    location: "Bengaluru",
-    isExternal: true,
-  },
-  {
-    id: "ad-canva",
-    name: "Canva",
-    tagline: "Visual Communication & AI Creative Suite • 249 Open Positions",
-    badgeType: "FEATURED",
-    websiteUrl: "https://canva.com",
-    logoUrl: "https://logo.clearbit.com/canva.com",
-    jobCount: 249,
-    location: "Sydney & Global",
-    companyId: "company-canva",
-  },
-  {
-    id: "slot-available-2",
-    name: "Open Spotlight Slot",
-    tagline: "Broadcast Your Hiring Surge & Tool Launch in Real-Time",
+    id: "slot-free-2",
+    name: "Promote Your Launch 🚀",
+    tagline: "Broadcast to 50,000+ software engineers & founders in real-time • Zero Cost",
     badgeType: "AVAILABLE_SLOT",
     websiteUrl: "",
     isAvailableSlot: true,
-    location: "Global",
+    location: "Spotlight",
   },
   {
-    id: "ad-talboss",
-    name: "TalBoss",
-    tagline: "AI-Powered Executive & Founding Engineer Sourcing Platform",
-    badgeType: "AD",
-    websiteUrl: "https://talboss.ai",
-    logoUrl: "https://www.google.com/s2/favicons?domain=talboss.ai&sz=128",
-    location: "Bengaluru & SF",
-    isExternal: true,
-  },
-  {
-    id: "ad-phonepe",
-    name: "PhonePe",
-    tagline: "India's Digital Payments & Financial Services Powerhouse • 77 Roles",
-    badgeType: "BOOST",
-    websiteUrl: "https://phonepe.com",
-    logoUrl: "https://logo.clearbit.com/phonepe.com",
-    jobCount: 77,
-    location: "Bengaluru",
-    companyId: "company-phonepe",
-  },
-  {
-    id: "ad-nvidia",
-    name: "NVIDIA",
-    tagline: "World Leader in Accelerated Computing & GPU Systems • 2,000+ Jobs",
-    badgeType: "FEATURED",
-    websiteUrl: "https://nvidia.com",
-    logoUrl: "https://logo.clearbit.com/nvidia.com",
-    jobCount: 2000,
-    location: "Santa Clara & Global",
-    companyId: "company-nvidia",
-  },
-  {
-    id: "ad-openai",
-    name: "OpenAI",
-    tagline: "Frontier AI Research & Safe Deployment • 931 Positions Open",
-    badgeType: "FEATURED",
-    websiteUrl: "https://openai.com",
-    logoUrl: "https://logo.clearbit.com/openai.com",
-    jobCount: 931,
-    location: "San Francisco",
-    companyId: "company-openai",
-  },
-  {
-    id: "ad-rocketlab",
-    name: "Rocket Lab",
-    tagline: "Next-Gen Launch Vehicles & Deep Space Flight Systems • 409 Roles",
-    badgeType: "BOOST",
-    websiteUrl: "https://rocketlabusa.com",
-    logoUrl: "https://logo.clearbit.com/rocketlabusa.com",
-    jobCount: 409,
-    location: "Long Beach & Auckland",
-    companyId: "company-rocket-lab",
-  },
-  {
-    id: "slot-available-3",
-    name: "Reserve Ad Slot",
-    tagline: "Fly-to Map Pin & Continuous 24/7 Live Marquee Exposure",
+    id: "slot-free-3",
+    name: "Post Your Hiring Surge ✨",
+    tagline: "Instant 1-click live placement with custom logo and direct fly-to pin",
     badgeType: "AVAILABLE_SLOT",
     websiteUrl: "",
     isAvailableSlot: true,
-    location: "Global",
-  },
-  {
-    id: "ad-jamm",
-    name: "JAMM",
-    tagline: "Ultra-Fast Lightweight Video Collaboration for Distributed Teams",
-    badgeType: "AD",
-    websiteUrl: "https://jamm.app",
-    logoUrl: "https://www.google.com/s2/favicons?domain=jamm.app&sz=128",
-    location: "Remote",
-    isExternal: true,
+    location: "Live Stream",
   },
 ];
 
@@ -157,9 +61,9 @@ export default function SponsoredLiveTicker({
   isDarkMode?: boolean;
 }) {
   const [isPaused, setIsPaused] = useState(false);
-  const [adsList, setAdsList] = useState<SponsoredAdItem[]>(DEFAULT_SPONSORED_ADS);
+  const [adsList, setAdsList] = useState<SponsoredAdItem[]>(DEFAULT_FREE_SLOTS);
 
-  // Fetch dynamic live ads from API
+  // Fetch dynamic live ads from database API
   useEffect(() => {
     const fetchLiveAds = async () => {
       try {
@@ -171,14 +75,14 @@ export default function SponsoredLiveTicker({
           }
         }
       } catch (err) {
-        console.warn("[Ticker Ads Fetch Warning]: using default slots", err);
+        console.warn("[Ticker Ads Fetch Warning]: using free slots fallback", err);
       }
     };
     fetchLiveAds();
   }, []);
 
   const handleAdClick = (ad: SponsoredAdItem) => {
-    // If it's an available slot, open the ad creation onboarding modal!
+    // If it's an available slot, open the free ad modal!
     if (ad.isAvailableSlot || ad.badgeType === "AVAILABLE_SLOT") {
       if (onOpenAdModal) {
         onOpenAdModal();
@@ -205,9 +109,9 @@ export default function SponsoredLiveTicker({
   const tickerItems = [...adsList, ...adsList];
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto select-none pointer-events-auto">
+    <div className="relative w-full max-w-6xl sm:max-w-7xl mx-auto select-none pointer-events-auto">
       <div
-        className={`flex items-center gap-3 px-3 py-2 rounded-2xl border shadow-xl backdrop-blur-2xl overflow-hidden transition-all ${
+        className={`flex items-center gap-3 px-4 py-2 rounded-2xl border shadow-2xl backdrop-blur-2xl overflow-hidden transition-all ${
           isDarkMode
             ? "bg-[#1D2E1B]/90 border-[#3D543A] text-white"
             : "bg-white/90 border-[#C8D2A6] text-[#1D2E1B]"
@@ -216,54 +120,54 @@ export default function SponsoredLiveTicker({
         onMouseLeave={() => setIsPaused(false)}
       >
         {/* Left Live Pulse Header */}
-        <div className="flex items-center gap-1.5 shrink-0 pr-2 border-r border-[#C8D2A6]/60 dark:border-[#3D543A]">
-          <span className="relative flex h-2 w-2">
+        <div className="flex items-center gap-2 shrink-0 pr-3 border-r border-[#C8D2A6]/60 dark:border-[#3D543A]">
+          <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A9C632] opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#A9C632]" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#A9C632]" />
           </span>
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#1D2E1B] dark:text-[#A9C632] flex items-center gap-1">
-            <Zap className="w-3 h-3 text-[#A9C632] fill-current" />
+          <span className="text-[11px] font-black uppercase tracking-wider text-[#1D2E1B] dark:text-[#A9C632] flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 text-[#A9C632] fill-current" />
             Live Spotlight
           </span>
         </div>
 
-        {/* Scrolling Marquee Track */}
+        {/* Scrolling Marquee Track (Extended Length) */}
         <div className="relative flex-1 overflow-hidden flex items-center">
           <div
-            className={`flex items-center gap-6 whitespace-nowrap ${
+            className={`flex items-center gap-8 whitespace-nowrap ${
               isPaused ? "[animation-play-state:paused]" : ""
             }`}
             style={{
-              animation: "marqueeScroll 42s linear infinite",
+              animation: "marqueeScroll 45s linear infinite",
             }}
           >
             {tickerItems.map((ad, idx) => {
               const isAvailable = ad.isAvailableSlot || ad.badgeType === "AVAILABLE_SLOT";
 
               if (isAvailable) {
-                // ── Dotted Outline for Available / Empty Slot with High Conversion CTA ──
+                // ── Dotted Outline for Available Free Slot ──
                 return (
                   <button
                     key={`${ad.id}-${idx}`}
                     onClick={() => handleAdClick(ad)}
-                    className="flex items-center gap-2 px-3 py-1 rounded-xl border border-dashed border-[#A9C632] bg-[#A9C632]/10 dark:bg-[#A9C632]/15 hover:bg-[#A9C632]/25 dark:hover:bg-[#A9C632]/30 transition-all cursor-pointer group shrink-0 text-left shadow-xs"
-                    title="Click to reserve this live ad slot"
+                    className="flex items-center gap-2.5 px-3.5 py-1 rounded-xl border border-dashed border-[#A9C632] bg-[#A9C632]/10 dark:bg-[#A9C632]/15 hover:bg-[#A9C632]/25 dark:hover:bg-[#A9C632]/30 transition-all cursor-pointer group shrink-0 text-left shadow-xs"
+                    title="Click to claim this 100% free live spotlight slot"
                   >
-                    <span className="text-[8.5px] uppercase tracking-wider px-1.5 py-0.5 rounded font-mono font-black bg-[#A9C632] text-[#1D2E1B] shadow-xs flex items-center gap-1">
+                    <span className="text-[9px] uppercase tracking-wider px-2 py-0.5 rounded font-mono font-black bg-[#A9C632] text-[#1D2E1B] shadow-xs flex items-center gap-1">
                       <Plus className="w-2.5 h-2.5 stroke-[3]" />
-                      AVAILABLE SLOT
+                      FREE SLOT
                     </span>
 
-                    <span className="text-xs font-bold text-[#1D2E1B] dark:text-[#A9C632] group-hover:underline">
+                    <span className="text-xs font-extrabold text-[#1D2E1B] dark:text-[#A9C632] group-hover:underline">
                       {ad.name}
                     </span>
 
-                    <span className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] font-medium hidden sm:inline max-w-[280px] truncate">
+                    <span className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6] font-medium hidden sm:inline max-w-[360px] truncate">
                       {ad.tagline}
                     </span>
 
-                    <span className="text-[9.5px] font-extrabold text-[#1D2E1B] dark:text-white bg-white/80 dark:bg-black/40 px-1.5 py-0.5 rounded-md border border-[#A9C632]/40 shrink-0">
-                      Reserve ⚡
+                    <span className="text-[9.5px] font-extrabold text-[#1D2E1B] dark:text-white bg-white/80 dark:bg-black/40 px-2 py-0.5 rounded-md border border-[#A9C632]/40 shrink-0">
+                      Claim ⚡
                     </span>
                   </button>
                 );
@@ -280,17 +184,17 @@ export default function SponsoredLiveTicker({
                 <button
                   key={`${ad.id}-${idx}`}
                   onClick={() => handleAdClick(ad)}
-                  className="flex items-center gap-2 px-2.5 py-1 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer group shrink-0 text-left"
+                  className="flex items-center gap-2.5 px-3 py-1 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer group shrink-0 text-left"
                 >
                   {/* Badge */}
                   <span
-                    className={`text-[8.5px] uppercase tracking-wider px-1.5 py-0.5 rounded font-mono ${badgeStyle}`}
+                    className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded font-mono ${badgeStyle}`}
                   >
                     {ad.badgeType}
                   </span>
 
                   {/* Logo */}
-                  <div className="w-4.5 h-4.5 rounded-md bg-white dark:bg-white/10 p-0.5 border border-[#C8D2A6]/50 dark:border-white/10 shadow-xs flex items-center justify-center shrink-0 overflow-hidden">
+                  <div className="w-5 h-5 rounded-md bg-white dark:bg-white/10 p-0.5 border border-[#C8D2A6]/50 dark:border-white/10 shadow-xs flex items-center justify-center shrink-0 overflow-hidden">
                     <img
                       src={ad.logoUrl || getCompanyLogoUrl(ad.websiteUrl, ad.name)}
                       alt={ad.name}
@@ -300,18 +204,18 @@ export default function SponsoredLiveTicker({
                   </div>
 
                   {/* Name */}
-                  <span className="text-xs font-bold text-[#1D2E1B] dark:text-white group-hover:text-[#A9C632] transition-colors">
+                  <span className="text-xs font-extrabold text-[#1D2E1B] dark:text-white group-hover:text-[#A9C632] transition-colors">
                     {ad.name}
                   </span>
 
                   {/* Tagline */}
-                  <span className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] font-medium hidden sm:inline max-w-[280px] truncate">
+                  <span className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6] font-medium hidden sm:inline max-w-[340px] truncate">
                     {ad.tagline}
                   </span>
 
                   {/* Jobs Count if present */}
                   {ad.jobCount && (
-                    <span className="text-[9.5px] font-bold text-[#1D2E1B] dark:text-[#A9C632] bg-[#A9C632]/20 dark:bg-[#A9C632]/20 px-1.5 py-0.5 rounded-full border border-[#A9C632]/40 shrink-0">
+                    <span className="text-[9.5px] font-bold text-[#1D2E1B] dark:text-[#A9C632] bg-[#A9C632]/20 dark:bg-[#A9C632]/20 px-2 py-0.5 rounded-full border border-[#A9C632]/40 shrink-0">
                       {ad.jobCount > 99 ? "99+" : ad.jobCount} Jobs
                     </span>
                   )}
@@ -321,16 +225,16 @@ export default function SponsoredLiveTicker({
           </div>
         </div>
 
-        {/* Right Action: Self-Serve [Advertise 📢] Trigger Button */}
+        {/* Right Action: Free Claim Spot Button */}
         {onOpenAdModal && (
-          <div className="shrink-0 pl-2 border-l border-[#C8D2A6]/60 dark:border-[#3D543A]">
+          <div className="shrink-0 pl-3 border-l border-[#C8D2A6]/60 dark:border-[#3D543A]">
             <button
               onClick={onOpenAdModal}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#A9C632] text-[#1D2E1B] text-[10.5px] font-extrabold shadow-sm hover:brightness-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
-              title="Advertise your startup, product, or hiring in the live spotlight"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#A9C632] text-[#1D2E1B] text-[11px] font-black shadow-md hover:brightness-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+              title="Claim a 100% free live spotlight for your startup"
             >
-              <Megaphone className="w-3 h-3 fill-current" />
-              <span>Advertise 📢</span>
+              <Sparkles className="w-3.5 h-3.5 fill-current" />
+              <span>Claim Free Spot ⚡</span>
             </button>
           </div>
         )}

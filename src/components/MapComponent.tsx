@@ -491,7 +491,7 @@ export default function MapComponent({
       )}
 
       {/* ── Bottom Dock: Freshness Filter Bar on Top, Sponsored Live Ticker directly Under It ── */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2.5 w-[95%] max-w-4xl pointer-events-none">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2.5 w-[96%] max-w-6xl sm:max-w-7xl pointer-events-none">
         {/* Date Freshness Filter Bar (Frosted Glass & Apple Squircle Tile) */}
         <div className="pointer-events-auto flex items-center gap-2 p-2 bg-white/90 dark:bg-[#1D2E1B]/95 backdrop-blur-2xl rounded-[28px] border border-[#C8D2A6] dark:border-[#3D543A] shadow-2xl text-xs font-semibold select-none">
           <div className="flex items-center gap-2 pr-1 pl-1">

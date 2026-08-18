@@ -14,9 +14,7 @@ export async function POST(req: NextRequest) {
       badgeType = "AD",
       location = "Global",
       contactEmail,
-      tier = "growth_14d",
-      paymentMethod = "card",
-      isDemoMode = false,
+      tier = "free_spotlight",
     } = body;
 
     // 1. Strict Validation
@@ -43,29 +41,21 @@ export async function POST(req: NextRequest) {
 
     if (!contactEmail || isDisposableEmail(contactEmail)) {
       return NextResponse.json(
-        { success: false, error: "Please provide a valid corporate or non-disposable email for invoice delivery." },
+        { success: false, error: "Please provide a valid email address." },
         { status: 400 }
       );
     }
 
-    // 2. Compute Pricing & Duration
-    let durationDays = 14;
-    let amountCents = 8900; // $89
-
-    if (tier === "starter_7d") {
-      durationDays = 7;
-      amountCents = 4900; // $49
-    } else if (tier === "dominance_30d") {
-      durationDays = 30;
-      amountCents = 16900; // $169
-    }
+    // 2. 100% Free 30-Day Community Spotlight Placement
+    const durationDays = 30;
+    const amountCents = 0; // 100% Free
 
     const now = new Date();
     const endDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
-    // 3. Insert Record into Turso / SQLite DB
+    // 3. Insert Record into Database
     const newAdId = crypto.randomUUID();
-    const paymentId = `tx_${isDemoMode ? "demo" : "card"}_${Date.now()}`;
+    const paymentId = `free_spotlight_${Date.now()}`;
 
     try {
       await db.insert(advertisements).values({
@@ -81,29 +71,29 @@ export async function POST(req: NextRequest) {
         duration_days: durationDays,
         amount_paid_cents: amountCents,
         currency: "USD",
-        payment_method: paymentMethod,
+        payment_method: "free",
         payment_id: paymentId,
-        payment_status: "paid",
+        payment_status: "free",
         status: "active",
         start_date: now,
         end_date: endDate,
         created_at: now,
       });
     } catch (dbErr) {
-      console.warn("[Ad Insert Warning]: Database insert attempted with local fallback", dbErr);
+      console.warn("[Ad Insert Warning]: Database insert fallback", dbErr);
     }
 
     return NextResponse.json({
       success: true,
       adId: newAdId,
-      message: "🎉 Your advertisement has been verified and is now LIVE on Findely!",
+      message: "🎉 Your startup spotlight is now 100% FREE & LIVE on Findely!",
       details: {
         companyName,
         tagline,
         badgeType,
-        tier,
-        durationDays,
-        amountFormatted: `$${(amountCents / 100).toFixed(2)} USD`,
+        tier: "Free Community Spotlight",
+        durationDays: 30,
+        amountFormatted: "Free (0$)",
         startDate: now.toISOString(),
         endDate: endDate.toISOString(),
         paymentId,
@@ -112,7 +102,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("[Ad Creation Error]:", error);
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to process advertisement request." },
+      { success: false, error: error.message || "Failed to process spotlight request." },
       { status: 500 }
     );
   }

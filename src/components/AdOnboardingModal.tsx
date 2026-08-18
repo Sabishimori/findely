@@ -4,22 +4,17 @@ import { useState } from "react";
 import { 
   X, 
   Sparkles, 
-  Globe, 
   CheckCircle2, 
-  CreditCard, 
   ShieldCheck, 
   Zap, 
   Megaphone, 
-  Flame, 
   Rocket, 
   ArrowRight, 
   ArrowLeft,
   ExternalLink,
   Lock,
-  Clock,
   Eye,
-  TrendingUp,
-  MapPin
+  Gift
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { handleImageError } from "@/lib/logoResolver";
@@ -33,31 +28,23 @@ interface AdOnboardingModalProps {
 
 export type AdBadgeType = "AD" | "FEATURED" | "BOOST" | "LAUNCH" | "HIRING";
 
-export type AdTier = "starter_7d" | "growth_14d" | "dominance_30d";
-
 export default function AdOnboardingModal({
   isOpen,
   onClose,
   onAdCreated,
   isDarkMode = false,
 }: AdOnboardingModalProps) {
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
 
   // Form State
   const [companyName, setCompanyName] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [tagline, setTagline] = useState("");
-  const [badgeType, setBadgeType] = useState<AdBadgeType>("AD");
+  const [badgeType, setBadgeType] = useState<AdBadgeType>("LAUNCH");
   const [location, setLocation] = useState("Global");
-  const [tier, setTier] = useState<AdTier>("growth_14d");
   const [contactEmail, setContactEmail] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"paypal" | "card">("paypal");
 
-  // Payment Form State
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successDetails, setSuccessDetails] = useState<any>(null);
@@ -75,17 +62,6 @@ export default function AdOnboardingModal({
     }
   };
 
-  const getTierPricing = (t: AdTier) => {
-    switch (t) {
-      case "starter_7d":
-        return { name: "Starter Slot", duration: "7 Days", price: "$49", rawPrice: 49, impressions: "~15,000" };
-      case "growth_14d":
-        return { name: "Growth Sponsorship", duration: "14 Days", price: "$89", rawPrice: 89, impressions: "~40,000" };
-      case "dominance_30d":
-        return { name: "Dominance Spotlight", duration: "30 Days", price: "$169", rawPrice: 169, impressions: "~100,000+" };
-    }
-  };
-
   const handleNextStep1 = () => {
     setErrorMessage("");
     if (!companyName.trim()) {
@@ -97,7 +73,7 @@ export default function AdOnboardingModal({
       return;
     }
     if (!tagline.trim()) {
-      setErrorMessage("Please write a punchy tagline or pitch for your ad.");
+      setErrorMessage("Please write a punchy tagline or pitch for your spotlight.");
       return;
     }
     setCurrentStep(2);
@@ -107,16 +83,12 @@ export default function AdOnboardingModal({
     setCurrentStep(3);
   };
 
-  const handleNextStep3 = () => {
-    setCurrentStep(4);
-  };
-
-  const handleSubmitPayment = async (e: React.FormEvent) => {
+  const handleSubmitFreeSpot = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
     if (!contactEmail || !contactEmail.includes("@")) {
-      setErrorMessage("Please enter a valid email for your invoice and receipt.");
+      setErrorMessage("Please enter a valid email for confirmation.");
       return;
     }
 
@@ -134,20 +106,18 @@ export default function AdOnboardingModal({
           badgeType,
           location,
           contactEmail,
-          tier,
-          paymentMethod: "card",
-          isDemoMode: true,
+          tier: "free_spotlight",
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || "Failed to process advertisement payment.");
+        throw new Error(data.error || "Failed to create free spotlight.");
       }
 
       setSuccessDetails(data.details);
-      setCurrentStep(5);
+      setCurrentStep(4);
       if (onAdCreated) {
         onAdCreated();
       }
@@ -169,8 +139,6 @@ export default function AdOnboardingModal({
   };
 
   if (!isOpen) return null;
-
-  const currentPricing = getTierPricing(tier);
 
   return (
     <AnimatePresence>
@@ -199,17 +167,17 @@ export default function AdOnboardingModal({
           <div className="flex items-center justify-between px-6 py-4 border-b border-[#C8D2A6]/40 dark:border-[#3D543A]">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-2xl bg-[#A9C632] text-[#1D2E1B] flex items-center justify-center shadow-md">
-                <Megaphone className="w-5 h-5 fill-current" />
+                <Gift className="w-5 h-5 fill-current" />
               </div>
               <div>
                 <h3 className="text-base font-extrabold tracking-tight flex items-center gap-2">
-                  Advertise on Live Spotlight
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#A9C632]/20 text-[#1D2E1B] dark:text-[#A9C632] border border-[#A9C632]/40">
-                    Self-Serve
+                  Claim Free Live Spotlight ⚡
+                  <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#A9C632] text-[#1D2E1B] shadow-xs">
+                    100% FREE
                   </span>
                 </h3>
                 <p className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6] font-medium">
-                  Instant live placement in the high-intent global developer ticker
+                  Broadcast your startup, developer tool, or hiring surge across the live map
                 </p>
               </div>
             </div>
@@ -222,14 +190,13 @@ export default function AdOnboardingModal({
             </button>
           </div>
 
-          {/* Stepper Progress Indicator (Steps 1 to 4) */}
-          {currentStep !== 5 && (
+          {/* Stepper Progress Indicator (Steps 1 to 3) */}
+          {currentStep !== 4 && (
             <div className="flex items-center justify-between px-8 py-3 bg-black/5 dark:bg-white/5 border-b border-[#C8D2A6]/30 dark:border-[#3D543A] text-xs font-bold">
               {[
-                { step: 1, label: "1. Creative" },
-                { step: 2, label: "2. Live Preview" },
-                { step: 3, label: "3. Pricing Slot" },
-                { step: 4, label: "4. Checkout" },
+                { step: 1, label: "1. Creative & Logo" },
+                { step: 2, label: "2. Live Marquee Preview" },
+                { step: 3, label: "3. Launch Free (30 Days)" },
               ].map((s) => (
                 <div
                   key={s.step}
@@ -244,7 +211,7 @@ export default function AdOnboardingModal({
                   <span
                     className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono ${
                       currentStep === s.step
-                        ? "bg-[#A9C632] text-[#1D2E1B] shadow-sm"
+                        ? "bg-[#A9C632] text-[#1D2E1B] shadow-sm font-black"
                         : currentStep > s.step
                         ? "bg-[#1D2E1B] text-[#A9C632] dark:bg-white/20 dark:text-white"
                         : "bg-gray-200 dark:bg-white/10 text-gray-500"
@@ -315,15 +282,15 @@ export default function AdOnboardingModal({
                 {/* Badge Type Selector */}
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                    Select Ad Badge Style
+                    Select Spotlight Badge Style
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                     {[
-                      { id: "AD", label: "AD", desc: "Classic Ad" },
-                      { id: "FEATURED", label: "FEATURED", desc: "Partner" },
-                      { id: "BOOST", label: "BOOST", desc: "Hiring Surge" },
                       { id: "LAUNCH", label: "LAUNCH", desc: "New Product" },
                       { id: "HIRING", label: "HIRING", desc: "Open Roles" },
+                      { id: "BOOST", label: "BOOST", desc: "Top Surge" },
+                      { id: "FEATURED", label: "FEATURED", desc: "Partner" },
+                      { id: "AD", label: "AD", desc: "Classic" },
                     ].map((b) => (
                       <button
                         key={b.id}
@@ -365,7 +332,7 @@ export default function AdOnboardingModal({
                 {/* Logo URL / Custom Logo */}
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                    Logo Image URL (Auto-fetched or custom)
+                    Logo Image URL (Auto-fetched from domain)
                   </label>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 p-1 border border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
@@ -373,7 +340,7 @@ export default function AdOnboardingModal({
                         src={logoUrl || (websiteUrl ? `https://www.google.com/s2/favicons?domain=${websiteUrl}&sz=128` : "")}
                         alt="Logo preview"
                         className="w-full h-full object-contain"
-                        onError={(e) => handleImageError(e, companyName || "Ad")}
+                        onError={(e) => handleImageError(e, companyName || "Spotlight")}
                       />
                     </div>
                     <input
@@ -408,7 +375,7 @@ export default function AdOnboardingModal({
                     Interactive Live Ticker Preview
                   </h4>
                   <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-0.5">
-                    This is the exact layout and animation of your ad inside the bottom live spotlight on Findely:
+                    This is how your free spotlight will display and animate in Findely's live marquee:
                   </p>
                 </div>
 
@@ -418,9 +385,9 @@ export default function AdOnboardingModal({
                     Live Marquee Simulation:
                   </span>
 
-                  <div className="p-3 rounded-2xl bg-white dark:bg-[#1D2E1B] border border-[#C8D2A6] dark:border-[#3D543A] shadow-lg flex items-center justify-between gap-3 overflow-hidden">
+                  <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1D2E1B] border border-[#C8D2A6] dark:border-[#3D543A] shadow-lg flex items-center justify-between gap-3 overflow-hidden">
                     <div className="flex items-center gap-2.5 overflow-hidden">
-                      <span className="text-[8.5px] uppercase tracking-wider px-2 py-0.5 rounded font-mono font-black bg-[#A9C632] text-[#1D2E1B] shadow-xs shrink-0">
+                      <span className="text-[9px] uppercase tracking-wider px-2 py-0.5 rounded font-mono font-black bg-[#A9C632] text-[#1D2E1B] shadow-xs shrink-0">
                         {badgeType}
                       </span>
 
@@ -433,11 +400,11 @@ export default function AdOnboardingModal({
                         />
                       </div>
 
-                      <span className="text-xs font-bold text-[#1D2E1B] dark:text-white shrink-0">
+                      <span className="text-xs font-black text-[#1D2E1B] dark:text-white shrink-0">
                         {companyName || "Your Startup"}
                       </span>
 
-                      <span className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6] font-medium truncate max-w-[280px]">
+                      <span className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6] font-medium truncate max-w-[320px]">
                         {tagline || "Your punchy value proposition will display here"}
                       </span>
                     </div>
@@ -481,159 +448,52 @@ export default function AdOnboardingModal({
                     onClick={handleNextStep2}
                     className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs font-black shadow-lg hover:brightness-105 active:scale-95 transition-all cursor-pointer"
                   >
-                    <span>Select Duration Slot</span>
+                    <span>Proceed to Free Launch</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             )}
 
-            {/* ── STEP 3: Duration & Budget Tier Selection ──────── */}
+            {/* ── STEP 3: Free Launch Confirmation ────────────── */}
             {currentStep === 3 && (
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-extrabold text-[#1D2E1B] dark:text-white flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-[#A9C632]" />
-                    Select Sponsorship Duration & Budget
-                  </h4>
-                  <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-0.5">
-                    Guaranteed high-rotation slot with live impression and click tracking:
-                  </p>
-                </div>
+              <form onSubmit={handleSubmitFreeSpot} className="space-y-4">
+                {/* 100% Free Spotlight Plan Card */}
+                <div className="p-5 rounded-3xl bg-[#A9C632]/15 border-2 border-[#A9C632] text-left space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase font-mono px-2.5 py-0.5 rounded-full bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B]">
+                      Community Plan • 100% Free
+                    </span>
+                    <span className="text-xl font-black text-[#1D2E1B] dark:text-[#A9C632]">
+                      $0.00 USD
+                    </span>
+                  </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                  {[
-                    {
-                      id: "starter_7d",
-                      name: "🚀 Starter",
-                      duration: "7 Days",
-                      price: "$49",
-                      impressions: "~15,000",
-                      badge: "Quick Launch",
-                      features: ["1 Ticker Slot", "Live Click Tracking", "Standard Rotation"],
-                    },
-                    {
-                      id: "growth_14d",
-                      name: "⚡ Growth",
-                      duration: "14 Days",
-                      price: "$89",
-                      impressions: "~40,000",
-                      badge: "🔥 Most Popular",
-                      features: ["Priority 2X Marquee Weight", "Direct Fly-to Map Pin", "Weekly Performance Email"],
-                    },
-                    {
-                      id: "dominance_30d",
-                      name: "👑 Dominance",
-                      duration: "30 Days",
-                      price: "$169",
-                      impressions: "~100,000+",
-                      badge: "Max ROI",
-                      features: ["Top 1st Position Rotation", "Highlighted Neon Border", "Dedicated Portal Card Embed"],
-                    },
-                  ].map((p) => (
-                    <div
-                      key={p.id}
-                      onClick={() => setTier(p.id as AdTier)}
-                      className={`relative p-4 rounded-3xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
-                        tier === p.id
-                          ? "bg-[#1D2E1B] text-white dark:bg-[#A9C632]/20 border-[#A9C632] shadow-xl scale-102 ring-2 ring-[#A9C632]/40"
-                          : "border-[#C8D2A6]/60 dark:border-[#3D543A] hover:border-[#A9C632]/60 hover:bg-black/5 dark:hover:bg-white/5"
-                      }`}
-                    >
-                      {/* Top Badge */}
-                      <span className="text-[9px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-[#A9C632] text-[#1D2E1B] self-start shadow-xs mb-2 font-mono">
-                        {p.badge}
-                      </span>
-
-                      <div>
-                        <h5 className="font-extrabold text-sm text-[#1D2E1B] dark:text-white">
-                          {p.name}
-                        </h5>
-                        <div className="flex items-baseline gap-1 mt-1 mb-2">
-                          <span className="text-2xl font-black text-[#A9C632]">{p.price}</span>
-                          <span className="text-xs text-gray-400">/ {p.duration}</span>
-                        </div>
-
-                        <div className="text-[11px] font-bold text-[#546E50] dark:text-[#C8D2A6] mb-3 flex items-center gap-1">
-                          <Eye className="w-3.5 h-3.5 text-[#A9C632]" />
-                          <span>{p.impressions} Views</span>
-                        </div>
-
-                        <ul className="space-y-1 text-[10.5px] border-t border-gray-200/40 dark:border-white/10 pt-2.5">
-                          {p.features.map((f, idx) => (
-                            <li key={idx} className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300">
-                              <span className="text-[#A9C632] font-black">✓</span>
-                              <span>{f}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="mt-4 pt-2">
-                        <div
-                          className={`w-full py-1.5 rounded-xl text-center text-xs font-extrabold transition-colors ${
-                            tier === p.id
-                              ? "bg-[#A9C632] text-[#1D2E1B]"
-                              : "bg-black/5 dark:bg-white/10 text-gray-600 dark:text-gray-300"
-                          }`}
-                        >
-                          {tier === p.id ? "Selected Plan" : "Choose"}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Step 3 Actions */}
-                <div className="pt-3 flex justify-between items-center">
-                  <button
-                    onClick={() => setCurrentStep(2)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] text-xs font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                  >
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Back to Preview</span>
-                  </button>
-
-                  <button
-                    onClick={handleNextStep3}
-                    className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs font-black shadow-lg hover:brightness-105 active:scale-95 transition-all cursor-pointer"
-                  >
-                    <span>Proceed to Checkout ({currentPricing.price})</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── STEP 4: Instant Secure Checkout ─────────────── */}
-            {currentStep === 4 && (
-              <form onSubmit={handleSubmitPayment} className="space-y-4">
-                {/* Order Summary Pill */}
-                <div className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-gray-400 block">
-                      Campaign Order Summary:
-                    </span>
-                    <h5 className="text-sm font-extrabold text-[#1D2E1B] dark:text-white">
-                      {companyName} • {currentPricing.name} ({currentPricing.duration})
+                    <h5 className="text-base font-black text-[#1D2E1B] dark:text-white">
+                      30-Day Free Live Spotlight Placement
                     </h5>
-                    <span className="text-xs text-[#546E50] dark:text-[#C8D2A6]">
-                      Live spotlight placement • Instant activation
-                    </span>
+                    <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-0.5">
+                      Promote <strong>{companyName}</strong> across the global live ticker with instant 1-click teleportation.
+                    </p>
                   </div>
 
-                  <div className="text-right">
-                    <span className="text-2xl font-black text-[#A9C632]">
-                      {currentPricing.price}
-                    </span>
-                    <span className="text-[10px] text-gray-400 block">USD Total</span>
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#A9C632]/40 text-xs font-bold text-[#1D2E1B] dark:text-white">
+                    <div className="flex items-center gap-1.5">
+                      <Zap className="w-4 h-4 text-[#A9C632] shrink-0" />
+                      <span>Instant Live Marquee Rotation</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-[#A9C632] shrink-0" />
+                      <span>30 Days Guaranteed Visibility</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Billing Email Input */}
+                {/* Contact Email Input */}
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                    Billing & Performance Report Email *
+                    Your Contact Email *
                   </label>
                   <input
                     type="email"
@@ -645,145 +505,15 @@ export default function AdOnboardingModal({
                   />
                 </div>
 
-                {/* Payment Method Selector (PayPal & Card) */}
-                <div>
-                  <label className="block text-xs font-extrabold uppercase tracking-wider mb-2 text-[#546E50] dark:text-[#C8D2A6]">
-                    Select Payment Method
-                  </label>
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("paypal")}
-                      className={`p-3 rounded-2xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
-                        paymentMethod === "paypal"
-                          ? "bg-[#003087]/10 dark:bg-[#00457C]/30 border-[#0079C1] shadow-md ring-2 ring-[#0079C1]/30 font-bold"
-                          : "border-[#C8D2A6]/60 dark:border-[#3D543A] hover:bg-black/5 dark:hover:bg-white/5"
-                      }`}
-                    >
-                      <div className="w-8 h-8 rounded-xl bg-[#003087] text-white flex items-center justify-center font-black text-sm italic shadow-xs">
-                        P
-                      </div>
-                      <div>
-                        <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white">PayPal</div>
-                        <div className="text-[10px] text-[#0079C1] font-bold">@Sagar1502 • 1-Click</div>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("card")}
-                      className={`p-3 rounded-2xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
-                        paymentMethod === "card"
-                          ? "bg-[#1D2E1B] text-white dark:bg-[#A9C632] dark:text-[#1D2E1B] border-[#A9C632] shadow-md ring-2 ring-[#A9C632]/40 font-bold"
-                          : "border-[#C8D2A6]/60 dark:border-[#3D543A] hover:bg-black/5 dark:hover:bg-white/5"
-                      }`}
-                    >
-                      <div className="w-8 h-8 rounded-xl bg-[#A9C632] text-[#1D2E1B] flex items-center justify-center font-black shadow-xs">
-                        <CreditCard className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white">Credit Card</div>
-                        <div className="text-[10px] opacity-70">Visa, MC, Amex</div>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-
-                {/* PayPal Direct Action Box */}
-                {paymentMethod === "paypal" ? (
-                  <div className="p-4 rounded-3xl bg-[#003087]/5 dark:bg-[#00457C]/20 border border-[#0079C1]/40 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#0079C1] animate-pulse" />
-                        <span className="text-xs font-extrabold text-[#1D2E1B] dark:text-white">
-                          Direct PayPal Account: <span className="font-mono text-[#0079C1]">paypal.me/Sagar1502</span>
-                        </span>
-                      </div>
-                      <span className="text-xs font-black text-[#A9C632]">{currentPricing.price} USD</span>
-                    </div>
-
-                    <p className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6]">
-                      Clicking below opens your direct PayPal payment portal to transfer <strong>{currentPricing.price}</strong> directly to <strong>@Sagar1502</strong>. Once completed, your ad will go live in the live ticker immediately.
-                    </p>
-
-                    <div className="pt-1 flex items-center gap-2">
-                      <a
-                        href={`https://paypal.me/Sagar1502/${currentPricing.rawPrice}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 py-2.5 px-4 rounded-2xl bg-[#0079C1] hover:bg-[#00457C] text-white text-xs font-black text-center shadow-lg transition-all flex items-center justify-center gap-2"
-                      >
-                        <span>Open PayPal & Pay {currentPricing.price}</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
-                  </div>
-                ) : (
-                  /* Credit Card Input Suite */
-                  <div>
-                    <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6] flex items-center justify-between">
-                      <span>Card Information</span>
-                      <span className="text-[10px] font-mono text-gray-400 flex items-center gap-1">
-                        <Lock className="w-3 h-3 text-[#A9C632]" /> 256-bit Encrypted
-                      </span>
-                    </label>
-
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <CreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input
-                          type="text"
-                          maxLength={19}
-                          value={cardNumber}
-                          onChange={(e) => setCardNumber(e.target.value)}
-                          placeholder="4242 •••• •••• 4242"
-                          className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-mono font-bold outline-none focus:border-[#A9C632]"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          type="text"
-                          maxLength={5}
-                          value={cardExpiry}
-                          onChange={(e) => setCardExpiry(e.target.value)}
-                          placeholder="MM / YY"
-                          className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-mono font-bold outline-none focus:border-[#A9C632]"
-                        />
-                        <input
-                          type="text"
-                          maxLength={4}
-                          value={cardCvc}
-                          onChange={(e) => setCardCvc(e.target.value)}
-                          placeholder="CVC / CVV"
-                          className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-mono font-bold outline-none focus:border-[#A9C632]"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Security Trust Badges */}
-                <div className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-[#C8D2A6]/40 dark:border-[#3D543A] flex items-center justify-between text-[11px] text-gray-500">
-                  <div className="flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-[#A9C632]" />
-                    <span>PayPal & Bank Protected</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Zap className="w-4 h-4 text-[#A9C632]" />
-                    <span>Instant Live Activation</span>
-                  </div>
-                </div>
-
-                {/* Step 4 Actions */}
+                {/* Step 3 Actions */}
                 <div className="pt-3 flex justify-between items-center">
                   <button
                     type="button"
-                    onClick={() => setCurrentStep(3)}
+                    onClick={() => setCurrentStep(2)}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] text-xs font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Change Plan</span>
+                    <span>Back to Preview</span>
                   </button>
 
                   <button
@@ -794,12 +524,12 @@ export default function AdOnboardingModal({
                     {isProcessing ? (
                       <>
                         <div className="w-4 h-4 border-2 border-[#1D2E1B] border-t-transparent rounded-full animate-spin" />
-                        <span>Verifying & Activating...</span>
+                        <span>Activating Free Spot...</span>
                       </>
                     ) : (
                       <>
-                        <Lock className="w-3.5 h-3.5 fill-current" />
-                        <span>Confirm & Go Live 🚀</span>
+                        <Rocket className="w-4 h-4 fill-current" />
+                        <span>Launch Free Spotlight (30 Days) 🚀</span>
                       </>
                     )}
                   </button>
@@ -807,8 +537,8 @@ export default function AdOnboardingModal({
               </form>
             )}
 
-            {/* ── STEP 5: Success & Confirmation ──────────────── */}
-            {currentStep === 5 && (
+            {/* ── STEP 4: Success & Confirmation ──────────────── */}
+            {currentStep === 4 && (
               <div className="py-6 text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-[#A9C632] text-[#1D2E1B] flex items-center justify-center mx-auto shadow-2xl animate-bounce">
                   <CheckCircle2 className="w-10 h-10 stroke-[2.5]" />
@@ -816,10 +546,10 @@ export default function AdOnboardingModal({
 
                 <div>
                   <h4 className="text-xl font-black text-[#1D2E1B] dark:text-white">
-                    🎉 Your Ad is Officially LIVE!
+                    🎉 Your Spotlight is Officially LIVE!
                   </h4>
                   <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-1 max-w-md mx-auto">
-                    <strong>{successDetails?.companyName || companyName}</strong> is now broadcasting in Findely's live spotlight marquee to thousands of software engineers and founders.
+                    <strong>{successDetails?.companyName || companyName}</strong> is now live in Findely's live spotlight marquee for the next 30 days.
                   </p>
                 </div>
 
@@ -827,15 +557,15 @@ export default function AdOnboardingModal({
                 <div className="p-4 rounded-3xl bg-black/5 dark:bg-white/5 border border-[#C8D2A6] dark:border-[#3D543A] max-w-md mx-auto text-left text-xs space-y-1.5">
                   <div className="flex justify-between">
                     <span className="text-gray-400">Duration:</span>
-                    <strong className="text-[#1D2E1B] dark:text-white">{successDetails?.durationDays || 14} Days</strong>
+                    <strong className="text-[#1D2E1B] dark:text-white">{successDetails?.durationDays || 30} Days</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Amount Paid:</span>
-                    <strong className="text-[#A9C632] font-black">{successDetails?.amountFormatted || currentPricing.price}</strong>
+                    <span className="text-gray-400">Cost:</span>
+                    <strong className="text-[#A9C632] font-black">100% Free ($0)</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Transaction Ref:</span>
-                    <span className="font-mono text-[10px] text-gray-500">{successDetails?.paymentId || "tx_verified_99"}</span>
+                    <span className="text-gray-400">Status:</span>
+                    <span className="font-mono text-xs font-bold text-[#A9C632]">Active on Live Ticker ⚡</span>
                   </div>
                 </div>
 
@@ -844,7 +574,7 @@ export default function AdOnboardingModal({
                     onClick={resetAndClose}
                     className="px-8 py-3 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs font-black shadow-xl hover:brightness-105 active:scale-95 transition-all cursor-pointer"
                   >
-                    View Ad on Live Map 🛸
+                    View Spotlight on Live Map 🛸
                   </button>
                 </div>
               </div>
