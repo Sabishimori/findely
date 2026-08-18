@@ -28,6 +28,7 @@ import { handleImageError, getCompanyLogoUrl } from "@/lib/logoResolver";
 import { getAllPinsForCompanies, CompanyMapPin } from "@/lib/companyIntelligence";
 import { matchSmartQuery } from "@/lib/smartSearch";
 import SponsoredLiveTicker from "./SponsoredLiveTicker";
+import CinematicTourMode from "./CinematicTourMode";
 
 export type CompanyMapItem = {
   id: string;
@@ -689,6 +690,14 @@ export default function MapComponent({
           )}
         </div>
       </div>
+
+      {/* 🎬 Automated Cinematic Flight Tour & 60fps Screen Recording Studio */}
+      <CinematicTourMode
+        mapRef={mapRef}
+        companies={companies}
+        onSelectCompany={onSelectCompany}
+        isDarkMode={isDarkMode}
+      />
     </div>
   );
 }
