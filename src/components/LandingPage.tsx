@@ -344,8 +344,44 @@ export default function LandingPage({
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#A9C632]/12 rounded-full blur-[140px] pointer-events-none -z-10" />
       <div className="fixed bottom-0 right-10 w-[450px] h-[450px] bg-[#34A853]/10 rounded-full blur-[130px] pointer-events-none -z-10" />
 
+      {/* ── 0. Product Hunt Launch & Beta Data Announcement Banner ─── */}
+      <div className="relative z-50 bg-[#1D2E1B] text-[#F7F9F2] dark:bg-[#A9C632] dark:text-[#1D2E1B] px-4 py-2 text-xs font-bold text-center border-b border-[#A9C632]/30 shadow-md">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-2.5 sm:gap-4">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded-full bg-[#EA532B] text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs">
+              <span>😸</span> Product Hunt
+            </span>
+            <span className="px-2 py-0.5 rounded-full bg-[#A9C632] text-[#1D2E1B] dark:bg-[#1D2E1B] dark:text-[#A9C632] text-[10px] font-black uppercase tracking-wider">
+              Public Beta
+            </span>
+          </div>
+
+          <span className="text-[11.5px] font-semibold text-white/90 dark:text-[#1D2E1B]/90">
+            We are actively expanding global data collection & scrapers daily. <strong>All founders are warmly welcome to add their company — 100% Free!</strong>
+          </span>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleLaunchClick()}
+              className="px-3 py-1 rounded-xl bg-[#A9C632] text-[#1D2E1B] dark:bg-[#1D2E1B] dark:text-[#A9C632] text-[11px] font-black hover:brightness-110 transition-all cursor-pointer shadow-xs whitespace-nowrap"
+            >
+              + Add Your Startup Free ⚡
+            </button>
+            <a
+              href="https://www.producthunt.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1 rounded-xl bg-white/10 dark:bg-black/10 hover:bg-white/20 dark:hover:bg-black/20 text-[11px] font-extrabold transition-all flex items-center gap-1 whitespace-nowrap"
+            >
+              <span>Support on PH</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* ── 1. Floating Header Navigation ─────────────────────────── */}
-      <header className="sticky top-4 z-40 px-4 sm:px-6 max-w-7xl mx-auto">
+      <header className="sticky top-3 z-40 px-4 sm:px-6 max-w-7xl mx-auto mt-2">
         <motion.div 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -365,8 +401,11 @@ export default function LandingPage({
               <img src="/findely smile with a bg main logo].svg" alt="Findely Main Logo" className="w-full h-full object-contain" />
             </div>
             <div>
-              <span className="font-black text-lg tracking-tight block leading-none">
+              <span className="font-black text-lg tracking-tight block leading-none flex items-center gap-1.5">
                 FINDELY
+                <span className="text-[9.5px] font-black px-1.5 py-0.2 rounded-md bg-[#A9C632]/20 text-[#1D2E1B] dark:text-[#A9C632] border border-[#A9C632]/40 font-mono">
+                  BETA
+                </span>
               </span>
               <span className="text-[11px] font-extrabold text-[#546E50] dark:text-[#C8D2A6] tracking-wider uppercase mt-0.5 block">
                 Spatial Career Engine
@@ -472,10 +511,23 @@ export default function LandingPage({
 
         {/* Top Badges & Live Countdown */}
         <div className="flex flex-wrap items-center justify-center gap-3 mb-6 relative z-10">
-          <motion.div 
+          <motion.a 
+            href="https://www.producthunt.com"
+            target="_blank"
+            rel="noopener noreferrer"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#EA532B]/15 hover:bg-[#EA532B]/25 border border-[#EA532B]/40 text-xs sm:text-sm font-extrabold text-[#EA532B] shadow-xs transition-colors"
+          >
+            <span>😸</span>
+            <span>Product Hunt Launch Edition · Public Beta 1.0</span>
+          </motion.a>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.05 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#A9C632]/15 border border-[#A9C632]/40 text-xs sm:text-sm font-extrabold text-[#1D2E1B] dark:text-[#A9C632] shadow-xs"
           >
             <Flame className="w-4 h-4 text-[#A9C632]" />
@@ -884,6 +936,55 @@ export default function LandingPage({
             </div>
           </InView>
         </div>
+      </section>
+
+      {/* ── 4.5 Founders & Builders Beta Open Invitation ────────────── */}
+      <section className="py-12 px-4 sm:px-6 max-w-5xl mx-auto">
+        <InView>
+          <div className="p-8 sm:p-10 rounded-[36px] bg-gradient-to-br from-[#1D2E1B] via-[#2A3F27] to-[#1D2E1B] text-white border-2 border-[#A9C632]/50 shadow-2xl relative overflow-hidden">
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-80 h-80 bg-[#A9C632]/15 rounded-full blur-3xl pointer-events-none" />
+            
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+              <div className="space-y-3 max-w-xl">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-3 py-1 rounded-full bg-[#EA532B] text-white text-xs font-black uppercase tracking-wider flex items-center gap-1 shadow-xs">
+                    <span>😸</span> Product Hunt Beta Edition
+                  </span>
+                  <span className="px-3 py-1 rounded-full bg-[#A9C632] text-[#1D2E1B] text-xs font-black uppercase tracking-wider">
+                    Founders Welcome · 100% Free
+                  </span>
+                </div>
+
+                <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                  Building something ambitious? Get your company mapped for free. 📍
+                </h3>
+
+                <p className="text-xs sm:text-sm text-[#C8D2A6] font-medium leading-relaxed">
+                  Findely is currently in <strong>Public Beta</strong>! We are actively upgrading our universal scraping engine and verified ATS integrations daily. All founders, CEOs, and engineering leaders are warmly welcome to submit their startup, offices, and open jobs — mapped directly on our 2.5D GPU globe at zero cost.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0 w-full md:w-auto">
+                <button
+                  onClick={() => handleLaunchClick()}
+                  className="px-6 py-3.5 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs sm:text-sm font-black shadow-xl hover:brightness-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>+ Add Your Startup — Free ⚡</span>
+                </button>
+                <a
+                  href="https://www.producthunt.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center gap-2 text-center"
+                >
+                  <span>Support on Product Hunt 😸</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </InView>
       </section>
 
       {/* ── 5. "Why I Built This" Founder Story ── */}
