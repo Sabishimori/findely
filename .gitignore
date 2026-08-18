@@ -58,3 +58,8 @@ FINDELY_MASTER_LOG.md
 FINDELY_SCRAPER_FIX_SESSION_LOG.md
 *SESSION_LOG*.md
 scripts/diagnose_open_positions.ts
+
+# local admin moderation (local access only)
+src/app/admin/
+src/app/api/admin/
+
