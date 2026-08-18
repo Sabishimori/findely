@@ -686,6 +686,24 @@ export default function LandingPage({
             <ShieldCheck className="w-4 h-4 text-[#A9C632]" />
             <span>Zero paywalls · Verified Gmail login · No recruiters spamming your inbox</span>
           </div>
+
+          {/* Product Hunt Review Badge */}
+          <div className="pt-2 flex justify-center">
+            <a 
+              href="https://www.producthunt.com/products/findely/reviews/new?utm_source=badge-product_review&utm_medium=badge&utm_source=badge-findely" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-transform hover:scale-105 active:scale-95 shadow-md rounded-xl overflow-hidden inline-block"
+            >
+              <img 
+                src={isDarkMode ? "https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1294519&theme=dark" : "https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1294519&theme=light"} 
+                alt="Findely - Find where real tech is built. 2.5D map with 0 ghost jobs | Product Hunt" 
+                style={{ width: "250px", height: "54px" }} 
+                width="250" 
+                height="54" 
+              />
+            </a>
+          </div>
         </motion.div>
 
         {/* ── Key Metrics Ribbon ───────── */}
@@ -1352,12 +1370,28 @@ export default function LandingPage({
       </section>
 
       {/* ── 8. Footer ─────────────────────────────────────────────── */}
-      <footer className="py-8 px-4 sm:px-6 border-t border-[#C8D2A6] dark:border-[#3D543A] max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-[#546E50] dark:text-[#C8D2A6]">
+      <footer className="py-8 px-4 sm:px-6 border-t border-[#C8D2A6] dark:border-[#3D543A] max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-6 text-xs sm:text-sm text-[#546E50] dark:text-[#C8D2A6]">
         <div className="flex items-center gap-2.5">
           <img src="/logofinal.svg" alt="Findely Logo" className="w-6 h-6 rounded-lg" />
           <span className="font-black text-sm sm:text-base text-[#1D2E1B] dark:text-white">Findely</span>
           <span>© 2026 Sagar S. Built for builders worldwide.</span>
         </div>
+
+        {/* Product Hunt Review Badge */}
+        <a 
+          href="https://www.producthunt.com/products/findely/reviews/new?utm_source=badge-product_review&utm_medium=badge&utm_source=badge-findely" 
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-transform hover:scale-105 active:scale-95 shadow-xs rounded-xl overflow-hidden shrink-0"
+        >
+          <img 
+            src={isDarkMode ? "https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1294519&theme=dark" : "https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1294519&theme=light"} 
+            alt="Findely - Find where real tech is built. 2.5D map with 0 ghost jobs | Product Hunt" 
+            style={{ width: "250px", height: "54px" }} 
+            width="250" 
+            height="54" 
+          />
+        </a>
 
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 font-bold text-xs sm:text-sm">
           <a href="https://github.com/Sabishimori" target="_blank" rel="noreferrer" className="hover:text-[#A9C632] transition-colors">GitHub</a>
