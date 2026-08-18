@@ -27,6 +27,53 @@ interface AdOnboardingModalProps {
 }
 
 export type AdBadgeType = "AD" | "FEATURED" | "BOOST" | "LAUNCH" | "HIRING";
+export type AdPlanId = "starter" | "pro" | "partner";
+
+export interface AdPlan {
+  id: AdPlanId;
+  name: string;
+  durationDays: number;
+  durationLabel: string;
+  priceUsd: number;
+  paypalUrl: string;
+  isPopular?: boolean;
+  tag: string;
+  description: string;
+}
+
+export const AD_PLANS: AdPlan[] = [
+  {
+    id: "starter",
+    name: "Starter Boost",
+    durationDays: 7,
+    durationLabel: "7 Days Spotlight",
+    priceUsd: 19,
+    paypalUrl: "https://paypal.me/Sagar1502/19",
+    tag: "QUICK LAUNCH",
+    description: "7-day live ticker rotation with direct 1-click teleportation.",
+  },
+  {
+    id: "pro",
+    name: "Pro Sponsor",
+    durationDays: 30,
+    durationLabel: "30 Days Spotlight",
+    priceUsd: 49,
+    paypalUrl: "https://paypal.me/Sagar1502/49",
+    isPopular: true,
+    tag: "MOST POPULAR",
+    description: "30-day guaranteed live rotation with 2x frequency & verified pin.",
+  },
+  {
+    id: "partner",
+    name: "Frontier Partner",
+    durationDays: 90,
+    durationLabel: "90 Days (3 Months)",
+    priceUsd: 99,
+    paypalUrl: "https://paypal.me/Sagar1502/99",
+    tag: "BEST VALUE (-35%)",
+    description: "Quarterly top-tier marquee placement with weekly click analytics.",
+  },
+];
 
 export default function AdOnboardingModal({
   isOpen,
@@ -44,7 +91,10 @@ export default function AdOnboardingModal({
   const [badgeType, setBadgeType] = useState<AdBadgeType>("LAUNCH");
   const [location, setLocation] = useState("Global");
   const [contactEmail, setContactEmail] = useState("");
+  const [selectedPlanId, setSelectedPlanId] = useState<AdPlanId>("pro");
   const [paypalTxId, setPaypalTxId] = useState("");
+
+  const selectedPlan = AD_PLANS.find((p) => p.id === selectedPlanId) || AD_PLANS[1];
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -107,7 +157,7 @@ export default function AdOnboardingModal({
           badgeType,
           location,
           contactEmail,
-          tier: "30_day_paypal_spotlight",
+          planId: selectedPlanId,
           paymentMethod: "paypal",
           paypalTxId,
         }),
@@ -458,59 +508,74 @@ export default function AdOnboardingModal({
               </div>
             )}
 
-            {/* ── STEP 3: Sponsor Placement & PayPal Checkout ────────────── */}
+            {/* ── STEP 3: 3 Sponsor Plans & PayPal Checkout ────────────── */}
             {currentStep === 3 && (
               <form onSubmit={handleSubmitPayPalSpot} className="space-y-4">
-                {/* Sponsor Spotlight Plan Card */}
-                <div className="p-5 rounded-3xl bg-[#A9C632]/15 border-2 border-[#A9C632] text-left space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase font-mono px-2.5 py-0.5 rounded-full bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B]">
-                      Featured Placement • Open Slot
-                    </span>
-                    <span className="text-xl font-black text-[#1D2E1B] dark:text-[#A9C632]">
-                      $29.00 USD
-                    </span>
-                  </div>
+                {/* 3 Pricing Plans Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {AD_PLANS.map((plan) => {
+                    const isSelected = selectedPlanId === plan.id;
+                    return (
+                      <button
+                        key={plan.id}
+                        type="button"
+                        onClick={() => setSelectedPlanId(plan.id)}
+                        className={`relative p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? "bg-[#A9C632]/20 dark:bg-[#A9C632]/15 border-2 border-[#A9C632] shadow-md scale-[1.02]"
+                            : "bg-black/5 dark:bg-white/5 border-[#C8D2A6] dark:border-[#3D543A] hover:border-[#A9C632]/60"
+                        }`}
+                      >
+                        {plan.isPopular && (
+                          <span className="absolute -top-2.5 right-3 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-xs">
+                            {plan.tag}
+                          </span>
+                        )}
 
-                  <div>
-                    <h5 className="text-base font-black text-[#1D2E1B] dark:text-white">
-                      30-Day Sponsored Spotlight Rotation
-                    </h5>
-                    <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-0.5">
-                      Promote <strong>{companyName}</strong> across the global live ticker with instant 1-click teleportation.
-                    </p>
-                  </div>
+                        <div>
+                          <span className="text-[10px] font-black uppercase font-mono text-[#546E50] dark:text-[#C8D2A6] block">
+                            {plan.tag}
+                          </span>
+                          <h5 className="text-sm font-black text-[#1D2E1B] dark:text-white mt-0.5">
+                            {plan.name}
+                          </h5>
+                          <span className="text-lg font-black text-[#1D2E1B] dark:text-[#A9C632] block my-1">
+                            ${plan.priceUsd} <span className="text-[10px] font-medium text-[#546E50] dark:text-[#C8D2A6]">USD</span>
+                          </span>
+                          <p className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] leading-tight font-medium">
+                            {plan.description}
+                          </p>
+                        </div>
 
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#A9C632]/40 text-xs font-bold text-[#1D2E1B] dark:text-white">
-                    <div className="flex items-center gap-1.5">
-                      <Zap className="w-4 h-4 text-[#A9C632] shrink-0" />
-                      <span>Instant Live Marquee Rotation</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-[#A9C632] shrink-0" />
-                      <span>30 Days Guaranteed Visibility</span>
-                    </div>
-                  </div>
+                        <div className="pt-2 mt-2 border-t border-[#C8D2A6]/40 dark:border-white/10 flex items-center justify-between text-[11px] font-bold">
+                          <span className="text-[#1D2E1B] dark:text-white">{plan.durationLabel}</span>
+                          <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${
+                            isSelected ? "bg-[#A9C632] text-[#1D2E1B]" : "border border-gray-400 text-transparent"
+                          }`}>✓</span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* PayPal Direct 1-Click Action Box */}
                 <div className="p-4 rounded-2xl bg-[#0070BA]/10 border border-[#0070BA]/30 text-left space-y-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black text-[#0070BA] dark:text-[#45a2e5] flex items-center gap-1.5">
-                      <span>Direct PayPal Checkout</span>
+                      <span>Selected: {selectedPlan.name} (${selectedPlan.priceUsd} USD)</span>
                     </span>
                     <a
-                      href="https://paypal.me/Sagar1502/29"
+                      href={selectedPlan.paypalUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-1.5 rounded-xl bg-[#0070BA] hover:bg-[#005ea6] text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition-all"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#0070BA] hover:bg-[#005ea6] text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition-all"
                     >
-                      <span>Pay via PayPal ($29)</span>
+                      <span>Pay via PayPal (${selectedPlan.priceUsd})</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
                   <p className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6]">
-                    Transfer <strong>$29.00 USD</strong> directly via <strong>paypal.me/Sagar1502</strong>. Once completed, enter your confirmation email or transaction reference below.
+                    Click above to transfer <strong>${selectedPlan.priceUsd}.00 USD</strong> directly via <strong>paypal.me/Sagar1502</strong>. Once completed, enter your confirmation email or transaction reference below.
                   </p>
                 </div>
 
@@ -562,12 +627,12 @@ export default function AdOnboardingModal({
                     {isProcessing ? (
                       <>
                         <div className="w-4 h-4 border-2 border-[#1D2E1B] border-t-transparent rounded-full animate-spin" />
-                        <span>Activating PayPal Booking...</span>
+                        <span>Activating {selectedPlan.name}...</span>
                       </>
                     ) : (
                       <>
                         <Rocket className="w-4 h-4 fill-current" />
-                        <span>Confirm & Activate Placement 🚀</span>
+                        <span>Confirm & Activate {selectedPlan.name} (${selectedPlan.priceUsd}) 🚀</span>
                       </>
                     )}
                   </button>

@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       badgeType = "AD",
       location = "Global",
       contactEmail,
-      tier = "30_day_paypal_spotlight",
+      planId = "pro",
       paymentMethod = "paypal",
       paypalTxId,
     } = body;
@@ -48,9 +48,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. 30-Day Featured Spotlight Placement via PayPal
-    const durationDays = 30;
-    const amountCents = 2900; // $29.00 USD
+    // 2. Resolve Selected Pricing Plan Details
+    let durationDays = 30;
+    let amountCents = 4900;
+    let amountFormatted = "$49.00 USD";
+    let tierName = "Pro Sponsor (30 Days)";
+
+    if (planId === "starter") {
+      durationDays = 7;
+      amountCents = 1900;
+      amountFormatted = "$19.00 USD";
+      tierName = "Starter Boost (7 Days)";
+    } else if (planId === "partner") {
+      durationDays = 90;
+      amountCents = 9900;
+      amountFormatted = "$99.00 USD";
+      tierName = "Frontier Partner (90 Days)";
+    }
 
     const now = new Date();
     const endDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
@@ -69,7 +83,7 @@ export async function POST(req: NextRequest) {
         badge_type: badgeType,
         location: location.trim(),
         contact_email: contactEmail.trim(),
-        tier,
+        tier: tierName,
         duration_days: durationDays,
         amount_paid_cents: amountCents,
         currency: "USD",
@@ -88,14 +102,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       adId: newAdId,
-      message: "🎉 Your startup spotlight is now officially LIVE on Findely via PayPal!",
+      message: `🎉 Your startup spotlight (${tierName}) is now officially LIVE on Findely via PayPal!`,
       details: {
         companyName,
         tagline,
         badgeType,
-        tier: "30-Day Featured Live Spotlight",
-        durationDays: 30,
-        amountFormatted: "$29.00 USD",
+        tier: tierName,
+        durationDays,
+        amountFormatted,
         paymentMethod: "PayPal",
         startDate: now.toISOString(),
         endDate: endDate.toISOString(),
