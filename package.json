@@ -15,6 +15,7 @@
     "cron": "tsx scripts/daily-scheduler.ts",
     "db:turso-sync": "tsx --env-file=.env.local scripts/export-to-turso.ts",
     "scrape:live": "tsx --env-file=.env.local scripts/sync-direct-ats-urls.ts",
+    "scrape:yc": "tsx scripts/scrape_yc_companies.ts",
     "db:migrate:production": "tsx --env-file=.env.local scripts/migrate_production_schema.ts"
   },
   "dependencies": {

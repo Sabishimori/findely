@@ -1347,10 +1347,6 @@ export default function LandingPage({
                 </button>
               </form>
             )}
-
-            <div className="pt-3 text-xs text-[#546E50] dark:text-[#C8D2A6] font-semibold">
-              Direct founder inbox: <a href="mailto:founder@findely.app" className="font-bold text-[#A9C632] hover:underline">founder@findely.app</a>
-            </div>
           </div>
         </div>
       </section>
