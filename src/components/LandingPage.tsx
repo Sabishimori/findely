@@ -278,6 +278,7 @@ export default function LandingPage({
 
   // Scroll Container Ref for Parallax
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const heroSectionRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
     container: scrollContainerRef,
@@ -472,36 +473,107 @@ export default function LandingPage({
 
       {/* ── 2. Hero Section: Modern 20's Tech Tone ─────────── */}
       <motion.section 
+        ref={heroSectionRef}
         style={{ y: heroY, opacity: heroOpacity }}
-        className="relative pt-20 pb-12 px-4 sm:px-6 max-w-6xl mx-auto text-center"
+        className="relative pt-16 pb-14 px-4 sm:px-6 max-w-6xl mx-auto text-center overflow-visible"
       >
-        {/* Floater 1: Anthropic SF Floater Badge */}
+        {/* Draggable Floater 1: Anthropic SF (Left Flank) */}
         <motion.div
-          animate={{ y: [0, -8, 0], x: [0, 4, 0] }}
-          transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
-          className="hidden lg:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-[#1D2E1B]/90 border border-[#C8D2A6] dark:border-[#3D543A] shadow-xl absolute top-12 -left-8 z-20 text-left"
+          drag
+          dragConstraints={heroSectionRef}
+          dragElastic={0.15}
+          dragMomentum={true}
+          whileHover={{ scale: 1.05 }}
+          whileDrag={{ scale: 1.1, zIndex: 60, cursor: "grabbing" }}
+          animate={{ y: [0, -10, 0], rotate: [-0.5, 0.5, -0.5] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          className="hidden xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 dark:bg-[#1D2E1B]/95 border border-[#C8D2A6] dark:border-[#3D543A] shadow-xl absolute top-36 -left-12 z-20 text-left cursor-grab select-none backdrop-blur-md group"
+          title="✋ Click & Drag me anywhere!"
         >
-          <div className="w-8 h-8 rounded-xl bg-[#A9C632]/20 flex items-center justify-center font-black text-xs text-[#1D2E1B] dark:text-[#A9C632]">
+          <div className="w-8 h-8 rounded-xl bg-[#A9C632]/20 flex items-center justify-center font-black text-xs text-[#1D2E1B] dark:text-[#A9C632] shrink-0">
             SF
           </div>
           <div>
-            <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white">Anthropic • Mission Bay</div>
+            <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white flex items-center gap-1.5">
+              <span>Anthropic • Mission Bay</span>
+              <span className="text-[9px] opacity-40 font-mono group-hover:opacity-100 transition-opacity">⋮⋮</span>
+            </div>
             <div className="text-[11px] font-bold text-[#A9C632]">14 Frontier Roles Open</div>
           </div>
         </motion.div>
 
-        {/* Floater 2: Postman BLR Floater Badge */}
+        {/* Draggable Floater 2: Postman BLR (Right Flank) */}
         <motion.div
-          animate={{ y: [0, 10, 0], x: [0, -5, 0] }}
-          transition={{ duration: 6.2, repeat: Infinity, ease: "easeInOut" }}
-          className="hidden lg:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-[#1D2E1B]/90 border border-[#C8D2A6] dark:border-[#3D543A] shadow-xl absolute top-20 -right-6 z-20 text-left"
+          drag
+          dragConstraints={heroSectionRef}
+          dragElastic={0.15}
+          dragMomentum={true}
+          whileHover={{ scale: 1.05 }}
+          whileDrag={{ scale: 1.1, zIndex: 60, cursor: "grabbing" }}
+          animate={{ y: [0, 10, 0], rotate: [0.5, -0.5, 0.5] }}
+          transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+          className="hidden xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 dark:bg-[#1D2E1B]/95 border border-[#C8D2A6] dark:border-[#3D543A] shadow-xl absolute top-36 -right-12 z-20 text-left cursor-grab select-none backdrop-blur-md group"
+          title="✋ Click & Drag me anywhere!"
         >
-          <div className="w-8 h-8 rounded-xl bg-orange-500/20 flex items-center justify-center font-black text-xs text-orange-500">
+          <div className="w-8 h-8 rounded-xl bg-orange-500/20 flex items-center justify-center font-black text-xs text-orange-500 shrink-0">
             IN
           </div>
           <div>
-            <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white">Postman • Bengaluru Hub</div>
+            <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white flex items-center gap-1.5">
+              <span>Postman • Bengaluru Hub</span>
+              <span className="text-[9px] opacity-40 font-mono group-hover:opacity-100 transition-opacity">⋮⋮</span>
+            </div>
             <div className="text-[11px] font-bold text-orange-400">48 Eng Positions Hiring</div>
+          </div>
+        </motion.div>
+
+        {/* Draggable Floater 3: Stripe NYC (Lower Left Flank) */}
+        <motion.div
+          drag
+          dragConstraints={heroSectionRef}
+          dragElastic={0.15}
+          dragMomentum={true}
+          whileHover={{ scale: 1.05 }}
+          whileDrag={{ scale: 1.1, zIndex: 60, cursor: "grabbing" }}
+          animate={{ y: [0, -8, 0], x: [0, 5, 0] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+          className="hidden 2xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 dark:bg-[#1D2E1B]/95 border border-[#C8D2A6] dark:border-[#3D543A] shadow-xl absolute bottom-24 -left-16 z-20 text-left cursor-grab select-none backdrop-blur-md group"
+          title="✋ Click & Drag me anywhere!"
+        >
+          <div className="w-8 h-8 rounded-xl bg-[#635BFF]/20 flex items-center justify-center font-black text-xs text-[#635BFF] shrink-0">
+            NY
+          </div>
+          <div>
+            <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white flex items-center gap-1.5">
+              <span>Stripe • Financial Eng</span>
+              <span className="text-[9px] opacity-40 font-mono group-hover:opacity-100 transition-opacity">⋮⋮</span>
+            </div>
+            <div className="text-[11px] font-bold text-[#635BFF]">62 Global Open Roles</div>
+          </div>
+        </motion.div>
+
+        {/* Draggable Floater 4: Linear (Lower Right Flank) */}
+        <motion.div
+          drag
+          dragConstraints={heroSectionRef}
+          dragElastic={0.15}
+          dragMomentum={true}
+          whileHover={{ scale: 1.05 }}
+          whileDrag={{ scale: 1.1, zIndex: 60, cursor: "grabbing" }}
+          animate={{ y: [0, 8, 0], x: [0, -5, 0] }}
+          transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut" }}
+          className="hidden 2xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 dark:bg-[#1D2E1B]/95 border border-[#C8D2A6] dark:border-[#3D543A] shadow-xl absolute bottom-24 -right-16 z-20 text-left cursor-grab select-none backdrop-blur-md group"
+          title="✋ Click & Drag me anywhere!"
+        >
+          <div className="w-8 h-8 rounded-xl bg-[#5E6AD2]/20 flex items-center justify-center font-black text-xs text-[#5E6AD2] shrink-0">
+            LN
+          </div>
+          <div>
+            <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white flex items-center gap-1.5">
+              <span>Linear • Product & Craft</span>
+              <span className="text-[9px] opacity-40 font-mono group-hover:opacity-100 transition-opacity">⋮⋮</span>
+            </div>
+            <div className="text-[11px] font-bold text-[#5E6AD2]">Remote & San Francisco</div>
           </div>
         </motion.div>
 
@@ -932,55 +1004,6 @@ export default function LandingPage({
             </div>
           </InView>
         </div>
-      </section>
-
-      {/* ── 4.5 Founders & Builders Beta Open Invitation ────────────── */}
-      <section className="py-12 px-4 sm:px-6 max-w-5xl mx-auto">
-        <InView>
-          <div className="p-8 sm:p-10 rounded-[36px] bg-gradient-to-br from-[#1D2E1B] via-[#2A3F27] to-[#1D2E1B] text-white border-2 border-[#A9C632]/50 shadow-2xl relative overflow-hidden">
-            {/* Background Glow */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-[#A9C632]/15 rounded-full blur-3xl pointer-events-none" />
-            
-            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-              <div className="space-y-3 max-w-xl">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-[#EA532B] text-white text-xs font-black uppercase tracking-wider flex items-center gap-1 shadow-xs">
-                    <span>😸</span> Product Hunt Beta Edition
-                  </span>
-                  <span className="px-3 py-1 rounded-full bg-[#A9C632] text-[#1D2E1B] text-xs font-black uppercase tracking-wider">
-                    Founders Welcome · 100% Free
-                  </span>
-                </div>
-
-                <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Building something ambitious? Get your company mapped for free. 📍
-                </h3>
-
-                <p className="text-xs sm:text-sm text-[#C8D2A6] font-medium leading-relaxed">
-                  Findely is currently in <strong>Public Beta</strong>! We are actively upgrading our verified ATS pipelines and tech hub integrations daily. All founders, CEOs, and engineering leaders are warmly welcome to submit their startup, offices, and open jobs — mapped directly on our 2.5D GPU globe at zero cost.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0 w-full md:w-auto">
-                <button
-                  onClick={() => handleLaunchClick()}
-                  className="px-6 py-3.5 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs sm:text-sm font-black shadow-xl hover:brightness-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <span>+ Add Your Startup — Free ⚡</span>
-                </button>
-                <a
-                  href="https://www.producthunt.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center gap-2 text-center"
-                >
-                  <span>Support on Product Hunt 😸</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </InView>
       </section>
 
       {/* ── 5. "Why I Built This" Founder Story ── */}
