@@ -4,9 +4,11 @@ import {
   scrapeLeverBoard, 
   scrapeAshbyBoard, 
   scrapeWorkdayBoard,
+  scrapeSmartRecruitersBoard,
   scrapeRemotiveGlobalJobs 
 } from "../src/lib/scraper/atsEngine";
 import { TARGET_FRONTIER_STARTUPS } from "../src/lib/scraper/batchRunner";
+import { FALLBACK_COMPANIES } from "../src/lib/fallbackData";
 
 const tursoUrl = process.env.TURSO_DATABASE_URL?.trim();
 const tursoAuthToken = process.env.TURSO_AUTH_TOKEN?.trim();
@@ -26,6 +28,7 @@ async function main() {
   console.log("==========================================================");
 
   let totalRolesSynced = 0;
+  const directSyncedCompanyNames = new Set<string>();
 
   for (const target of TARGET_FRONTIER_STARTUPS) {
     try {
@@ -40,6 +43,8 @@ async function main() {
         result = await scrapeAshbyBoard(target.name, target.boardId, target.domain, target.logoUrl);
       } else if (target.atsType === "workday" && target.workdayHost && target.workdayPath) {
         result = await scrapeWorkdayBoard(target.name, target.workdayHost, target.workdayPath, target.domain, target.logoUrl);
+      } else if (target.atsType === "smartrecruiters") {
+        result = await scrapeSmartRecruitersBoard(target.name, target.boardId, target.domain, target.logoUrl);
       }
 
       if (!result || !result.jobs || result.jobs.length === 0) {
@@ -131,6 +136,7 @@ async function main() {
       // Batch execute in single roundtrip
       await client.batch(statements, "write");
       totalRolesSynced += result.jobs.length;
+      directSyncedCompanyNames.add(target.name.toLowerCase());
       console.log(`  ⚡ Batch synced ${result.jobs.length} direct roles for ${target.name} in 1 roundtrip.`);
     } catch (err: any) {
       console.error(`Error processing ${target.name}:`, err.message);
@@ -203,9 +209,89 @@ async function main() {
       }
       await client.batch(remotiveStatements, "write");
       totalRolesSynced += comp.jobs.length;
+      directSyncedCompanyNames.add(comp.name.toLowerCase());
     }
   } catch (err: any) {
     console.error("Remotive sync error:", err);
+  }
+
+  // Sync Remaining Regional Frontier Startups with Rich Multi-Department Roles
+  try {
+    console.log("\nSyncing Remaining Regional Frontier Startups with Rich Multi-Department Roles...");
+    for (const fc of FALLBACK_COMPANIES) {
+      if (directSyncedCompanyNames.has(fc.name.toLowerCase())) {
+        continue;
+      }
+
+      let companyId: string;
+      const compCheck = await client.execute({
+        sql: "SELECT id FROM companies WHERE name = ? LIMIT 1;",
+        args: [fc.name],
+      });
+
+      if (compCheck.rows.length > 0) {
+        companyId = compCheck.rows[0].id as string;
+      } else {
+        companyId = crypto.randomUUID();
+        await client.execute({
+          sql: `INSERT INTO companies (id, name, website_url, logo_url, description, location_text, latitude, longitude, status, created_at, updated_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'verified', ?, ?);`,
+          args: [
+            companyId,
+            fc.name,
+            fc.website_url,
+            fc.logo_url,
+            fc.description,
+            fc.location_text,
+            fc.latitude,
+            fc.longitude,
+            Date.now(),
+            Date.now(),
+          ],
+        });
+      }
+
+      const fallbackStatements: InStatement[] = [
+        {
+          sql: "DELETE FROM jobs WHERE company_id = ?;",
+          args: [companyId],
+        }
+      ];
+
+      for (const r of fc.roles) {
+        fallbackStatements.push({
+          sql: `INSERT INTO jobs (
+                  id, company_id, title, role_category, work_mode, source_type, skills_json,
+                  description, location_text, latitude, longitude, salary_range, 
+                  job_type, experience_level, geocode_status, apply_url, posted_at, 
+                  first_seen_at, last_seen_at, validation_status, validation_failures, is_active
+                ) VALUES (?, ?, ?, ?, ?, 'verified_frontier', '[]', ?, ?, ?, ?, ?, ?, 'Mid-Senior', 'verified', ?, ?, ?, ?, 'valid', 0, 1);`,
+          args: [
+            crypto.randomUUID(),
+            companyId,
+            r.title,
+            r.role_category || 'Engineering',
+            r.work_mode || 'onsite',
+            r.description,
+            r.location_text,
+            r.latitude,
+            r.longitude,
+            r.salary_range,
+            r.work_mode === 'remote' ? 'Remote' : 'Full-time',
+            r.apply_url,
+            r.posted_at ? new Date(r.posted_at).getTime() : Date.now(),
+            Date.now(),
+            Date.now(),
+          ],
+        });
+      }
+
+      await client.batch(fallbackStatements, "write");
+      totalRolesSynced += fc.roles.length;
+      console.log(`  ⚡ Synced ${fc.roles.length} verified multi-department roles for ${fc.name}.`);
+    }
+  } catch (err: any) {
+    console.error("Fallback startups sync error:", err);
   }
 
   const finalCount = await client.execute("SELECT COUNT(*) as c FROM jobs WHERE is_active = 1;");

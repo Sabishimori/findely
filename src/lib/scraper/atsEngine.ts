@@ -32,7 +32,7 @@ export interface ScrapedCompanyResult {
   headline: string;
   description: string;
   careersUrl: string;
-  atsType: "greenhouse" | "lever" | "ashby" | "workday" | "custom";
+  atsType: "greenhouse" | "lever" | "ashby" | "workday" | "smartrecruiters" | "custom";
   contactEmail?: string;
   primaryLocation: GeocodedLocation;
   jobs: ScrapedJob[];
@@ -624,7 +624,105 @@ export async function scrapeWorkdayBoard(
   }
 }
 
-// ── 5. Remotive Global Startup API Connector ─────────────────
+// ── 5. SmartRecruiters Scraper (Paginated & Multi-Office) ─────
+export async function scrapeSmartRecruitersBoard(
+  companyName: string,
+  companyIdentifier: string,
+  domain: string,
+  logoUrl?: string
+): Promise<ScrapedCompanyResult | null> {
+  try {
+    const allRawPostings: any[] = [];
+    let offset = 0;
+    const limit = 100;
+    let hasMore = true;
+
+    while (hasMore) {
+      const url = `https://api.smartrecruiters.com/v1/companies/${companyIdentifier}/postings?limit=${limit}&offset=${offset}`;
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent": "Findely-Spatial-Job-Engine/1.0 (https://findely.com)",
+          "Accept": "application/json",
+        },
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        if (offset === 0) {
+          console.warn(`[SmartRecruiters] Failed to fetch board '${companyIdentifier}' for ${companyName}: HTTP ${res.status}`);
+          return null;
+        }
+        break;
+      }
+
+      const data = await res.json();
+      const content = data.content || [];
+      allRawPostings.push(...content);
+
+      if (content.length < limit || allRawPostings.length >= (data.totalFound || 0)) {
+        hasMore = false;
+      } else {
+        offset += limit;
+      }
+    }
+
+    console.log(`[SmartRecruiters] ✓ ${companyName} (${companyIdentifier}): Fetched ${allRawPostings.length} open roles.`);
+
+    const jobs: ScrapedJob[] = [];
+
+    for (const p of allRawPostings) {
+      const directApplyUrl = `https://jobs.smartrecruiters.com/${companyIdentifier}/${p.id}`;
+      const dept = p.department?.label || p.function?.label || "Engineering";
+      
+      const city = p.location?.city || "";
+      const region = p.location?.region || "";
+      const country = p.location?.country || "";
+      const locStr = [city, region, country].filter(Boolean).join(", ") || "Remote";
+
+      const isRemote = p.location?.remote === true || locStr.toLowerCase().includes("remote");
+      const locationType = isRemote ? "remote" : "onsite";
+
+      const geo = geocodeLocation(locStr);
+
+      jobs.push({
+        externalId: `smartrecruiters-${p.id}`,
+        title: p.name ? p.name.trim() : "Software Engineer",
+        department: dept,
+        location: locStr,
+        locationType,
+        lat: geo.lat,
+        lng: geo.lng,
+        applyUrl: directApplyUrl,
+        description: `Verified open role at ${companyName}: ${p.name}. Department: ${dept}. Location: ${locStr}.`,
+        postedAt: p.releasedDate ? new Date(p.releasedDate) : new Date(),
+      });
+    }
+
+    const physicalJobs = jobs.filter((j) => j.lat !== null && j.lng !== null);
+    const primaryGeo: GeocodedLocation = physicalJobs.length > 0
+      ? { city: physicalJobs[0].location, country: "Global", lat: physicalJobs[0].lat, lng: physicalJobs[0].lng, locationType: physicalJobs[0].locationType, isBroadRegion: false }
+      : { city: "Remote", country: "Worldwide", lat: null, lng: null, locationType: "remote", isBroadRegion: true };
+
+    return {
+      name: companyName,
+      slug: companyName.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+      domain,
+      logoUrl: logoUrl || `https://logo.clearbit.com/${domain}`,
+      headline: `Frontier Tech and Engineering at ${companyName}`,
+      description: `Explore live verified roles directly at ${companyName} on Findely.`,
+      careersUrl: `https://jobs.smartrecruiters.com/${companyIdentifier}`,
+      atsType: "smartrecruiters",
+      contactEmail: `careers@${domain}`,
+      primaryLocation: primaryGeo,
+      jobs,
+    };
+  } catch (err) {
+    console.error(`Failed to scrape SmartRecruiters board for ${companyName}:`, err);
+    return null;
+  }
+}
+
+// ── 6. Remotive Global Startup API Connector ─────────────────
 export async function scrapeRemotiveGlobalJobs(limit: number = 60): Promise<ScrapedCompanyResult[]> {
   try {
     const res = await fetch(`https://remotive.com/api/remote-jobs?category=software-dev&limit=${limit}`, {

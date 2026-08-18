@@ -749,7 +749,9 @@ export default function CompanySheet({
                     }`}
                   >
                     <Briefcase className="w-3.5 h-3.5" />
-                    <span>Jobs ({data.jobs?.length || intel.openPositionsCount})</span>
+                    <span>
+                      Jobs ({(data.jobs?.length || intel.openPositionsCount) > 99 ? "99+" : (data.jobs?.length || intel.openPositionsCount)})
+                    </span>
                   </button>
                 </div>
               </div>

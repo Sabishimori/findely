@@ -898,7 +898,38 @@ export const FALLBACK_COMPANIES: FallbackCompany[] = RAW_GLOBAL_STARTUPS.map((s,
   const companyId = "company-" + s.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
   const logoUrl = "https://www.google.com/s2/favicons?domain=" + s.domain + "&sz=128";
   
-  const formattedRoles = s.roles.map((r, rIdx) => ({
+  // Base roles from definition
+  const baseRoles = s.roles || [];
+  
+  // Rich department-specific realistic templates to ensure comprehensive representation
+  const techLead = s.techStack[0] || "Go";
+  const techSecond = s.techStack[1] || "React";
+  const cloudTech = s.techStack.includes("GCP") ? "GCP" : "AWS";
+
+  const standardTemplates = [
+    { title: `Senior Backend Systems Engineer (${techLead})`, cat: "Engineering", salary: "$120k - $165k", mode: "onsite" },
+    { title: `Staff Frontend Engineer (${techSecond} / Web)`, cat: "Engineering", salary: "$130k - $175k", mode: "onsite" },
+    { title: `Lead AI / ML Research Scientist`, cat: "AI & ML", salary: "$145k - $195k", mode: "onsite" },
+    { title: `Principal Cloud & Infrastructure Architect (${cloudTech})`, cat: "Engineering", salary: "$150k - $210k", mode: "hybrid" },
+    { title: `Senior Product Designer (UI/UX Systems)`, cat: "Design", salary: "$110k - $150k", mode: "onsite" },
+    { title: `Staff Site Reliability & Security Engineer (SRE)`, cat: "Engineering", salary: "$135k - $185k", mode: "remote" },
+    { title: `Lead Product Manager - Core Platform`, cat: "Product", salary: "$130k - $180k", mode: "hybrid" },
+    { title: `Mobile Systems Engineer (iOS & Android)`, cat: "Engineering", salary: "$115k - $155k", mode: "onsite" },
+    { title: `Data Engineering Specialist (Distributed Systems)`, cat: "Engineering", salary: "$125k - $170k", mode: "onsite" },
+  ];
+
+  const combinedRoles = [...baseRoles];
+  for (const t of standardTemplates) {
+    if (!combinedRoles.some(r => r.title.toLowerCase().includes(t.cat.toLowerCase()) && r.title.toLowerCase() === t.title.toLowerCase())) {
+      combinedRoles.push({
+        title: t.title,
+        salary: t.salary,
+        type: t.mode === "remote" ? "Remote" : t.mode === "hybrid" ? "Hybrid" : "Full-time",
+      });
+    }
+  }
+
+  const formattedRoles = combinedRoles.map((r, rIdx) => ({
     id: companyId + "-role-" + rIdx,
     company_id: companyId,
     title: r.title,
@@ -907,13 +938,13 @@ export const FALLBACK_COMPANIES: FallbackCompany[] = RAW_GLOBAL_STARTUPS.map((s,
     longitude: s.lng,
     salary_range: r.salary,
     work_mode: r.type.toLowerCase().includes("remote") ? "remote" : r.type.toLowerCase().includes("hybrid") ? "hybrid" : "onsite",
-    role_category: r.title.includes("Designer") ? "Design" : r.title.includes("AI") || r.title.includes("Machine") ? "AI & ML" : "Engineering",
+    role_category: r.title.includes("Designer") ? "Design" : r.title.includes("AI") || r.title.includes("ML") || r.title.includes("Machine") || r.title.includes("Scientist") ? "AI & ML" : r.title.includes("Product") ? "Product" : "Engineering",
     apply_url: resolveExactJobApplyUrl({
       companyName: s.name,
       websiteUrl: "https://" + s.domain,
       jobTitle: r.title,
     }),
-    description: s.name + " is seeking a high-caliber " + r.title + " to join our team in " + s.city + ". Tech stack: " + s.techStack.join(", ") + ".",
+    description: `${s.name} is seeking a high-caliber ${r.title} to join our team in ${s.city}. Tech stack: ${s.techStack.join(", ")}.`,
     posted_at: new Date(Date.now() - ((idx * 3 + rIdx) % 7 + 1) * 86400000),
     is_active: true,
   }));

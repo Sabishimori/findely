@@ -939,7 +939,9 @@ export default function FloatingPortalCard({
               }`}
             >
               <Briefcase className="w-3.5 h-3.5" />
-              <span>Open Roles ({data.jobs?.length || intel.openPositionsCount})</span>
+              <span>
+                Open Roles ({(data.jobs?.length || intel.openPositionsCount) > 99 ? "99+" : (data.jobs?.length || intel.openPositionsCount)})
+              </span>
             </button>
           </div>
         </div>
