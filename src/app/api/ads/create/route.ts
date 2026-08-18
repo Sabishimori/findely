@@ -14,7 +14,9 @@ export async function POST(req: NextRequest) {
       badgeType = "AD",
       location = "Global",
       contactEmail,
-      tier = "free_spotlight",
+      tier = "30_day_paypal_spotlight",
+      paymentMethod = "paypal",
+      paypalTxId,
     } = body;
 
     // 1. Strict Validation
@@ -46,16 +48,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. 100% Free 30-Day Community Spotlight Placement
+    // 2. 30-Day Featured Spotlight Placement via PayPal
     const durationDays = 30;
-    const amountCents = 0; // 100% Free
+    const amountCents = 2900; // $29.00 USD
 
     const now = new Date();
     const endDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
     // 3. Insert Record into Database
     const newAdId = crypto.randomUUID();
-    const paymentId = `free_spotlight_${Date.now()}`;
+    const paymentId = paypalTxId?.trim() || `paypal_ad_${Date.now()}`;
 
     try {
       await db.insert(advertisements).values({
@@ -71,9 +73,9 @@ export async function POST(req: NextRequest) {
         duration_days: durationDays,
         amount_paid_cents: amountCents,
         currency: "USD",
-        payment_method: "free",
+        payment_method: "paypal",
         payment_id: paymentId,
-        payment_status: "free",
+        payment_status: "completed",
         status: "active",
         start_date: now,
         end_date: endDate,
@@ -86,14 +88,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       adId: newAdId,
-      message: "🎉 Your startup spotlight is now 100% FREE & LIVE on Findely!",
+      message: "🎉 Your startup spotlight is now officially LIVE on Findely via PayPal!",
       details: {
         companyName,
         tagline,
         badgeType,
-        tier: "Free Community Spotlight",
+        tier: "30-Day Featured Live Spotlight",
         durationDays: 30,
-        amountFormatted: "Free (0$)",
+        amountFormatted: "$29.00 USD",
+        paymentMethod: "PayPal",
         startDate: now.toISOString(),
         endDate: endDate.toISOString(),
         paymentId,

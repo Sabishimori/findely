@@ -44,6 +44,7 @@ export default function AdOnboardingModal({
   const [badgeType, setBadgeType] = useState<AdBadgeType>("LAUNCH");
   const [location, setLocation] = useState("Global");
   const [contactEmail, setContactEmail] = useState("");
+  const [paypalTxId, setPaypalTxId] = useState("");
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -83,7 +84,7 @@ export default function AdOnboardingModal({
     setCurrentStep(3);
   };
 
-  const handleSubmitFreeSpot = async (e: React.FormEvent) => {
+  const handleSubmitPayPalSpot = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -106,14 +107,16 @@ export default function AdOnboardingModal({
           badgeType,
           location,
           contactEmail,
-          tier: "free_spotlight",
+          tier: "30_day_paypal_spotlight",
+          paymentMethod: "paypal",
+          paypalTxId,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || "Failed to create free spotlight.");
+        throw new Error(data.error || "Failed to create sponsor spotlight.");
       }
 
       setSuccessDetails(data.details);
@@ -455,17 +458,17 @@ export default function AdOnboardingModal({
               </div>
             )}
 
-            {/* ── STEP 3: Sponsor Placement Confirmation ────────────── */}
+            {/* ── STEP 3: Sponsor Placement & PayPal Checkout ────────────── */}
             {currentStep === 3 && (
-              <form onSubmit={handleSubmitFreeSpot} className="space-y-4">
+              <form onSubmit={handleSubmitPayPalSpot} className="space-y-4">
                 {/* Sponsor Spotlight Plan Card */}
                 <div className="p-5 rounded-3xl bg-[#A9C632]/15 border-2 border-[#A9C632] text-left space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase font-mono px-2.5 py-0.5 rounded-full bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B]">
                       Featured Placement • Open Slot
                     </span>
-                    <span className="text-sm font-black text-[#1D2E1B] dark:text-[#A9C632]">
-                      Self-Serve Booking
+                    <span className="text-xl font-black text-[#1D2E1B] dark:text-[#A9C632]">
+                      $29.00 USD
                     </span>
                   </div>
 
@@ -490,19 +493,54 @@ export default function AdOnboardingModal({
                   </div>
                 </div>
 
-                {/* Contact Email Input */}
-                <div>
-                  <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                    Your Contact Email *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    placeholder="founder@yourstartup.com"
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
-                  />
+                {/* PayPal Direct 1-Click Action Box */}
+                <div className="p-4 rounded-2xl bg-[#0070BA]/10 border border-[#0070BA]/30 text-left space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-[#0070BA] dark:text-[#45a2e5] flex items-center gap-1.5">
+                      <span>Direct PayPal Checkout</span>
+                    </span>
+                    <a
+                      href="https://paypal.me/Sagar1502/29"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-xl bg-[#0070BA] hover:bg-[#005ea6] text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition-all"
+                    >
+                      <span>Pay via PayPal ($29)</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <p className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6]">
+                    Transfer <strong>$29.00 USD</strong> directly via <strong>paypal.me/Sagar1502</strong>. Once completed, enter your confirmation email or transaction reference below.
+                  </p>
+                </div>
+
+                {/* Contact Email & Transaction Reference Inputs */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
+                      Your Contact Email *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
+                      placeholder="founder@yourstartup.com"
+                      className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
+                      PayPal Transaction ID / Ref
+                    </label>
+                    <input
+                      type="text"
+                      value={paypalTxId}
+                      onChange={(e) => setPaypalTxId(e.target.value)}
+                      placeholder="e.g. 5X1234567890"
+                      className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
+                    />
+                  </div>
                 </div>
 
                 {/* Step 3 Actions */}
@@ -524,12 +562,12 @@ export default function AdOnboardingModal({
                     {isProcessing ? (
                       <>
                         <div className="w-4 h-4 border-2 border-[#1D2E1B] border-t-transparent rounded-full animate-spin" />
-                        <span>Reserving Placement...</span>
+                        <span>Activating PayPal Booking...</span>
                       </>
                     ) : (
                       <>
                         <Rocket className="w-4 h-4 fill-current" />
-                        <span>Reserve Sponsor Placement 🚀</span>
+                        <span>Confirm & Activate Placement 🚀</span>
                       </>
                     )}
                   </button>
@@ -546,7 +584,7 @@ export default function AdOnboardingModal({
 
                 <div>
                   <h4 className="text-xl font-black text-[#1D2E1B] dark:text-white">
-                    🎉 Sponsor Spotlight Reserved!
+                    🎉 Sponsor Spotlight Activated!
                   </h4>
                   <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-1 max-w-md mx-auto">
                     <strong>{successDetails?.companyName || companyName}</strong> is now live in Findely's rotating live spotlight marquee for the next 30 days.
@@ -561,7 +599,11 @@ export default function AdOnboardingModal({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Cost:</span>
-                    <strong className="text-[#A9C632] font-black">100% Free ($0)</strong>
+                    <strong className="text-[#A9C632] font-black">$29.00 USD</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Payment:</span>
+                    <strong className="text-[#0070BA] dark:text-[#45a2e5] font-bold">PayPal (paypal.me/Sagar1502)</strong>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Status:</span>
