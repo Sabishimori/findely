@@ -16,6 +16,8 @@
     "db:turso-sync": "tsx --env-file=.env.local scripts/export-to-turso.ts",
     "scrape:live": "tsx --env-file=.env.local scripts/sync-direct-ats-urls.ts",
     "scrape:yc": "tsx scripts/scrape_yc_companies.ts",
+    "discover:india": "tsx --env-file=.env.local scripts/discover_india.ts",
+    "pipeline:daily": "tsx --env-file=.env.local scripts/scheduled_pipeline.ts",
     "db:migrate:production": "tsx --env-file=.env.local scripts/migrate_production_schema.ts"
   },
   "dependencies": {
