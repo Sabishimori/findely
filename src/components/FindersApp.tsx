@@ -46,7 +46,7 @@ export default function FindersApp({
   const [showAdModal, setShowAdModal] = useState(false);
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [showSplashScreen, setShowSplashScreen] = useState(true);
+  const [showSplashScreen, setShowSplashScreen] = useState(false);
   const [showLandingPage, setShowLandingPage] = useState(true);
   const [focusedArea, setFocusedArea] = useState<StartupTechHub | null>(null);
   const [spatialPinLocation, setSpatialPinLocation] = useState<SpatialLocationInfo | null>(null);
@@ -291,10 +291,7 @@ export default function FindersApp({
       <div className={`w-full h-full relative overflow-hidden font-urbanist ${isDarkMode ? "dark bg-[#131E12]" : "bg-[#F7F9F2]"}`}>
         <LandingPage
           onLaunchWorkspace={(companyName?: string) => {
-            if (!user) {
-              openAuthModal();
-              return;
-            }
+            setShowSplashScreen(true);
             setShowLandingPage(false);
             setCurrentTab("globe");
             setViewMode("map");
@@ -316,7 +313,10 @@ export default function FindersApp({
         />
         <AuthModal 
           isDarkMode={isDarkMode} 
-          onSuccess={() => setShowLandingPage(false)} 
+          onSuccess={() => {
+            setShowSplashScreen(true);
+            setShowLandingPage(false);
+          }} 
         />
       </div>
     );
