@@ -712,12 +712,12 @@ export default function AdOnboardingModal({
                     {isProcessing ? (
                       <>
                         <div className="w-4 h-4 border-2 border-[#1D2E1B] border-t-transparent rounded-full animate-spin" />
-                        <span>Activating {selectedPlan.name}...</span>
+                        <span>Submitting for Review...</span>
                       </>
                     ) : (
                       <>
                         <Rocket className="w-4 h-4 fill-current" />
-                        <span>Confirm & Activate {selectedPlan.name} (${selectedPlan.priceUsd}) 🚀</span>
+                        <span>Submit Sponsor Request (${selectedPlan.priceUsd}) 🚀</span>
                       </>
                     )}
                   </button>
