@@ -24,11 +24,16 @@ import {
   Sun,
   Moon,
   Mail,
-  Send
+  Send,
 } from "lucide-react";
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "motion/react";
 import { playTapSound } from "@/lib/soundFx";
 import { useAuth } from "@/lib/authContext";
+import FAQSection from "./FAQSection";
+import LegalModals, { LegalTab } from "./LegalModals";
+import CookieBanner from "./CookieBanner";
+import BackToTopButton from "./BackToTopButton";
+import { captureUTMParams } from "@/lib/utmTracker";
 
 // ── Motion Utility Components ─────────────────────────────────────
 function InView({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -250,6 +255,13 @@ export default function LandingPage({
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
   const [countdown, setCountdown] = useState("03h : 42m : 18s");
+  const [showLegalModal, setShowLegalModal] = useState(false);
+  const [legalTab, setLegalTab] = useState<LegalTab>("privacy");
+
+  // Capture UTM parameters for launch attribution
+  useEffect(() => {
+    captureUTMParams();
+  }, []);
 
   useEffect(() => {
     const updateTimer = () => {
@@ -1138,6 +1150,9 @@ export default function LandingPage({
         </InView>
       </section>
 
+      {/* ── 5.5 Expandable Frequently Asked Questions (FAQ) ─── */}
+      <FAQSection isDarkMode={isDarkMode} />
+
       {/* ── 6. Support & Free Tier Donation ───────────────────────── */}
       <section id="donate" className="py-20 px-4 sm:px-6 max-w-7xl mx-auto">
         <InView>
@@ -1337,21 +1352,74 @@ export default function LandingPage({
       </section>
 
       {/* ── 8. Footer ─────────────────────────────────────────────── */}
-      <footer className="py-8 px-4 sm:px-6 border-t border-[#C8D2A6] dark:border-[#3D543A] max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-[#546E50] dark:text-[#C8D2A6]">
+      <footer className="py-8 px-4 sm:px-6 border-t border-[#C8D2A6] dark:border-[#3D543A] max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-[#546E50] dark:text-[#C8D2A6]">
         <div className="flex items-center gap-2.5">
           <img src="/logofinal.svg" alt="Findely Logo" className="w-6 h-6 rounded-lg" />
           <span className="font-black text-sm sm:text-base text-[#1D2E1B] dark:text-white">Findely</span>
           <span>© 2026 Sagar S. Built for builders worldwide.</span>
         </div>
 
-        <div className="flex items-center gap-5 font-bold text-xs sm:text-sm">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 font-bold text-xs sm:text-sm">
           <a href="https://github.com/Sabishimori" target="_blank" rel="noreferrer" className="hover:text-[#A9C632] transition-colors">GitHub</a>
           <a href="https://x.com/sabishimor1" target="_blank" rel="noreferrer" className="hover:text-[#A9C632] transition-colors">X / Twitter</a>
           <a href="https://www.linkedin.com/in/sagar-s-510aa4232/" target="_blank" rel="noreferrer" className="hover:text-[#0070BA] transition-colors">LinkedIn</a>
           <a href="#why-i-built-this" className="hover:text-[#A9C632] transition-colors">Manifesto</a>
-          <a href="#donate" className="hover:text-[#A9C632] transition-colors">Support</a>
+          <a href="#faq" className="hover:text-[#A9C632] transition-colors">FAQ</a>
+          <button
+            onClick={() => {
+              playTapSound();
+              setLegalTab("privacy");
+              setShowLegalModal(true);
+            }}
+            className="hover:text-[#A9C632] transition-colors cursor-pointer"
+          >
+            Privacy
+          </button>
+          <button
+            onClick={() => {
+              playTapSound();
+              setLegalTab("terms");
+              setShowLegalModal(true);
+            }}
+            className="hover:text-[#A9C632] transition-colors cursor-pointer"
+          >
+            Terms
+          </button>
+          <button
+            onClick={() => {
+              playTapSound();
+              setLegalTab("security");
+              setShowLegalModal(true);
+            }}
+            className="hover:text-[#A9C632] transition-colors cursor-pointer"
+          >
+            Security
+          </button>
         </div>
       </footer>
+
+      {/* ── 9. Legal & Compliance Modals (Privacy, Terms, Security) ── */}
+      <LegalModals
+        isOpen={showLegalModal}
+        onClose={() => setShowLegalModal(false)}
+        initialTab={legalTab}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* ── 10. Privacy & Cookie Consent Banner ─────────────────────── */}
+      <CookieBanner
+        onOpenPrivacy={() => {
+          setLegalTab("privacy");
+          setShowLegalModal(true);
+        }}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* ── 11. Floating Back-to-Top Button ─────────────────────────── */}
+      <BackToTopButton
+        scrollContainerRef={scrollContainerRef}
+        isDarkMode={isDarkMode}
+      />
     </div>
   );
 }
