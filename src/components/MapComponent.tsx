@@ -47,16 +47,6 @@ export type CompanyMapItem = {
   hrLeads?: Array<{ name: string; role: string; linkedin_url?: string; avatar_url?: string }>;
 };
 
-export interface GlobalMapCluster {
-  id: string;
-  clusterName: string;
-  center: [number, number]; // [lng, lat]
-  pins: CompanyMapPin[];
-  companyCount: number;
-  jobCount: number;
-  topLogos: Array<{ name: string; url: string }>;
-}
-
 // 4 High-Performance Zero-Latency Basemap Styles (Strict maxzoom 18 to prevent grey 404 tile errors)
 const MAP_STYLES: Record<string, any> = {
   light: {
@@ -219,119 +209,6 @@ export default function MapComponent({
     return list;
   }, [companies, searchQuery, dateFilter]);
 
-  // ── Global Dynamic Spatial Clusters for Zoom < 6.8 ─────────────
-  const isClusterMode = viewState.zoom < 6.8 && (!searchQuery || searchQuery.trim().length === 0);
-
-  const globalClusters = useMemo(() => {
-    if (!isClusterMode) return [];
-
-    // Degree distance threshold based on current zoom level
-    const thresholdDeg =
-      viewState.zoom < 3.2
-        ? 5.2
-        : viewState.zoom < 4.5
-        ? 3.2
-        : viewState.zoom < 5.8
-        ? 1.9
-        : 1.1;
-
-    const clusters: GlobalMapCluster[] = [];
-
-    for (const pin of validPins) {
-      let closestCluster: GlobalMapCluster | null = null;
-      let minDistance = Infinity;
-
-      for (const cl of clusters) {
-        const dLng = pin.longitude - cl.center[0];
-        const dLat = pin.latitude - cl.center[1];
-        const dist = Math.sqrt(dLng * dLng + dLat * dLat);
-
-        if (dist < thresholdDeg && dist < minDistance) {
-          minDistance = dist;
-          closestCluster = cl;
-        }
-      }
-
-      if (closestCluster) {
-        closestCluster.pins.push(pin);
-        const total = closestCluster.pins.length;
-        closestCluster.center = [
-          (closestCluster.center[0] * (total - 1) + pin.longitude) / total,
-          (closestCluster.center[1] * (total - 1) + pin.latitude) / total,
-        ];
-        closestCluster.jobCount += pin.roleCount;
-
-        const hasComp = closestCluster.topLogos.some((l) => l.name === pin.company.name);
-        if (!hasComp) {
-          closestCluster.companyCount += 1;
-          if (closestCluster.topLogos.length < 4) {
-            closestCluster.topLogos.push({
-              name: pin.company.name,
-              url: getCompanyLogoUrl(pin.company.website_url, pin.company.name, pin.company.logo_url || undefined),
-            });
-          }
-        }
-      } else {
-        const rawCity = pin.locationName.split(",")[0].trim();
-        const clusterName =
-          rawCity.toLowerCase().includes("bengaluru") || rawCity.toLowerCase().includes("bangalore")
-            ? "Bengaluru Hub"
-            : rawCity.toLowerCase().includes("san francisco") || rawCity.toLowerCase().includes("bay area")
-            ? "SF Bay Area"
-            : rawCity.toLowerCase().includes("london")
-            ? "London Metro"
-            : rawCity.toLowerCase().includes("new york")
-            ? "New York Hub"
-            : rawCity.toLowerCase().includes("tokyo")
-            ? "Tokyo Metro"
-            : rawCity.toLowerCase().includes("sydney")
-            ? "Sydney Hub"
-            : rawCity.toLowerCase().includes("berlin")
-            ? "Berlin Metro"
-            : rawCity.toLowerCase().includes("seoul")
-            ? "Seoul Metro"
-            : rawCity.toLowerCase().includes("singapore")
-            ? "Singapore Hub"
-            : rawCity.toLowerCase().includes("paris")
-            ? "Paris Metro"
-            : rawCity.toLowerCase().includes("chennai")
-            ? "Chennai Hub"
-            : rawCity.toLowerCase().includes("mumbai")
-            ? "Mumbai Hub"
-            : rawCity.toLowerCase().includes("hyderabad")
-            ? "Hyderabad Hub"
-            : `${rawCity} Tech Hub`;
-
-        clusters.push({
-          id: `cluster-${pin.pinId}-${clusters.length}`,
-          clusterName,
-          center: [pin.longitude, pin.latitude],
-          pins: [pin],
-          companyCount: 1,
-          jobCount: pin.roleCount,
-          topLogos: [
-            {
-              name: pin.company.name,
-              url: getCompanyLogoUrl(pin.company.website_url, pin.company.name, pin.company.logo_url || undefined),
-            },
-          ],
-        });
-      }
-    }
-
-    return clusters;
-  }, [validPins, viewState.zoom, isClusterMode]);
-
-  const flyToCluster = useCallback((cluster: GlobalMapCluster) => {
-    mapRef.current?.flyTo({
-      center: [cluster.center[0], cluster.center[1]],
-      zoom: 11.2,
-      pitch: 42,
-      duration: 1400,
-      essential: true,
-    });
-  }, []);
-
   const flyToPin = useCallback(
     (pin: CompanyMapPin) => {
       setSelectedCompanyId(pin.company.id);
@@ -449,214 +326,150 @@ export default function MapComponent({
         style={{ width: "100%", height: "100%" }}
         attributionControl={false}
       >
-        {isClusterMode ? (
-          // ── Render Global Frosted Glass Numeric Clusters (Zoom < 6.8) ──
-          globalClusters.map((cluster) => {
-            return (
-              <Marker
-                key={cluster.id}
-                longitude={cluster.center[0]}
-                latitude={cluster.center[1]}
-                anchor="center"
-                onClick={(e) => {
-                  e.originalEvent.stopPropagation();
-                  flyToCluster(cluster);
-                }}
+        {validPins.map((pin) => {
+          const company = pin.company;
+          const hasJobs = pin.roleCount > 0;
+          const isSelected = selectedCompanyId === company.id;
+          const isHovered = hoveredCompanyId === pin.pinId;
+
+          // Check if company has matching role for the search query
+          const matchingRole = searchQuery.trim().length >= 2
+            ? company.jobTitles?.find((t: string) =>
+                t.toLowerCase().includes(searchQuery.toLowerCase().trim())
+              ) || company.roles?.find((r: any) => r.title.toLowerCase().includes(searchQuery.toLowerCase().trim()))?.title
+            : null;
+
+          return (
+            <Marker
+              key={pin.pinId}
+              longitude={pin.longitude}
+              latitude={pin.latitude}
+              anchor="bottom"
+              onClick={(e) => {
+                e.originalEvent.stopPropagation();
+                flyToPin(pin);
+              }}
+            >
+              <div
+                className="relative cursor-pointer flex flex-col items-center group"
+                onMouseEnter={() => setHoveredCompanyId(pin.pinId)}
+                onMouseLeave={() => setHoveredCompanyId(null)}
               >
-                <motion.div
-                  whileHover={{ scale: 1.1, y: -3 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`relative cursor-pointer flex items-center gap-2.5 p-1.5 pr-3 rounded-full border-2 shadow-2xl backdrop-blur-2xl transition-all select-none group ${
-                    isDarkMode
-                      ? "bg-[#1D2E1B]/95 text-white border-[#A9C632] shadow-[0_10px_25px_rgba(0,0,0,0.5)]"
-                      : "bg-white/95 text-[#1D2E1B] border-[#1D2E1B] shadow-[0_10px_25px_rgba(29,46,27,0.2)]"
-                  }`}
-                >
-                  {/* Stacked Mini Logos Avatar Strip */}
-                  <div className="flex -space-x-2 overflow-hidden items-center shrink-0 pl-0.5">
-                    {cluster.topLogos.map((logo, idx) => (
-                      <div
-                        key={idx}
-                        className="w-7 h-7 rounded-full border-2 border-white dark:border-[#1D2E1B] bg-white dark:bg-[#2A3F28] p-0.5 shadow-sm overflow-hidden flex items-center justify-center"
-                      >
-                        <img
-                          src={logo.url}
-                          alt={logo.name}
-                          className="w-full h-full object-contain"
-                          onError={(e) => handleImageError(e, logo.name)}
-                        />
+                {/* Hover Tooltip Card */}
+                <AnimatePresence>
+                  {isHovered && !isSelected && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6, scale: 0.92 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 4, scale: 0.92 }}
+                      className={`absolute bottom-full mb-3 pointer-events-none z-50 w-64 rounded-2xl p-4 shadow-2xl text-left border backdrop-blur-xl ${
+                        isDarkMode
+                          ? "bg-[#1D2E1B]/95 border-[#3D543A] text-white"
+                          : "bg-white/95 border-[#C8D2A6] text-[#1D2E1B]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-xs truncate text-[#1D2E1B] dark:text-white">
+                          {company.name}
+                        </span>
+                        <span className="text-[10px] font-bold text-[#1D2E1B] dark:text-[#A9C632] bg-[#A9C632]/20 px-2 py-0.5 rounded-full border border-[#A9C632]/40">
+                          {pin.isHQ ? "HQ • " : ""}{pin.roleCount} {pin.roleCount === 1 ? "Role" : "Roles"}
+                        </span>
                       </div>
-                    ))}
-                  </div>
+                      <p className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] mt-1 flex items-center gap-1 truncate font-medium">
+                        <MapPin className="w-3 h-3 text-[#A9C632] flex-shrink-0" />
+                        {pin.locationName}
+                      </p>
+                      {company.jobTitles && company.jobTitles.length > 0 && (
+                        <div className="mt-2 pt-1.5 border-t border-[#C8D2A6] dark:border-[#3D543A] text-[10px] font-semibold truncate text-[#1D2E1B] dark:text-[#A9C632]">
+                          💼 {company.jobTitles[0]}
+                        </div>
+                      )}
+                      <div className="mt-2 pt-1.5 border-t border-[#C8D2A6]/40 dark:border-[#3D543A] flex items-center justify-between text-[9px] font-bold text-[#A9C632]">
+                        <span>🏢 {pin.isHQ ? "Global HQ" : "Branch Hub"}</span>
+                        <span>Explore ↗</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-                  {/* Hub Info */}
-                  <div className="flex flex-col text-left">
-                    <span className="text-xs font-black tracking-tight text-[#1D2E1B] dark:text-white truncate max-w-[130px]">
-                      {cluster.clusterName}
-                    </span>
-                    <span className="text-[9.5px] font-extrabold text-[#546E50] dark:text-[#A9C632] flex items-center gap-1">
-                      <span>{cluster.companyCount} {cluster.companyCount === 1 ? "Startup" : "Startups"}</span>
-                      <span>•</span>
-                      <span className="text-[#1D2E1B] dark:text-white font-black">{cluster.jobCount > 99 ? "99+" : cluster.jobCount} Jobs</span>
-                    </span>
-                  </div>
-
-                  {/* Glowing Green Number Pill */}
-                  <div className="ml-1 px-2.5 py-1 rounded-full bg-[#1D2E1B] dark:bg-[#A9C632] text-[#A9C632] dark:text-[#1D2E1B] text-xs font-mono font-black shadow-md flex items-center gap-1 shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#A9C632] dark:bg-[#1D2E1B] animate-pulse" />
-                    <span>{cluster.companyCount}</span>
-                  </div>
-                </motion.div>
-              </Marker>
-            );
-          })
-        ) : (
-          // ── Render Individual Company Apple Squircle Logo Markers (Zoom >= 6.8) ──
-          validPins.map((pin) => {
-            const company = pin.company;
-            const hasJobs = pin.roleCount > 0;
-            const isSelected = selectedCompanyId === company.id;
-            const isHovered = hoveredCompanyId === pin.pinId;
-
-            // Check if company has matching role for the search query
-            const matchingRole = searchQuery.trim().length >= 2
-              ? company.jobTitles?.find((t: string) =>
-                  t.toLowerCase().includes(searchQuery.toLowerCase().trim())
-                ) || company.roles?.find((r: any) => r.title.toLowerCase().includes(searchQuery.toLowerCase().trim()))?.title
-              : null;
-
-            return (
-              <Marker
-                key={pin.pinId}
-                longitude={pin.longitude}
-                latitude={pin.latitude}
-                anchor="bottom"
-                onClick={(e) => {
-                  e.originalEvent.stopPropagation();
-                  flyToPin(pin);
-                }}
-              >
-                <div
-                  className="relative cursor-pointer flex flex-col items-center group"
-                  onMouseEnter={() => setHoveredCompanyId(pin.pinId)}
-                  onMouseLeave={() => setHoveredCompanyId(null)}
+                {/* 2.5D Apple Squircle Marker Body with Micro-Beacon */}
+                <motion.div
+                  whileHover={{ scale: 1.18, y: -3 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative flex flex-col items-center"
                 >
-                  {/* Hover Tooltip Card */}
+                  {/* Subtle Micro-Beacon Pulse Dot for Search Match (Clean & Unobtrusive) */}
+                  {matchingRole && (
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3 z-20">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A9C632] opacity-75" />
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-[#A9C632] border-2 border-[#1D2E1B]" />
+                    </span>
+                  )}
+
+                  {/* Clean Fixed-Size Apple Squircle Logo Tile */}
+                  <div
+                    className={`w-11 h-11 apple-squircle p-1.5 shadow-xl flex items-center justify-center transition-all ${
+                      isDarkMode ? "bg-[#1D2E1B] text-white" : "bg-white text-[#1D2E1B]"
+                    } ${
+                      isSelected
+                        ? "ring-4 ring-[#A9C632]/40 scale-115 shadow-2xl border-2 border-[#A9C632]"
+                        : matchingRole
+                        ? "border-2 border-[#A9C632] ring-2 ring-[#A9C632]/60 shadow-[0_0_12px_rgba(169,198,50,0.4)]"
+                        : hasJobs
+                        ? "border-2 border-[#A9C632]/80 ring-2 ring-[#A9C632]/20"
+                        : "border border-[#C8D2A6] dark:border-white/20 opacity-80"
+                    }`}
+                  >
+                    <div className="w-full h-full apple-icon-tile bg-[#F7F9F2] dark:bg-white/10 flex items-center justify-center p-1 overflow-hidden">
+                      <img
+                        src={getCompanyLogoUrl(company.website_url, company.name, company.logo_url || undefined)}
+                        alt={company.name}
+                        className="w-full h-full object-contain"
+                        onError={(e) => handleImageError(e, company.name)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Pin Tip Extrusion */}
+                  <div
+                    className={`w-2 h-2 rotate-45 -mt-1 shadow-md ${
+                      isSelected || matchingRole
+                        ? "bg-[#A9C632]"
+                        : isDarkMode
+                        ? "bg-[#1D2E1B]"
+                        : "bg-white"
+                    }`}
+                  />
+
+                  {/* Location Tag - Displayed when actively searching */}
+                  {searchQuery && searchQuery.trim().length > 0 && (
+                    <span className="mt-1 px-2 py-0.5 rounded-full bg-[#1D2E1B]/95 text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] text-[9px] font-bold shadow-lg border border-[#A9C632]/50 whitespace-nowrap max-w-[120px] truncate flex items-center gap-1">
+                      <MapPin className="w-2.5 h-2.5 shrink-0 text-[#A9C632] dark:text-[#1D2E1B]" />
+                      <span className="truncate">{pin.locationName.split(",")[0]}</span>
+                    </span>
+                  )}
+
+                  {/* ── Slide-Down Under-Drawer / Keyword Match Badge (Clean Micro Badge) ── */}
                   <AnimatePresence>
-                    {isHovered && !isSelected && (
+                    {matchingRole && (
                       <motion.div
-                        initial={{ opacity: 0, y: 6, scale: 0.92 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 4, scale: 0.92 }}
-                        className={`absolute bottom-full mb-3 pointer-events-none z-50 w-64 rounded-2xl p-4 shadow-2xl text-left border backdrop-blur-xl ${
-                          isDarkMode
-                            ? "bg-[#1D2E1B]/95 border-[#3D543A] text-white"
-                            : "bg-white/95 border-[#C8D2A6] text-[#1D2E1B]"
-                        }`}
+                        initial={{ y: -4, opacity: 0, scale: 0.85 }}
+                        animate={{ y: 2, opacity: 1, scale: 1 }}
+                        exit={{ y: -4, opacity: 0, scale: 0.85 }}
+                        transition={{ type: "spring", stiffness: 450, damping: 28 }}
+                        className="mt-1 px-2.5 py-0.5 rounded-full bg-[#1D2E1B]/95 text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] text-[8.5px] font-mono font-bold tracking-tight shadow-xl border border-[#A9C632]/60 flex items-center gap-1.5 backdrop-blur-md whitespace-nowrap max-w-[130px] z-10"
                       >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-bold text-xs truncate text-[#1D2E1B] dark:text-white">
-                            {company.name}
-                          </span>
-                          <span className="text-[10px] font-bold text-[#1D2E1B] dark:text-[#A9C632] bg-[#A9C632]/20 px-2 py-0.5 rounded-full border border-[#A9C632]/40">
-                            {pin.isHQ ? "HQ • " : ""}{pin.roleCount} {pin.roleCount === 1 ? "Role" : "Roles"}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] mt-1 flex items-center gap-1 truncate font-medium">
-                          <MapPin className="w-3 h-3 text-[#A9C632] flex-shrink-0" />
-                          {pin.locationName}
-                        </p>
-                        {company.jobTitles && company.jobTitles.length > 0 && (
-                          <div className="mt-2 pt-1.5 border-t border-[#C8D2A6] dark:border-[#3D543A] text-[10px] font-semibold truncate text-[#1D2E1B] dark:text-[#A9C632]">
-                            💼 {company.jobTitles[0]}
-                          </div>
-                        )}
-                        <div className="mt-2 pt-1.5 border-t border-[#C8D2A6]/40 dark:border-[#3D543A] flex items-center justify-between text-[9px] font-bold text-[#A9C632]">
-                          <span>🏢 {pin.isHQ ? "Global HQ" : "Branch Hub"}</span>
-                          <span>Explore ↗</span>
-                        </div>
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#A9C632] dark:bg-[#1D2E1B] shrink-0" />
+                        <span className="truncate">{matchingRole}</span>
                       </motion.div>
                     )}
                   </AnimatePresence>
-
-                  {/* 2.5D Apple Squircle Marker Body with Micro-Beacon */}
-                  <motion.div
-                    whileHover={{ scale: 1.18, y: -3 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="relative flex flex-col items-center"
-                  >
-                    {/* Subtle Micro-Beacon Pulse Dot for Search Match (Clean & Unobtrusive) */}
-                    {matchingRole && (
-                      <span className="absolute -top-1 -right-1 flex h-3 w-3 z-20">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A9C632] opacity-75" />
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-[#A9C632] border-2 border-[#1D2E1B]" />
-                      </span>
-                    )}
-
-                    {/* Clean Fixed-Size Apple Squircle Logo Tile */}
-                    <div
-                      className={`w-11 h-11 apple-squircle p-1.5 shadow-xl flex items-center justify-center transition-all ${
-                        isDarkMode ? "bg-[#1D2E1B] text-white" : "bg-white text-[#1D2E1B]"
-                      } ${
-                        isSelected
-                          ? "ring-4 ring-[#A9C632]/40 scale-115 shadow-2xl border-2 border-[#A9C632]"
-                          : matchingRole
-                          ? "border-2 border-[#A9C632] ring-2 ring-[#A9C632]/60 shadow-[0_0_12px_rgba(169,198,50,0.4)]"
-                          : hasJobs
-                          ? "border-2 border-[#A9C632]/80 ring-2 ring-[#A9C632]/20"
-                          : "border border-[#C8D2A6] dark:border-white/20 opacity-80"
-                      }`}
-                    >
-                      <div className="w-full h-full apple-icon-tile bg-[#F7F9F2] dark:bg-white/10 flex items-center justify-center p-1 overflow-hidden">
-                        <img
-                          src={getCompanyLogoUrl(company.website_url, company.name, company.logo_url || undefined)}
-                          alt={company.name}
-                          className="w-full h-full object-contain"
-                          onError={(e) => handleImageError(e, company.name)}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Pin Tip Extrusion */}
-                    <div
-                      className={`w-2 h-2 rotate-45 -mt-1 shadow-md ${
-                        isSelected || matchingRole
-                          ? "bg-[#A9C632]"
-                          : isDarkMode
-                          ? "bg-[#1D2E1B]"
-                          : "bg-white"
-                      }`}
-                    />
-
-                    {/* Location Tag - Displayed when actively searching */}
-                    {searchQuery && searchQuery.trim().length > 0 && (
-                      <span className="mt-1 px-2 py-0.5 rounded-full bg-[#1D2E1B]/95 text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] text-[9px] font-bold shadow-lg border border-[#A9C632]/50 whitespace-nowrap max-w-[120px] truncate flex items-center gap-1">
-                        <MapPin className="w-2.5 h-2.5 shrink-0 text-[#A9C632] dark:text-[#1D2E1B]" />
-                        <span className="truncate">{pin.locationName.split(",")[0]}</span>
-                      </span>
-                    )}
-
-                    {/* ── Slide-Down Under-Drawer / Keyword Match Badge (Clean Micro Badge) ── */}
-                    <AnimatePresence>
-                      {matchingRole && (
-                        <motion.div
-                          initial={{ y: -4, opacity: 0, scale: 0.85 }}
-                          animate={{ y: 2, opacity: 1, scale: 1 }}
-                          exit={{ y: -4, opacity: 0, scale: 0.85 }}
-                          transition={{ type: "spring", stiffness: 450, damping: 28 }}
-                          className="mt-1 px-2.5 py-0.5 rounded-full bg-[#1D2E1B]/95 text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] text-[8.5px] font-mono font-bold tracking-tight shadow-xl border border-[#A9C632]/60 flex items-center gap-1.5 backdrop-blur-md whitespace-nowrap max-w-[130px] z-10"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#A9C632] dark:bg-[#1D2E1B] shrink-0" />
-                          <span className="truncate">{matchingRole}</span>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                </div>
-              </Marker>
-            );
-          })
-        )}
+                </motion.div>
+              </div>
+            </Marker>
+          );
+        })}
       </Map>
 
       {/* ── Top-Right Map Controls: List Toggle Pill (from reference image) ── */}
