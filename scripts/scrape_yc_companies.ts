@@ -127,7 +127,7 @@ export const YC_PORTFOLIO_STARTUPS: YCCompanyTarget[] = [
     name: "Deel",
     domain: "deel.com",
     batch: "YC S19",
-    atsType: "greenhouse",
+    atsType: "ashby",
     boardId: "deel",
     logoUrl: "https://logo.clearbit.com/deel.com",
     foundedYear: 2019,
