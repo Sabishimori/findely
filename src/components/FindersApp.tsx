@@ -59,6 +59,13 @@ export default function FindersApp({
     }
   }, [isDarkMode]);
 
+  // Mandatory Login Gate: Ensure user is logged in to enter the workspace
+  useEffect(() => {
+    if (!user) {
+      setShowLandingPage(true);
+    }
+  }, [user]);
+
   // ── Multi-Window Floating Portals State (Max 4-5) ─────────────
   const [openPortals, setOpenPortals] = useState<OpenPortal[]>([]);
 
@@ -292,6 +299,10 @@ export default function FindersApp({
       <div className={`w-full h-full relative overflow-hidden font-urbanist ${isDarkMode ? "dark bg-[#131E12]" : "bg-[#F7F9F2]"}`}>
         <LandingPage
           onLaunchWorkspace={(companyName?: string) => {
+            if (!user) {
+              openAuthModal();
+              return;
+            }
             setShowSplashScreen(true);
             setShowLandingPage(false);
             setCurrentTab("globe");

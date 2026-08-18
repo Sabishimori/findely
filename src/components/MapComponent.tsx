@@ -690,14 +690,6 @@ export default function MapComponent({
           )}
         </div>
       </div>
-
-      {/* 🎬 Automated Cinematic Flight Tour & 60fps Screen Recording Studio */}
-      <CinematicTourMode
-        mapRef={mapRef}
-        companies={companies}
-        onSelectCompany={onSelectCompany}
-        isDarkMode={isDarkMode}
-      />
     </div>
   );
 }

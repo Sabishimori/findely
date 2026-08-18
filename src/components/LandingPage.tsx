@@ -316,6 +316,10 @@ export default function LandingPage({
 
   const handleLaunchClick = (e?: React.MouseEvent | string) => {
     playTapSound();
+    if (!user) {
+      openAuthModal();
+      return;
+    }
     if (typeof e === "string") {
       onLaunchWorkspace(e);
     } else {

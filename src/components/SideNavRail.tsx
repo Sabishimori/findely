@@ -35,7 +35,7 @@ export default function SideNavRail({
   candidateAvatar?: string;
   onOpenLandingPage?: () => void;
 }) {
-  const { user, logout } = useAuth();
+  const { user, logout, openAuthModal } = useAuth();
   const [showBuilderModal, setShowBuilderModal] = useState(false);
   const activeName = user?.name || candidateName;
   const activeAvatar = user?.avatar || candidateAvatar || "https://api.dicebear.com/7.x/initials/svg?seed=Builder&backgroundColor=1D2E1B&textColor=A9C632";
@@ -145,7 +145,13 @@ export default function SideNavRail({
 
           {/* Candidate Profile Avatar Button in Apple Squircle */}
           <button
-            onClick={() => onSelectTab("profile")}
+            onClick={() => {
+              if (!user) {
+                openAuthModal();
+              } else {
+                onSelectTab("profile");
+              }
+            }}
             aria-label="Candidate Profile and Portfolio"
             className={`relative p-0.5 rounded-[18px] transition-all cursor-pointer group focus:outline-none ${
               currentTab === "profile" ? "ring-2 ring-[#A9C632] scale-105" : "hover:scale-105"
