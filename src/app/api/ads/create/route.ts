@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { advertisements } from "@/db/schema";
 import { isDisposableEmail } from "@/lib/disposableEmailBlocker";
+import { ensureAdsTable } from "@/db/initAdsTable";
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureAdsTable();
     const body = await req.json();
     const {
       companyName,
@@ -73,31 +75,27 @@ export async function POST(req: NextRequest) {
     const newAdId = crypto.randomUUID();
     const paymentId = paypalTxId?.trim() || `paypal_ad_${Date.now()}`;
 
-    try {
-      await db.insert(advertisements).values({
-        id: newAdId,
-        company_name: companyName.trim(),
-        website_url: websiteUrl.trim(),
-        logo_url: logoUrl?.trim() || `https://www.google.com/s2/favicons?domain=${new URL(websiteUrl).hostname}&sz=128`,
-        tagline: tagline.trim(),
-        badge_type: badgeType,
-        location: location.trim(),
-        contact_email: contactEmail.trim(),
-        tier: tierName,
-        duration_days: durationDays,
-        amount_paid_cents: amountCents,
-        currency: "USD",
-        payment_method: "paypal",
-        payment_id: paymentId,
-        payment_status: "pending_verification",
-        status: "pending_approval",
-        start_date: now,
-        end_date: endDate,
-        created_at: now,
-      });
-    } catch (dbErr) {
-      console.warn("[Ad Insert Warning]: Database insert fallback", dbErr);
-    }
+    await db.insert(advertisements).values({
+      id: newAdId,
+      company_name: companyName.trim(),
+      website_url: websiteUrl.trim(),
+      logo_url: logoUrl?.trim() || `https://www.google.com/s2/favicons?domain=${new URL(websiteUrl).hostname}&sz=128`,
+      tagline: tagline.trim(),
+      badge_type: badgeType,
+      location: location.trim(),
+      contact_email: contactEmail.trim(),
+      tier: tierName,
+      duration_days: durationDays,
+      amount_paid_cents: amountCents,
+      currency: "USD",
+      payment_method: "paypal",
+      payment_id: paymentId,
+      payment_status: "pending_verification",
+      status: "pending_approval",
+      start_date: now,
+      end_date: endDate,
+      created_at: now,
+    });
 
     return NextResponse.json({
       success: true,

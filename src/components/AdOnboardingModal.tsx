@@ -14,7 +14,8 @@ import {
   ExternalLink,
   Lock,
   Eye,
-  Gift
+  Gift,
+  CreditCard
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { handleImageError } from "@/lib/logoResolver";
@@ -99,17 +100,48 @@ export default function AdOnboardingModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successDetails, setSuccessDetails] = useState<any>(null);
+  const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
+  const [hasClickedPaypal, setHasClickedPaypal] = useState(false);
+  const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false);
 
-  // Auto-detect logo favicon when websiteUrl changes
+  // Auto-fetch website metadata (Name, Tagline, High-Res Logo)
+  const fetchSiteMetadata = async (inputUrl: string) => {
+    if (!inputUrl || inputUrl.trim().length < 3) return;
+    let target = inputUrl.trim();
+    if (!target.startsWith("http://") && !target.startsWith("https://")) {
+      target = `https://${target}`;
+    }
+
+    setIsFetchingMetadata(true);
+    try {
+      const res = await fetch("/api/utils/fetch-metadata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: target }),
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        if (!companyName || companyName === "Your Startup" || companyName.trim().length <= 2) {
+          setCompanyName(data.data.name);
+        }
+        if (!tagline || tagline.trim().length <= 5) {
+          setTagline(data.data.tagline);
+        }
+        if (data.data.logoUrl) {
+          setLogoUrl(data.data.logoUrl);
+        }
+      }
+    } catch (e) {
+      console.warn("Auto-metadata fetch fallback:", e);
+    } finally {
+      setIsFetchingMetadata(false);
+    }
+  };
+
   const handleWebsiteChange = (url: string) => {
     setWebsiteUrl(url);
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      try {
-        const hostname = new URL(url).hostname;
-        if (!logoUrl || logoUrl.includes("google.com/s2/favicons") || logoUrl.includes("clearbit")) {
-          setLogoUrl(`https://logo.clearbit.com/${hostname}`);
-        }
-      } catch {}
+    if (url.includes(".") && url.trim().length > 5) {
+      fetchSiteMetadata(url);
     }
   };
 
@@ -120,7 +152,7 @@ export default function AdOnboardingModal({
       return;
     }
     if (!websiteUrl.trim() || !websiteUrl.startsWith("http")) {
-      setErrorMessage("Please enter a valid URL (e.g. https://yourstartup.com).");
+      setErrorMessage("Please enter a valid URL starting with https:// (e.g. https://yourstartup.com).");
       return;
     }
     if (!tagline.trim()) {
@@ -139,7 +171,17 @@ export default function AdOnboardingModal({
     setErrorMessage("");
 
     if (!contactEmail || !contactEmail.includes("@")) {
-      setErrorMessage("Please enter a valid email for confirmation.");
+      setErrorMessage("Please enter a valid email address for booking confirmation.");
+      return;
+    }
+
+    if (!paypalTxId || paypalTxId.trim().length < 3) {
+      setErrorMessage("Please enter your PayPal Transaction ID, Order Ref, or Payer Email to verify payment.");
+      return;
+    }
+
+    if (!isPaymentConfirmed) {
+      setErrorMessage("Please check the box confirming you have completed the PayPal payment.");
       return;
     }
 
@@ -159,14 +201,14 @@ export default function AdOnboardingModal({
           contactEmail,
           planId: selectedPlanId,
           paymentMethod: "paypal",
-          paypalTxId,
+          paypalTxId: paypalTxId.trim(),
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || "Failed to create sponsor spotlight.");
+        throw new Error(data.error || "Failed to submit sponsor spotlight.");
       }
 
       setSuccessDetails(data.details);
@@ -572,125 +614,103 @@ export default function AdOnboardingModal({
                   </a>
                 </div>
 
-                {/* Step 2 Actions */}
                 <div className="pt-2 flex justify-between items-center">
                   <button
+                    type="button"
                     onClick={() => setCurrentStep(1)}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] text-xs font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Edit Details</span>
+                    <span>Back to Edit</span>
                   </button>
 
                   <button
+                    type="button"
                     onClick={handleNextStep2}
-                    className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs font-black shadow-lg hover:brightness-105 active:scale-95 transition-all cursor-pointer"
+                    className="flex items-center gap-2 px-7 py-3 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs font-black shadow-xl hover:brightness-105 active:scale-95 transition-all cursor-pointer"
                   >
-                    <span>Proceed to PayPal Payment (${selectedPlan.priceUsd})</span>
+                    <span>Proceed to PayPal (${selectedPlan.priceUsd}) 💳</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             )}
 
-            {/* ── STEP 3: 3 Sponsor Plans & PayPal Checkout ────────────── */}
+            {/* ── STEP 3: Plan Selection & PayPal Direct Checkout ─ */}
             {currentStep === 3 && (
-              <form onSubmit={handleSubmitPayPalSpot} className="space-y-4">
-                {/* 3 Pricing Plans Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                  {AD_PLANS.map((plan) => {
-                    const isSelected = selectedPlanId === plan.id;
-                    return (
-                      <button
-                        key={plan.id}
-                        type="button"
-                        onClick={() => setSelectedPlanId(plan.id)}
-                        className={`relative p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                          isSelected
-                            ? "bg-[#A9C632]/20 dark:bg-[#A9C632]/15 border-2 border-[#A9C632] shadow-md scale-[1.02]"
-                            : "bg-black/5 dark:bg-white/5 border-[#C8D2A6] dark:border-[#3D543A] hover:border-[#A9C632]/60"
-                        }`}
-                      >
-                        {plan.isPopular && (
-                          <span className="absolute -top-2.5 right-3 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-xs">
-                            {plan.tag}
-                          </span>
-                        )}
-
-                        <div>
-                          <span className="text-[10px] font-black uppercase font-mono text-[#546E50] dark:text-[#C8D2A6] block">
-                            {plan.tag}
-                          </span>
-                          <h5 className="text-sm font-black text-[#1D2E1B] dark:text-white mt-0.5">
-                            {plan.name}
-                          </h5>
-                          <span className="text-lg font-black text-[#1D2E1B] dark:text-[#A9C632] block my-1">
-                            ${plan.priceUsd} <span className="text-[10px] font-medium text-[#546E50] dark:text-[#C8D2A6]">USD</span>
-                          </span>
-                          <p className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] leading-tight font-medium">
-                            {plan.description}
-                          </p>
-                        </div>
-
-                        <div className="pt-2 mt-2 border-t border-[#C8D2A6]/40 dark:border-white/10 flex items-center justify-between text-[11px] font-bold">
-                          <span className="text-[#1D2E1B] dark:text-white">{plan.durationLabel}</span>
-                          <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${
-                            isSelected ? "bg-[#A9C632] text-[#1D2E1B]" : "border border-gray-400 text-transparent"
-                          }`}>✓</span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* PayPal Direct 1-Click Action Box */}
-                <div className="p-4 rounded-2xl bg-[#0070BA]/10 border border-[#0070BA]/30 text-left space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-[#0070BA] dark:text-[#45a2e5] flex items-center gap-1.5">
-                      <span>Selected: {selectedPlan.name} (${selectedPlan.priceUsd} USD)</span>
-                    </span>
+              <form onSubmit={handleSubmitPayPalSpot} className="space-y-5">
+                {/* 1. Mandatory PayPal Checkout Action Card */}
+                <div className="p-4 rounded-2xl bg-[#0070BA]/10 border border-[#0070BA]/30 text-left space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <span className="text-xs font-black text-[#0070BA] dark:text-[#45a2e5] flex items-center gap-1.5 uppercase tracking-wider">
+                        <span>Step 1: Complete PayPal Payment (${selectedPlan.priceUsd}.00 USD)</span>
+                      </span>
+                      <p className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6] mt-0.5">
+                        Click below to transfer <strong>${selectedPlan.priceUsd}.00 USD</strong> directly via <strong>paypal.me/Sagar1502/{selectedPlan.priceUsd}</strong>.
+                      </p>
+                    </div>
                     <a
                       href={selectedPlan.paypalUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3.5 py-1.5 rounded-xl bg-[#0070BA] hover:bg-[#005ea6] text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition-all"
+                      onClick={() => setHasClickedPaypal(true)}
+                      className="px-4 py-2.5 rounded-xl bg-[#0070BA] hover:bg-[#005ea6] text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-md transition-all shrink-0 cursor-pointer"
                     >
+                      <CreditCard className="w-3.5 h-3.5" />
                       <span>Pay via PayPal (${selectedPlan.priceUsd})</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
-                  <p className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6]">
-                    Click above to transfer <strong>${selectedPlan.priceUsd}.00 USD</strong> directly via <strong>paypal.me/Sagar1502</strong>. Once completed, enter your confirmation email or transaction reference below.
-                  </p>
                 </div>
 
-                {/* Contact Email & Transaction Reference Inputs */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                      Your Contact Email *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={contactEmail}
-                      onChange={(e) => setContactEmail(e.target.value)}
-                      placeholder="founder@yourstartup.com"
-                      className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
-                    />
+                {/* 2. Mandatory Verification Fields */}
+                <div className="space-y-3 text-left">
+                  <span className="text-xs font-black text-[#1D2E1B] dark:text-white uppercase tracking-wider block">
+                    Step 2: Enter Verification Details & Confirm
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
+                        Your Contact Email *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={contactEmail}
+                        onChange={(e) => setContactEmail(e.target.value)}
+                        placeholder="founder@yourstartup.com"
+                        className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
+                        PayPal Transaction ID / Order Ref *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={paypalTxId}
+                        onChange={(e) => setPaypalTxId(e.target.value)}
+                        placeholder="e.g. 5X1234567890 or Payer Email"
+                        className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                      PayPal Transaction ID / Ref
-                    </label>
+
+                  {/* Mandatory Checkbox */}
+                  <label className="flex items-start gap-2.5 p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-[#C8D2A6]/60 dark:border-[#3D543A] cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
                     <input
-                      type="text"
-                      value={paypalTxId}
-                      onChange={(e) => setPaypalTxId(e.target.value)}
-                      placeholder="e.g. 5X1234567890"
-                      className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
+                      type="checkbox"
+                      checked={isPaymentConfirmed}
+                      onChange={(e) => setIsPaymentConfirmed(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded border-gray-300 text-[#A9C632] focus:ring-[#A9C632] accent-[#A9C632]"
                     />
-                  </div>
+                    <span className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6] leading-snug">
+                      I confirm that I have sent <strong>${selectedPlan.priceUsd}.00 USD</strong> to <strong>paypal.me/Sagar1502</strong>. Our team will verify this reference before the spotlight goes live within 1 day.
+                    </span>
+                  </label>
                 </div>
 
                 {/* Step 3 Actions */}
@@ -706,7 +726,7 @@ export default function AdOnboardingModal({
 
                   <button
                     type="submit"
-                    disabled={isProcessing}
+                    disabled={isProcessing || !contactEmail || !paypalTxId || !isPaymentConfirmed}
                     className="flex items-center gap-2 px-8 py-3 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs font-black shadow-xl hover:brightness-105 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {isProcessing ? (
@@ -717,7 +737,7 @@ export default function AdOnboardingModal({
                     ) : (
                       <>
                         <Rocket className="w-4 h-4 fill-current" />
-                        <span>Submit Sponsor Request (${selectedPlan.priceUsd}) 🚀</span>
+                        <span>Submit Sponsor Request 🚀</span>
                       </>
                     )}
                   </button>
