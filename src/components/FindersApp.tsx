@@ -417,6 +417,7 @@ export default function FindersApp({
                 onMapDoubleClick={handleMapDoubleClick}
                 isListDrawerOpen={showListDrawer}
                 onToggleListDrawer={() => setShowListDrawer(!showListDrawer)}
+                onOpenBoostModal={() => setShowFounderModal(true)}
               />
 
               {/* Sliding Job List Drawer (Over Map with Expand to Grid support) */}
