@@ -393,23 +393,23 @@ export default function MapComponent({
                   )}
                 </AnimatePresence>
 
-                {/* 2.5D Apple Squircle Marker Body with Micro-Beacon */}
+                {/* 2.5D Circular Map Pin with Glowing Tip & Micro-Beacon */}
                 <motion.div
                   whileHover={{ scale: 1.18, y: -3 }}
                   whileTap={{ scale: 0.95 }}
                   className="relative flex flex-col items-center"
                 >
-                  {/* Subtle Micro-Beacon Pulse Dot for Search Match (Clean & Unobtrusive) */}
+                  {/* Subtle Micro-Beacon Pulse Dot for Search Match */}
                   {matchingRole && (
-                    <span className="absolute -top-1 -right-1 flex h-3 w-3 z-20">
+                    <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 z-20">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A9C632] opacity-75" />
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-[#A9C632] border-2 border-[#1D2E1B]" />
+                      <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[#A9C632] border-2 border-[#1D2E1B]" />
                     </span>
                   )}
 
-                  {/* Clean Fixed-Size Apple Squircle Logo Tile */}
+                  {/* Clean Fixed-Size Circular Logo Pin */}
                   <div
-                    className={`w-11 h-11 apple-squircle p-1.5 shadow-xl flex items-center justify-center transition-all ${
+                    className={`w-11 h-11 rounded-full p-1 shadow-xl flex items-center justify-center transition-all ${
                       isDarkMode ? "bg-[#1D2E1B] text-white" : "bg-white text-[#1D2E1B]"
                     } ${
                       isSelected
@@ -421,19 +421,19 @@ export default function MapComponent({
                         : "border border-[#C8D2A6] dark:border-white/20 opacity-80"
                     }`}
                   >
-                    <div className="w-full h-full apple-icon-tile bg-[#F7F9F2] dark:bg-white/10 flex items-center justify-center p-1 overflow-hidden">
+                    <div className="w-full h-full rounded-full bg-[#F7F9F2] dark:bg-white/10 flex items-center justify-center p-1.5 overflow-hidden shadow-inner">
                       <img
                         src={getCompanyLogoUrl(company.website_url, company.name, company.logo_url || undefined)}
                         alt={company.name}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-contain rounded-full"
                         onError={(e) => handleImageError(e, company.name)}
                       />
                     </div>
                   </div>
 
-                  {/* Pin Tip Extrusion */}
+                  {/* Circular Pin Tip Extrusion */}
                   <div
-                    className={`w-2 h-2 rotate-45 -mt-1 shadow-md ${
+                    className={`w-2.5 h-2.5 rotate-45 -mt-1.5 shadow-md rounded-[1px] ${
                       isSelected || matchingRole
                         ? "bg-[#A9C632]"
                         : isDarkMode
