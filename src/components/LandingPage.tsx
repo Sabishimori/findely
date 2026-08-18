@@ -365,7 +365,7 @@ export default function LandingPage({
               + Add Your Startup Free ⚡
             </button>
             <a
-              href="https://www.producthunt.com"
+              href="https://www.producthunt.com/products/findely"
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1 rounded-xl bg-white/10 dark:bg-black/10 hover:bg-white/20 dark:hover:bg-black/20 text-[11px] font-extrabold transition-all flex items-center gap-1 whitespace-nowrap"
@@ -580,7 +580,7 @@ export default function LandingPage({
         {/* Top Badges & Live Countdown */}
         <div className="flex flex-wrap items-center justify-center gap-3 mb-6 relative z-10">
           <motion.a 
-            href="https://www.producthunt.com"
+            href="https://www.producthunt.com/products/findely"
             target="_blank"
             rel="noopener noreferrer"
             initial={{ opacity: 0, y: 15 }}
