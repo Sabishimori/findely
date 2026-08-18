@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { advertisements } from "@/db/schema";
 import { isDisposableEmail } from "@/lib/disposableEmailBlocker";
 import { ensureAdsTable } from "@/db/initAdsTable";
+import { validatePaypalTransactionId } from "@/lib/paypalValidator";
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,6 +47,15 @@ export async function POST(req: NextRequest) {
     if (!contactEmail || isDisposableEmail(contactEmail)) {
       return NextResponse.json(
         { success: false, error: "Please provide a valid email address." },
+        { status: 400 }
+      );
+    }
+
+    // Strict PayPal Transaction ID / Reference Validation
+    const txValidation = validatePaypalTransactionId(paypalTxId);
+    if (!txValidation.isValid) {
+      return NextResponse.json(
+        { success: false, error: txValidation.error || "Invalid PayPal Transaction ID or Payer Email." },
         { status: 400 }
       );
     }

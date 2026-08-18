@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { handleImageError } from "@/lib/logoResolver";
+import { validatePaypalTransactionId } from "@/lib/paypalValidator";
 
 interface AdOnboardingModalProps {
   isOpen: boolean;
@@ -175,8 +176,9 @@ export default function AdOnboardingModal({
       return;
     }
 
-    if (!paypalTxId || paypalTxId.trim().length < 3) {
-      setErrorMessage("Please enter your PayPal Transaction ID, Order Ref, or Payer Email to verify payment.");
+    const txValidation = validatePaypalTransactionId(paypalTxId);
+    if (!txValidation.isValid) {
+      setErrorMessage(txValidation.error || "Please enter your genuine 17-character PayPal Transaction ID or PayPal email address.");
       return;
     }
 
@@ -201,7 +203,7 @@ export default function AdOnboardingModal({
           contactEmail,
           planId: selectedPlanId,
           paymentMethod: "paypal",
-          paypalTxId: paypalTxId.trim(),
+          paypalTxId: txValidation.normalized || paypalTxId.trim(),
         }),
       });
 
@@ -685,17 +687,37 @@ export default function AdOnboardingModal({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                        PayPal Transaction ID / Order Ref *
-                      </label>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="text-xs font-extrabold uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6]">
+                          PayPal Transaction ID / Payer Email *
+                        </label>
+                        {paypalTxId.trim().length > 0 && (
+                          <span className={`text-[10px] font-bold ${
+                            validatePaypalTransactionId(paypalTxId).isValid ? "text-[#A9C632]" : "text-red-400"
+                          }`}>
+                            {validatePaypalTransactionId(paypalTxId).isValid ? "✓ Valid Format" : "Invalid Format"}
+                          </span>
+                        )}
+                      </div>
                       <input
                         type="text"
                         required
                         value={paypalTxId}
                         onChange={(e) => setPaypalTxId(e.target.value)}
-                        placeholder="e.g. 5X1234567890 or Payer Email"
-                        className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
+                        placeholder="e.g. 5X94817263541829Z or Payer Email"
+                        className={`w-full px-4 py-2.5 rounded-2xl border bg-transparent text-sm font-semibold outline-none transition-all ${
+                          paypalTxId.trim().length === 0
+                            ? "border-[#C8D2A6] dark:border-[#3D543A] focus:border-[#A9C632]"
+                            : validatePaypalTransactionId(paypalTxId).isValid
+                            ? "border-[#A9C632] bg-[#A9C632]/5"
+                            : "border-red-500/80 bg-red-500/5 focus:border-red-500"
+                        }`}
                       />
+                      {paypalTxId.trim().length > 0 && !validatePaypalTransactionId(paypalTxId).isValid && (
+                        <p className="text-[10.5px] text-red-400 font-medium mt-1">
+                          {validatePaypalTransactionId(paypalTxId).error || "Please enter a valid 17-digit PayPal Transaction ID or Payer Email."}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -726,7 +748,7 @@ export default function AdOnboardingModal({
 
                   <button
                     type="submit"
-                    disabled={isProcessing || !contactEmail || !paypalTxId || !isPaymentConfirmed}
+                    disabled={isProcessing || !contactEmail || !validatePaypalTransactionId(paypalTxId).isValid || !isPaymentConfirmed}
                     className="flex items-center gap-2 px-8 py-3 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs font-black shadow-xl hover:brightness-105 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {isProcessing ? (
