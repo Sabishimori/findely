@@ -190,22 +190,35 @@ async function exportToTurso() {
   console.log(`📦 Exporting ${jobs.length} Jobs to Turso...`);
   for (let i = 0; i < jobs.length; i += 50) {
     const chunk = jobs.slice(i, i + 50);
-    const statements = chunk.map((j) => ({
-      sql: `INSERT OR REPLACE INTO jobs (
-        id, company_id, title, description, full_description, location_text, latitude, longitude,
-        salary_range, job_type, experience_level, geocode_status, apply_url, first_seen_at,
-        last_seen_at, last_validated, validation_failures, validation_status, is_active, posted_at, source_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [
-        cleanVal(j.id), cleanVal(j.company_id), cleanVal(j.title, 'Open Role'),
-        cleanVal(j.description), cleanVal(j.full_description), cleanVal(j.location_text, 'Remote'),
-        cleanVal(j.latitude), cleanVal(j.longitude), cleanVal(j.salary_range), cleanVal(j.job_type, 'Full-time'),
-        cleanVal(j.experience_level, 'Not specified'), cleanVal(j.geocode_status, 'ok'), cleanVal(j.apply_url),
-        cleanVal(j.first_seen_at, Date.now()), cleanVal(j.last_seen_at, Date.now()), cleanVal(j.last_validated),
-        cleanVal(j.validation_failures, 0), cleanVal(j.validation_status, 'pending'), cleanVal(j.is_active, 1),
-        cleanVal(j.posted_at, Date.now()), cleanVal(j.source_id)
-      ]
-    }));
+    const statements = chunk.map((j) => {
+      const roleCat = j.role_category || (
+        j.title?.toLowerCase().includes("design") ? "Design" :
+        j.title?.toLowerCase().includes("ai") || j.title?.toLowerCase().includes("machine") ? "AI & ML" :
+        j.title?.toLowerCase().includes("product") ? "Product" : "Engineering"
+      );
+      const workMode = j.work_mode || (j.location_text?.toLowerCase().includes("remote") ? "remote" : "onsite");
+      const sourceType = j.source_type || 'direct_ats';
+
+      return {
+        sql: `INSERT OR REPLACE INTO jobs (
+          id, company_id, title, role_category, work_mode, source_type, skills_json,
+          description, location_text, latitude, longitude,
+          salary_range, job_type, experience_level, geocode_status, apply_url,
+          first_seen_at, last_seen_at, last_validated, validation_failures, validation_status, is_active, posted_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          cleanVal(j.id), cleanVal(j.company_id), cleanVal(j.title, 'Open Role'),
+          cleanVal(roleCat, 'Engineering'), cleanVal(workMode, 'onsite'), cleanVal(sourceType, 'direct_ats'),
+          cleanVal(j.skills_json, '[]'),
+          cleanVal(j.description), cleanVal(j.location_text, 'Remote'),
+          cleanVal(j.latitude), cleanVal(j.longitude), cleanVal(j.salary_range), cleanVal(j.job_type, 'Full-time'),
+          cleanVal(j.experience_level, 'Not specified'), cleanVal(j.geocode_status, 'ok'), cleanVal(j.apply_url),
+          cleanVal(j.first_seen_at, Date.now()), cleanVal(j.last_seen_at, Date.now()), cleanVal(j.last_validated),
+          cleanVal(j.validation_failures, 0), cleanVal(j.validation_status, 'valid'), cleanVal(j.is_active, 1),
+          cleanVal(j.posted_at, Date.now())
+        ]
+      };
+    });
     await turso.batch(statements, 'write');
   }
 
