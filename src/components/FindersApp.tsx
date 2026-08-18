@@ -11,6 +11,7 @@ import VerificationQueueView from "./VerificationQueueView";
 import FilterDrawer, { FilterOptions } from "./FilterDrawer";
 import RequestCompanyModal, { SpatialLocationInfo } from "./RequestCompanyModal";
 import FounderSubmissionModal from "./FounderSubmissionModal";
+import AdOnboardingModal from "./AdOnboardingModal";
 import AuthModal from "./AuthModal";
 import LandingPage from "./LandingPage";
 import JobListDrawer from "./JobListDrawer";
@@ -42,6 +43,7 @@ export default function FindersApp({
   const [searchQuery, setSearchQuery] = useState("");
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showFounderModal, setShowFounderModal] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showSplashScreen, setShowSplashScreen] = useState(true);
@@ -417,7 +419,7 @@ export default function FindersApp({
                 onMapDoubleClick={handleMapDoubleClick}
                 isListDrawerOpen={showListDrawer}
                 onToggleListDrawer={() => setShowListDrawer(!showListDrawer)}
-                onOpenBoostModal={() => setShowFounderModal(true)}
+                onOpenAdModal={() => setShowAdModal(true)}
               />
 
               {/* Sliding Job List Drawer (Over Map with Expand to Grid support) */}
@@ -502,6 +504,16 @@ export default function FindersApp({
           loadCompanies();
           setShowFounderModal(false);
         }}
+      />
+
+      {/* 📢 Self-Serve Ad Onboarding & Checkout Modal */}
+      <AdOnboardingModal
+        isOpen={showAdModal}
+        onClose={() => setShowAdModal(false)}
+        onAdCreated={() => {
+          loadCompanies();
+        }}
+        isDarkMode={isDarkMode}
       />
 
       <AuthModal isDarkMode={isDarkMode} onSuccess={() => setShowLandingPage(false)} />

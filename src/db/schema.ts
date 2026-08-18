@@ -173,3 +173,28 @@ export const otp_sessions = sqliteTable('otp_sessions', {
   created_at: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
 });
 
+// Self-Serve Advertisements & Sponsored Ticker Engine
+export const advertisements = sqliteTable('advertisements', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  company_name: text('company_name').notNull(),
+  website_url: text('website_url').notNull(),
+  logo_url: text('logo_url'),
+  tagline: text('tagline').notNull(),
+  badge_type: text('badge_type').notNull().default('AD'), // 'AD' | 'FEATURED' | 'BOOST' | 'LAUNCH' | 'HIRING'
+  location: text('location').default('Global'),
+  contact_email: text('contact_email').notNull(),
+  tier: text('tier').notNull().default('growth_14d'), // 'starter_7d' | 'growth_14d' | 'dominance_30d'
+  duration_days: integer('duration_days').notNull().default(14),
+  amount_paid_cents: integer('amount_paid_cents').notNull().default(8900),
+  currency: text('currency').notNull().default('USD'),
+  payment_method: text('payment_method').default('card'), // 'card' | 'stripe' | 'paypal' | 'test'
+  payment_id: text('payment_id'),
+  payment_status: text('payment_status').notNull().default('paid'), // 'paid' | 'pending' | 'refunded'
+  status: text('status').notNull().default('active'), // 'active' | 'pending_approval' | 'expired' | 'rejected'
+  impressions_count: integer('impressions_count').default(0),
+  clicks_count: integer('clicks_count').default(0),
+  start_date: integer('start_date', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+  end_date: integer('end_date', { mode: 'timestamp' }),
+  created_at: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+});
+

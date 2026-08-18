@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Sparkles, Zap } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Sparkles, Zap, Megaphone, Plus } from "lucide-react";
 import { CompanyMapItem } from "./MapComponent";
 import { getCompanyLogoUrl, handleImageError } from "@/lib/logoResolver";
 
@@ -9,16 +9,17 @@ export interface SponsoredAdItem {
   id: string;
   name: string;
   tagline: string;
-  badgeType: "AD" | "FEATURED" | "BOOST" | "WAITLIST";
+  badgeType: "AD" | "FEATURED" | "BOOST" | "LAUNCH" | "HIRING" | "AVAILABLE_SLOT";
   logoUrl?: string;
   websiteUrl: string;
   jobCount?: number;
   location?: string;
   companyId?: string;
   isExternal?: boolean;
+  isAvailableSlot?: boolean;
 }
 
-const SPONSORED_ADS: SponsoredAdItem[] = [
+const DEFAULT_SPONSORED_ADS: SponsoredAdItem[] = [
   {
     id: "ad-freshworks",
     name: "Freshworks",
@@ -29,6 +30,15 @@ const SPONSORED_ADS: SponsoredAdItem[] = [
     jobCount: 153,
     location: "Chennai & Bengaluru",
     companyId: "company-freshworks",
+  },
+  {
+    id: "slot-available-1",
+    name: "Available Ad Slot",
+    tagline: "Promote Your Startup to 50,000+ Engineers • Instant Live Placement",
+    badgeType: "AVAILABLE_SLOT",
+    websiteUrl: "",
+    isAvailableSlot: true,
+    location: "Global",
   },
   {
     id: "ad-jumbo",
@@ -50,6 +60,15 @@ const SPONSORED_ADS: SponsoredAdItem[] = [
     jobCount: 249,
     location: "Sydney & Global",
     companyId: "company-canva",
+  },
+  {
+    id: "slot-available-2",
+    name: "Open Spotlight Slot",
+    tagline: "Broadcast Your Hiring Surge & Tool Launch in Real-Time",
+    badgeType: "AVAILABLE_SLOT",
+    websiteUrl: "",
+    isAvailableSlot: true,
+    location: "Global",
   },
   {
     id: "ad-talboss",
@@ -106,6 +125,15 @@ const SPONSORED_ADS: SponsoredAdItem[] = [
     companyId: "company-rocket-lab",
   },
   {
+    id: "slot-available-3",
+    name: "Reserve Ad Slot",
+    tagline: "Fly-to Map Pin & Continuous 24/7 Live Marquee Exposure",
+    badgeType: "AVAILABLE_SLOT",
+    websiteUrl: "",
+    isAvailableSlot: true,
+    location: "Global",
+  },
+  {
     id: "ad-jamm",
     name: "JAMM",
     tagline: "Ultra-Fast Lightweight Video Collaboration for Distributed Teams",
@@ -120,17 +148,44 @@ const SPONSORED_ADS: SponsoredAdItem[] = [
 export default function SponsoredLiveTicker({
   companies = [],
   onSelectCompany,
-  onOpenBoostModal,
+  onOpenAdModal,
   isDarkMode = false,
 }: {
   companies?: CompanyMapItem[];
   onSelectCompany?: (company: CompanyMapItem) => void;
-  onOpenBoostModal?: () => void;
+  onOpenAdModal?: () => void;
   isDarkMode?: boolean;
 }) {
   const [isPaused, setIsPaused] = useState(false);
+  const [adsList, setAdsList] = useState<SponsoredAdItem[]>(DEFAULT_SPONSORED_ADS);
+
+  // Fetch dynamic live ads from API
+  useEffect(() => {
+    const fetchLiveAds = async () => {
+      try {
+        const res = await fetch("/api/ads/live");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.ads && data.ads.length > 0) {
+            setAdsList(data.ads);
+          }
+        }
+      } catch (err) {
+        console.warn("[Ticker Ads Fetch Warning]: using default slots", err);
+      }
+    };
+    fetchLiveAds();
+  }, []);
 
   const handleAdClick = (ad: SponsoredAdItem) => {
+    // If it's an available slot, open the ad creation onboarding modal!
+    if (ad.isAvailableSlot || ad.badgeType === "AVAILABLE_SLOT") {
+      if (onOpenAdModal) {
+        onOpenAdModal();
+      }
+      return;
+    }
+
     if (ad.companyId && onSelectCompany) {
       const match = companies.find(
         (c) => c.id === ad.companyId || c.name.toLowerCase() === ad.name.toLowerCase()
@@ -140,13 +195,14 @@ export default function SponsoredLiveTicker({
         return;
       }
     }
+
     if (ad.websiteUrl) {
       window.open(ad.websiteUrl, "_blank", "noopener,noreferrer");
     }
   };
 
   // Double the list for infinite seamless marquee loop
-  const tickerItems = [...SPONSORED_ADS, ...SPONSORED_ADS];
+  const tickerItems = [...adsList, ...adsList];
 
   return (
     <div className="relative w-full max-w-4xl mx-auto select-none pointer-events-auto">
@@ -178,10 +234,41 @@ export default function SponsoredLiveTicker({
               isPaused ? "[animation-play-state:paused]" : ""
             }`}
             style={{
-              animation: "marqueeScroll 38s linear infinite",
+              animation: "marqueeScroll 42s linear infinite",
             }}
           >
             {tickerItems.map((ad, idx) => {
+              const isAvailable = ad.isAvailableSlot || ad.badgeType === "AVAILABLE_SLOT";
+
+              if (isAvailable) {
+                // ── Dotted Outline for Available / Empty Slot with High Conversion CTA ──
+                return (
+                  <button
+                    key={`${ad.id}-${idx}`}
+                    onClick={() => handleAdClick(ad)}
+                    className="flex items-center gap-2 px-3 py-1 rounded-xl border border-dashed border-[#A9C632] bg-[#A9C632]/10 dark:bg-[#A9C632]/15 hover:bg-[#A9C632]/25 dark:hover:bg-[#A9C632]/30 transition-all cursor-pointer group shrink-0 text-left shadow-xs"
+                    title="Click to reserve this live ad slot"
+                  >
+                    <span className="text-[8.5px] uppercase tracking-wider px-1.5 py-0.5 rounded font-mono font-black bg-[#A9C632] text-[#1D2E1B] shadow-xs flex items-center gap-1">
+                      <Plus className="w-2.5 h-2.5 stroke-[3]" />
+                      AVAILABLE SLOT
+                    </span>
+
+                    <span className="text-xs font-bold text-[#1D2E1B] dark:text-[#A9C632] group-hover:underline">
+                      {ad.name}
+                    </span>
+
+                    <span className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] font-medium hidden sm:inline max-w-[280px] truncate">
+                      {ad.tagline}
+                    </span>
+
+                    <span className="text-[9.5px] font-extrabold text-[#1D2E1B] dark:text-white bg-white/80 dark:bg-black/40 px-1.5 py-0.5 rounded-md border border-[#A9C632]/40 shrink-0">
+                      Reserve ⚡
+                    </span>
+                  </button>
+                );
+              }
+
               const badgeStyle =
                 ad.badgeType === "AD"
                   ? "bg-black/10 dark:bg-white/10 text-[#546E50] dark:text-[#C8D2A6] border border-black/10 dark:border-white/10"
@@ -234,16 +321,16 @@ export default function SponsoredLiveTicker({
           </div>
         </div>
 
-        {/* Right Action: Promote / Boost Trigger */}
-        {onOpenBoostModal && (
+        {/* Right Action: Self-Serve [Advertise 📢] Trigger Button */}
+        {onOpenAdModal && (
           <div className="shrink-0 pl-2 border-l border-[#C8D2A6]/60 dark:border-[#3D543A]">
             <button
-              onClick={onOpenBoostModal}
+              onClick={onOpenAdModal}
               className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#A9C632] text-[#1D2E1B] text-[10.5px] font-extrabold shadow-sm hover:brightness-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
-              title="Promote or boost your startup in the live spotlight"
+              title="Advertise your startup, product, or hiring in the live spotlight"
             >
-              <Sparkles className="w-3 h-3 fill-current" />
-              <span>Boost ⚡</span>
+              <Megaphone className="w-3 h-3 fill-current" />
+              <span>Advertise 📢</span>
             </button>
           </div>
         )}

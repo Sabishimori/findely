@@ -122,7 +122,7 @@ export default function MapComponent({
   focusedArea = null,
   isListDrawerOpen = false,
   onToggleListDrawer,
-  onOpenBoostModal,
+  onOpenAdModal,
   onMapDoubleClick,
 }: {
   companies: CompanyMapItem[];
@@ -135,7 +135,7 @@ export default function MapComponent({
   focusedArea?: { coordinates: [number, number]; zoom?: number } | null;
   isListDrawerOpen?: boolean;
   onToggleListDrawer?: () => void;
-  onOpenBoostModal?: () => void;
+  onOpenAdModal?: () => void;
   onMapDoubleClick?: (coords: { lat: number; lng: number }) => void;
 }) {
   const mapRef = useRef<MapRef | null>(null);
@@ -490,16 +490,8 @@ export default function MapComponent({
         </div>
       )}
 
-      {/* ── Bottom Dock: Sponsored Live Ticker + Freshness Filter Bar ── */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 w-[95%] max-w-4xl pointer-events-none">
-        {/* Continuous Horizontal Live Advertisement & Sponsored Startup Marquee */}
-        <SponsoredLiveTicker
-          companies={companies}
-          onSelectCompany={onSelectCompany}
-          onOpenBoostModal={onOpenBoostModal}
-          isDarkMode={isDarkMode}
-        />
-
+      {/* ── Bottom Dock: Freshness Filter Bar on Top, Sponsored Live Ticker directly Under It ── */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2.5 w-[95%] max-w-4xl pointer-events-none">
         {/* Date Freshness Filter Bar (Frosted Glass & Apple Squircle Tile) */}
         <div className="pointer-events-auto flex items-center gap-2 p-2 bg-white/90 dark:bg-[#1D2E1B]/95 backdrop-blur-2xl rounded-[28px] border border-[#C8D2A6] dark:border-[#3D543A] shadow-2xl text-xs font-semibold select-none">
           <div className="flex items-center gap-2 pr-1 pl-1">
@@ -530,6 +522,14 @@ export default function MapComponent({
             </button>
           ))}
         </div>
+
+        {/* Continuous Horizontal Live Advertisement & Sponsored Startup Marquee (Directly Under Freshness Bar) */}
+        <SponsoredLiveTicker
+          companies={companies}
+          onSelectCompany={onSelectCompany}
+          onOpenAdModal={onOpenAdModal}
+          isDarkMode={isDarkMode}
+        />
       </div>
 
       {/* ── Right-Side Center Modernist Controls Dock (Frosted Glass) ─ */}
