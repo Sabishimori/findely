@@ -245,20 +245,32 @@ export default function AdOnboardingModal({
 
           {/* Stepper Progress Indicator (Steps 1 to 3) */}
           {currentStep !== 4 && (
-            <div className="flex items-center justify-between px-8 py-3 bg-black/5 dark:bg-white/5 border-b border-[#C8D2A6]/30 dark:border-[#3D543A] text-xs font-bold">
+            <div className="flex items-center justify-between px-6 sm:px-8 py-3 bg-black/5 dark:bg-white/5 border-b border-[#C8D2A6]/30 dark:border-[#3D543A] text-xs font-bold">
               {[
-                { step: 1, label: "1. Creative & Logo" },
-                { step: 2, label: "2. Live Marquee Preview" },
-                { step: 3, label: "3. Reserve & Launch" },
+                { step: 1, label: `1. Plan & Creative` },
+                { step: 2, label: "2. Live Preview" },
+                { step: 3, label: `3. 💳 PayPal Payment ($${selectedPlan.priceUsd})` },
               ].map((s) => (
-                <div
+                <button
                   key={s.step}
-                  className={`flex items-center gap-1.5 transition-colors ${
+                  type="button"
+                  onClick={() => {
+                    if (s.step === 1) setCurrentStep(1);
+                    else if (s.step === 2) handleNextStep1();
+                    else if (s.step === 3) {
+                      if (!companyName.trim() || !websiteUrl.trim() || !tagline.trim()) {
+                        handleNextStep1();
+                      } else {
+                        setCurrentStep(3);
+                      }
+                    }
+                  }}
+                  className={`flex items-center gap-1.5 transition-all cursor-pointer ${
                     currentStep === s.step
                       ? "text-[#1D2E1B] dark:text-[#A9C632] font-black scale-105"
                       : currentStep > s.step
-                      ? "text-[#546E50] dark:text-[#C8D2A6]"
-                      : "text-gray-400 opacity-60"
+                      ? "text-[#546E50] dark:text-[#C8D2A6] hover:opacity-80"
+                      : "text-gray-400 opacity-60 hover:opacity-90"
                   }`}
                 >
                   <span
@@ -273,7 +285,7 @@ export default function AdOnboardingModal({
                     {currentStep > s.step ? "✓" : s.step}
                   </span>
                   <span className="hidden sm:inline">{s.label}</span>
-                </div>
+                </button>
               ))}
             </div>
           )}
@@ -288,131 +300,198 @@ export default function AdOnboardingModal({
 
           {/* Modal Body */}
           <div className="p-6 max-h-[70vh] overflow-y-auto">
-            {/* ── STEP 1: Ad Creative & Details ────────────────── */}
+            {/* ── STEP 1: Plan Selection & Ad Creative ────────────────── */}
             {currentStep === 1 && (
-              <div className="space-y-4">
+              <div className="space-y-5">
+                {/* 1. Pricing Plan Selection Upfront */}
                 <div>
-                  <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                    Company or Product Name *
+                  <label className="block text-xs font-extrabold uppercase tracking-wider mb-2 text-[#546E50] dark:text-[#C8D2A6] flex items-center justify-between">
+                    <span>1. Choose Sponsor Placement Plan *</span>
+                    <span className="font-mono text-[11px] text-[#0070BA] dark:text-[#45a2e5] font-bold">
+                      💳 PayPal Powered
+                    </span>
                   </label>
-                  <input
-                    type="text"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    placeholder="e.g. Supabase, Linear, Resend"
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
-                  />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {AD_PLANS.map((plan) => {
+                      const isSelected = selectedPlanId === plan.id;
+                      return (
+                        <button
+                          key={plan.id}
+                          type="button"
+                          onClick={() => setSelectedPlanId(plan.id)}
+                          className={`relative p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                            isSelected
+                              ? "bg-[#A9C632]/20 dark:bg-[#A9C632]/15 border-2 border-[#A9C632] shadow-md scale-[1.02]"
+                              : "bg-black/5 dark:bg-white/5 border-[#C8D2A6] dark:border-[#3D543A] hover:border-[#A9C632]/60"
+                          }`}
+                        >
+                          {plan.isPopular && (
+                            <span className="absolute -top-2.5 right-3 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] shadow-xs">
+                              {plan.tag}
+                            </span>
+                          )}
+
+                          <div>
+                            <span className="text-[10px] font-black uppercase font-mono text-[#546E50] dark:text-[#C8D2A6] block">
+                              {plan.tag}
+                            </span>
+                            <h5 className="text-sm font-black text-[#1D2E1B] dark:text-white mt-0.5">
+                              {plan.name}
+                            </h5>
+                            <span className="text-lg font-black text-[#1D2E1B] dark:text-[#A9C632] block my-1">
+                              ${plan.priceUsd} <span className="text-[10px] font-medium text-[#546E50] dark:text-[#C8D2A6]">USD</span>
+                            </span>
+                            <p className="text-[11px] text-[#546E50] dark:text-[#C8D2A6] leading-tight font-medium">
+                              {plan.description}
+                            </p>
+                          </div>
+
+                          <div className="pt-2 mt-2 border-t border-[#C8D2A6]/40 dark:border-white/10 flex items-center justify-between text-[11px] font-bold">
+                            <span className="text-[#1D2E1B] dark:text-white">{plan.durationLabel}</span>
+                            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${
+                              isSelected ? "bg-[#A9C632] text-[#1D2E1B]" : "border border-gray-400 text-transparent"
+                            }`}>✓</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                      Website / Destination URL *
-                    </label>
-                    <input
-                      type="url"
-                      value={websiteUrl}
-                      onChange={(e) => handleWebsiteChange(e.target.value)}
-                      placeholder="https://yourstartup.com"
-                      className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
-                    />
-                  </div>
+                {/* 2. Startup Details & Creative */}
+                <div className="pt-2 border-t border-[#C8D2A6]/30 dark:border-[#3D543A] space-y-4">
+                  <label className="block text-xs font-extrabold uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6]">
+                    2. Startup Creative & Details
+                  </label>
 
                   <div>
                     <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                      Target Hub / Location
+                      Company or Product Name *
                     </label>
                     <input
                       type="text"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      placeholder="e.g. Global, Bengaluru, SF, Remote"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="e.g. Supabase, Linear, Resend"
                       className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
                     />
                   </div>
-                </div>
 
-                {/* Badge Type Selector */}
-                <div>
-                  <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                    Select Spotlight Badge Style
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                    {[
-                      { id: "LAUNCH", label: "LAUNCH", desc: "New Product" },
-                      { id: "HIRING", label: "HIRING", desc: "Open Roles" },
-                      { id: "BOOST", label: "BOOST", desc: "Top Surge" },
-                      { id: "FEATURED", label: "FEATURED", desc: "Partner" },
-                      { id: "AD", label: "AD", desc: "Classic" },
-                    ].map((b) => (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => setBadgeType(b.id as AdBadgeType)}
-                        className={`p-2 rounded-2xl border text-center transition-all cursor-pointer ${
-                          badgeType === b.id
-                            ? "bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] border-[#A9C632] shadow-md scale-102 font-black"
-                            : "border-[#C8D2A6]/60 dark:border-[#3D543A] hover:bg-black/5 dark:hover:bg-white/5 font-semibold text-xs"
-                        }`}
-                      >
-                        <div className="text-[11px] font-mono font-black">{b.label}</div>
-                        <div className="text-[9px] opacity-70 mt-0.5">{b.desc}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Tagline / Value Proposition */}
-                <div>
-                  <div className="flex justify-between items-center mb-1.5">
-                    <label className="text-xs font-extrabold uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6]">
-                      Punchy Tagline / Pitch (Max 80 chars) *
-                    </label>
-                    <span className={`text-[10px] font-mono ${tagline.length > 80 ? "text-red-500 font-bold" : "text-gray-400"}`}>
-                      {tagline.length}/80
-                    </span>
-                  </div>
-                  <input
-                    type="text"
-                    maxLength={80}
-                    value={tagline}
-                    onChange={(e) => setTagline(e.target.value)}
-                    placeholder="e.g. Next-Gen Developer Postgres with Instant Vector Search"
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
-                  />
-                </div>
-
-                {/* Logo URL / Custom Logo */}
-                <div>
-                  <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
-                    Logo Image URL (Auto-fetched from domain)
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 p-1 border border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
-                      <img
-                        src={logoUrl || (websiteUrl ? `https://www.google.com/s2/favicons?domain=${websiteUrl}&sz=128` : "")}
-                        alt="Logo preview"
-                        className="w-full h-full object-contain"
-                        onError={(e) => handleImageError(e, companyName || "Spotlight")}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
+                        Website / Destination URL *
+                      </label>
+                      <input
+                        type="url"
+                        value={websiteUrl}
+                        onChange={(e) => handleWebsiteChange(e.target.value)}
+                        placeholder="https://yourstartup.com"
+                        className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
                       />
                     </div>
+
+                    <div>
+                      <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
+                        Target Hub / Location
+                      </label>
+                      <input
+                        type="text"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="e.g. Global, Bengaluru, SF, Remote"
+                        className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Badge Type Selector */}
+                  <div>
+                    <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
+                      Select Spotlight Badge Style
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                      {[
+                        { id: "LAUNCH", label: "LAUNCH", desc: "New Product" },
+                        { id: "HIRING", label: "HIRING", desc: "Open Roles" },
+                        { id: "BOOST", label: "BOOST", desc: "Top Surge" },
+                        { id: "FEATURED", label: "FEATURED", desc: "Partner" },
+                        { id: "AD", label: "AD", desc: "Classic" },
+                      ].map((b) => (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => setBadgeType(b.id as AdBadgeType)}
+                          className={`p-2 rounded-2xl border text-center transition-all cursor-pointer ${
+                            badgeType === b.id
+                              ? "bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B] border-[#A9C632] shadow-md scale-102 font-black"
+                              : "border-[#C8D2A6]/60 dark:border-[#3D543A] hover:bg-black/5 dark:hover:bg-white/5 font-semibold text-xs"
+                          }`}
+                        >
+                          <div className="text-[11px] font-mono font-black">{b.label}</div>
+                          <div className="text-[9px] opacity-70 mt-0.5">{b.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tagline / Value Proposition */}
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label className="text-xs font-extrabold uppercase tracking-wider text-[#546E50] dark:text-[#C8D2A6]">
+                        Punchy Tagline / Pitch (Max 80 chars) *
+                      </label>
+                      <span className={`text-[10px] font-mono ${tagline.length > 80 ? "text-red-500 font-bold" : "text-gray-400"}`}>
+                        {tagline.length}/80
+                      </span>
+                    </div>
                     <input
-                      type="url"
-                      value={logoUrl}
-                      onChange={(e) => setLogoUrl(e.target.value)}
-                      placeholder="https://yourstartup.com/logo.png"
-                      className="flex-1 px-4 py-2 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-xs font-medium outline-none"
+                      type="text"
+                      maxLength={80}
+                      value={tagline}
+                      onChange={(e) => setTagline(e.target.value)}
+                      placeholder="e.g. Next-Gen Developer Postgres with Instant Vector Search"
+                      className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-semibold outline-none focus:border-[#A9C632] focus:ring-2 focus:ring-[#A9C632]/20"
                     />
+                  </div>
+
+                  {/* Logo URL / Custom Logo */}
+                  <div>
+                    <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6]">
+                      Logo Image URL (Auto-fetched from domain)
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 p-1 border border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
+                        <img
+                          src={logoUrl || (websiteUrl ? `https://www.google.com/s2/favicons?domain=${websiteUrl}&sz=128` : "")}
+                          alt="Logo preview"
+                          className="w-full h-full object-contain"
+                          onError={(e) => handleImageError(e, companyName || "Spotlight")}
+                        />
+                      </div>
+                      <input
+                        type="url"
+                        value={logoUrl}
+                        onChange={(e) => setLogoUrl(e.target.value)}
+                        placeholder="https://yourstartup.com/logo.png"
+                        className="flex-1 px-4 py-2 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-xs font-medium outline-none"
+                      />
+                    </div>
                   </div>
                 </div>
 
                 {/* Step 1 Actions */}
-                <div className="pt-4 flex justify-end">
+                <div className="pt-4 flex justify-between items-center">
+                  <div className="text-xs font-bold text-[#1D2E1B] dark:text-[#A9C632]">
+                    Selected: <strong>{selectedPlan.name} (${selectedPlan.priceUsd} USD)</strong>
+                  </div>
+
                   <button
                     onClick={handleNextStep1}
                     className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs font-black shadow-lg hover:brightness-105 active:scale-95 transition-all cursor-pointer"
                   >
-                    <span>Preview Live Ticker</span>
+                    <span>Preview & Proceed to PayPal (${selectedPlan.priceUsd})</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -422,14 +501,20 @@ export default function AdOnboardingModal({
             {/* ── STEP 2: Live Ticker Simulation Preview ────────── */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <div>
-                  <h4 className="text-sm font-extrabold text-[#1D2E1B] dark:text-white flex items-center gap-2">
-                    <Eye className="w-4 h-4 text-[#A9C632]" />
-                    Interactive Live Ticker Preview
-                  </h4>
-                  <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-0.5">
-                    This is how your free spotlight will display and animate in Findely's live marquee:
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-extrabold text-[#1D2E1B] dark:text-white flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-[#A9C632]" />
+                      Interactive Live Ticker Preview
+                    </h4>
+                    <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-0.5">
+                      This is how your spotlight will display in Findely's live marquee:
+                    </p>
+                  </div>
+
+                  <span className="px-3 py-1 rounded-full bg-[#A9C632]/20 border border-[#A9C632] text-xs font-black text-[#1D2E1B] dark:text-[#A9C632]">
+                    {selectedPlan.name} • ${selectedPlan.priceUsd} USD
+                  </span>
                 </div>
 
                 {/* Simulated Ticker Box */}
@@ -494,14 +579,14 @@ export default function AdOnboardingModal({
                     className="flex items-center gap-1.5 px-4 py-2 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] text-xs font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Edit Creative</span>
+                    <span>Edit Details</span>
                   </button>
 
                   <button
                     onClick={handleNextStep2}
                     className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs font-black shadow-lg hover:brightness-105 active:scale-95 transition-all cursor-pointer"
                   >
-                    <span>Proceed to Placement</span>
+                    <span>Proceed to PayPal Payment (${selectedPlan.priceUsd})</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
