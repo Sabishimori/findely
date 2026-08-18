@@ -167,17 +167,17 @@ export default function AdOnboardingModal({
           <div className="flex items-center justify-between px-6 py-4 border-b border-[#C8D2A6]/40 dark:border-[#3D543A]">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-2xl bg-[#A9C632] text-[#1D2E1B] flex items-center justify-center shadow-md">
-                <Gift className="w-5 h-5 fill-current" />
+                <Sparkles className="w-5 h-5 fill-current" />
               </div>
               <div>
                 <h3 className="text-base font-extrabold tracking-tight flex items-center gap-2">
-                  Claim Free Live Spotlight ⚡
+                  Reserve Sponsor Spotlight ⚡
                   <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#A9C632] text-[#1D2E1B] shadow-xs">
-                    100% FREE
+                    OPEN SLOT
                   </span>
                 </h3>
                 <p className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6] font-medium">
-                  Broadcast your startup, developer tool, or hiring surge across the live map
+                  Feature your startup, developer tool, or hiring surge across Findely's live marquee
                 </p>
               </div>
             </div>
@@ -196,7 +196,7 @@ export default function AdOnboardingModal({
               {[
                 { step: 1, label: "1. Creative & Logo" },
                 { step: 2, label: "2. Live Marquee Preview" },
-                { step: 3, label: "3. Launch Free (30 Days)" },
+                { step: 3, label: "3. Reserve & Launch" },
               ].map((s) => (
                 <div
                   key={s.step}
@@ -448,30 +448,30 @@ export default function AdOnboardingModal({
                     onClick={handleNextStep2}
                     className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs font-black shadow-lg hover:brightness-105 active:scale-95 transition-all cursor-pointer"
                   >
-                    <span>Proceed to Free Launch</span>
+                    <span>Proceed to Placement</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             )}
 
-            {/* ── STEP 3: Free Launch Confirmation ────────────── */}
+            {/* ── STEP 3: Sponsor Placement Confirmation ────────────── */}
             {currentStep === 3 && (
               <form onSubmit={handleSubmitFreeSpot} className="space-y-4">
-                {/* 100% Free Spotlight Plan Card */}
+                {/* Sponsor Spotlight Plan Card */}
                 <div className="p-5 rounded-3xl bg-[#A9C632]/15 border-2 border-[#A9C632] text-left space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase font-mono px-2.5 py-0.5 rounded-full bg-[#1D2E1B] text-[#A9C632] dark:bg-[#A9C632] dark:text-[#1D2E1B]">
-                      Community Plan • 100% Free
+                      Featured Placement • Open Slot
                     </span>
-                    <span className="text-xl font-black text-[#1D2E1B] dark:text-[#A9C632]">
-                      $0.00 USD
+                    <span className="text-sm font-black text-[#1D2E1B] dark:text-[#A9C632]">
+                      Self-Serve Booking
                     </span>
                   </div>
 
                   <div>
                     <h5 className="text-base font-black text-[#1D2E1B] dark:text-white">
-                      30-Day Free Live Spotlight Placement
+                      30-Day Sponsored Spotlight Rotation
                     </h5>
                     <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-0.5">
                       Promote <strong>{companyName}</strong> across the global live ticker with instant 1-click teleportation.
@@ -524,12 +524,12 @@ export default function AdOnboardingModal({
                     {isProcessing ? (
                       <>
                         <div className="w-4 h-4 border-2 border-[#1D2E1B] border-t-transparent rounded-full animate-spin" />
-                        <span>Activating Free Spot...</span>
+                        <span>Reserving Placement...</span>
                       </>
                     ) : (
                       <>
                         <Rocket className="w-4 h-4 fill-current" />
-                        <span>Launch Free Spotlight (30 Days) 🚀</span>
+                        <span>Reserve Sponsor Placement 🚀</span>
                       </>
                     )}
                   </button>
@@ -546,10 +546,10 @@ export default function AdOnboardingModal({
 
                 <div>
                   <h4 className="text-xl font-black text-[#1D2E1B] dark:text-white">
-                    🎉 Your Spotlight is Officially LIVE!
+                    🎉 Sponsor Spotlight Reserved!
                   </h4>
                   <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-1 max-w-md mx-auto">
-                    <strong>{successDetails?.companyName || companyName}</strong> is now live in Findely's live spotlight marquee for the next 30 days.
+                    <strong>{successDetails?.companyName || companyName}</strong> is now live in Findely's rotating live spotlight marquee for the next 30 days.
                   </p>
                 </div>
 

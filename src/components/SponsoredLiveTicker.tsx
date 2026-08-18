@@ -21,27 +21,27 @@ export interface SponsoredAdItem {
 
 const DEFAULT_FREE_SLOTS: SponsoredAdItem[] = [
   {
-    id: "slot-free-1",
-    name: "Claim Free Spotlight ⚡",
-    tagline: "Feature your startup, dev tool, or open roles in Findely's live marquee • 100% Free",
+    id: "slot-sponsor-1",
+    name: "Claim Sponsor Spotlight ⚡",
+    tagline: "Feature your startup, dev tool, or open roles in Findely's live marquee • Open Slot",
     badgeType: "AVAILABLE_SLOT",
     websiteUrl: "",
     isAvailableSlot: true,
     location: "Global",
   },
   {
-    id: "slot-free-2",
-    name: "Promote Your Launch 🚀",
-    tagline: "Broadcast to 50,000+ software engineers & founders in real-time • Zero Cost",
+    id: "slot-sponsor-2",
+    name: "Promote Your Startup 🚀",
+    tagline: "Broadcast to 50,000+ software engineers & founders in real-time • Open for Booking",
     badgeType: "AVAILABLE_SLOT",
     websiteUrl: "",
     isAvailableSlot: true,
     location: "Spotlight",
   },
   {
-    id: "slot-free-3",
-    name: "Post Your Hiring Surge ✨",
-    tagline: "Instant 1-click live placement with custom logo and direct fly-to pin",
+    id: "slot-sponsor-3",
+    name: "Broadcast Your Launch ✨",
+    tagline: "Instant live placement with custom logo and direct fly-to pin • Available Slot",
     badgeType: "AVAILABLE_SLOT",
     websiteUrl: "",
     isAvailableSlot: true,
@@ -225,16 +225,16 @@ export default function SponsoredLiveTicker({
           </div>
         </div>
 
-        {/* Right Action: Free Claim Spot Button */}
+        {/* Right Action: Sponsor Spot Button */}
         {onOpenAdModal && (
           <div className="shrink-0 pl-3 border-l border-[#C8D2A6]/60 dark:border-[#3D543A]">
             <button
               onClick={onOpenAdModal}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#A9C632] text-[#1D2E1B] text-[11px] font-black shadow-md hover:brightness-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
-              title="Claim a 100% free live spotlight for your startup"
+              title="Book an open sponsor spotlight for your startup"
             >
               <Sparkles className="w-3.5 h-3.5 fill-current" />
-              <span>Claim Free Spot ⚡</span>
+              <span>Sponsor Spot ⚡</span>
             </button>
           </div>
         )}
