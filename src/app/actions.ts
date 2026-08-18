@@ -481,7 +481,7 @@ export async function getAllMapData() {
 
 // ── Company Details ─────────────────────────────────────────
 
-export async function getCompanyWithJobs(companyId: string) {
+async function fetchCompanyWithJobsFromDb(companyId: string) {
   try {
     const cleanSearchName = companyId.replace(/-/g, " ").toLowerCase().trim();
     
@@ -562,8 +562,6 @@ export async function getCompanyWithJobs(companyId: string) {
         .from(scrape_sources)
         .where(eq(scrape_sources.company_id, company.id));
     } catch (sourceError) {
-      // This is optional metadata. Older Turso deployments do not have this
-      // table, but their live jobs must still be rendered.
       console.warn("Company scrape-source metadata unavailable:", sourceError);
     }
 
@@ -606,6 +604,15 @@ export async function getCompanyWithJobs(companyId: string) {
     if (fallback) return { ...fallback, sources: [] };
     return null;
   }
+}
+
+export async function getCompanyWithJobs(companyId: string) {
+  const getCachedCompany = unstable_cache(
+    async (id: string) => fetchCompanyWithJobsFromDb(id),
+    [`company-jobs-${companyId}`],
+    { revalidate: 180, tags: [`company-${companyId}`] }
+  );
+  return await getCachedCompany(companyId);
 }
 
 // ── Unified Applications & Saved Jobs Tracker (Strict User Isolation) ───────

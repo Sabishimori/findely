@@ -39,19 +39,33 @@ type CompanyDetails = Awaited<ReturnType<typeof getCompanyWithJobs>>;
 
 export default function DraggableCompanyCard({
   companyId,
+  initialData,
   onClose,
   onApplicationTracked,
   highlightJobTitle,
   isDarkMode = false,
 }: {
   companyId: string;
+  initialData?: any;
   onClose: () => void;
   onApplicationTracked?: () => void;
   highlightJobTitle?: string;
   isDarkMode?: boolean;
 }) {
-  const [data, setData] = useState<CompanyDetails | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<CompanyDetails | null>(() => {
+    if (initialData) {
+      return {
+        ...initialData,
+        jobs: initialData.jobs || initialData.roles || [],
+        sources: initialData.sources || [],
+        founders: initialData.founders || [],
+        hrLeads: initialData.hrLeads || [],
+        techStack: initialData.techStack || [],
+      };
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState(!initialData);
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [isMinimized, setIsMinimized] = useState(false);
@@ -73,13 +87,15 @@ export default function DraggableCompanyCard({
 
   useEffect(() => {
     async function load() {
-      setLoading(true);
+      if (!initialData) {
+        setLoading(true);
+      }
       try {
         const [res, trackerApps] = await Promise.all([
           getCompanyWithJobs(companyId),
           getAppliedJobs(),
         ]);
-        setData(res);
+        if (res) setData(res);
 
         const saved = new Set<string>();
         const applied = new Set<string>();

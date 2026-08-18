@@ -153,6 +153,7 @@ export default function FindersApp({
         isMinimized: false,
         zIndex: highestZ + 1,
         initialPosition,
+        initialData: fullCompany,
       };
 
       // Cap at 5 simultaneous portals (replace oldest if exceeded)

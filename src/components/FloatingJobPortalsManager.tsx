@@ -12,6 +12,7 @@ export interface OpenPortal {
   isMinimized: boolean;
   zIndex: number;
   initialPosition: { x: number; y: number };
+  initialData?: any;
 }
 
 interface FloatingJobPortalsManagerProps {
@@ -48,6 +49,7 @@ export default function FloatingJobPortalsManager({
           <FloatingPortalCard
             key={portal.companyId}
             companyId={portal.companyId}
+            initialData={portal.initialData}
             zIndex={portal.zIndex}
             initialPosition={portal.initialPosition}
             onMinimize={() => onMinimize(portal.companyId)}

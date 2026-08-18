@@ -49,6 +49,7 @@ export interface FloatingPortalCardProps {
   companyId: string;
   zIndex: number;
   initialPosition?: { x: number; y: number };
+  initialData?: any;
   onMinimize: () => void;
   onClose: () => void;
   onBringToFront: () => void;
@@ -62,6 +63,7 @@ export default function FloatingPortalCard({
   companyId,
   zIndex,
   initialPosition = { x: 120, y: 100 },
+  initialData,
   onMinimize,
   onClose,
   onBringToFront,
@@ -70,8 +72,20 @@ export default function FloatingPortalCard({
   highlightJobTitle,
   isDarkMode = false,
 }: FloatingPortalCardProps) {
-  const [data, setData] = useState<CompanyDetails>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<CompanyDetails>(() => {
+    if (initialData) {
+      return {
+        ...initialData,
+        jobs: initialData.jobs || initialData.roles || [],
+        sources: initialData.sources || [],
+        founders: initialData.founders || [],
+        hrLeads: initialData.hrLeads || [],
+        techStack: initialData.techStack || [],
+      };
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState(!initialData);
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [isExpanded, setIsExpanded] = useState(false);
@@ -104,10 +118,12 @@ export default function FloatingPortalCard({
 
   useEffect(() => {
     async function load() {
-      setLoading(true);
+      if (!initialData) {
+        setLoading(true);
+      }
       try {
         const res = await getCompanyWithJobs(companyId);
-        setData(res);
+        if (res) setData(res);
       } catch (err) {
         console.error("Failed to load company portal", err);
       } finally {
