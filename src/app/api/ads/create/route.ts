@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     const now = new Date();
     const endDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
-    // 3. Insert Record into Database
+    // 3. Insert Record into Database with 'pending_approval' status
     const newAdId = crypto.randomUUID();
     const paymentId = paypalTxId?.trim() || `paypal_ad_${Date.now()}`;
 
@@ -89,8 +89,8 @@ export async function POST(req: NextRequest) {
         currency: "USD",
         payment_method: "paypal",
         payment_id: paymentId,
-        payment_status: "completed",
-        status: "active",
+        payment_status: "pending_verification",
+        status: "pending_approval",
         start_date: now,
         end_date: endDate,
         created_at: now,
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       adId: newAdId,
-      message: `🎉 Your startup spotlight (${tierName}) is now officially LIVE on Findely via PayPal!`,
+      message: `🎉 Your startup spotlight (${tierName}) has been submitted! It will be reviewed & approved within 1 day.`,
       details: {
         companyName,
         tagline,
@@ -111,6 +111,7 @@ export async function POST(req: NextRequest) {
         durationDays,
         amountFormatted,
         paymentMethod: "PayPal",
+        status: "pending_approval",
         startDate: now.toISOString(),
         endDate: endDate.toISOString(),
         paymentId,

@@ -725,7 +725,7 @@ export default function AdOnboardingModal({
               </form>
             )}
 
-            {/* ── STEP 4: Success & Confirmation ──────────────── */}
+            {/* ── STEP 4: Success & Review Notice ──────────────── */}
             {currentStep === 4 && (
               <div className="py-6 text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-[#A9C632] text-[#1D2E1B] flex items-center justify-center mx-auto shadow-2xl animate-bounce">
@@ -734,39 +734,50 @@ export default function AdOnboardingModal({
 
                 <div>
                   <h4 className="text-xl font-black text-[#1D2E1B] dark:text-white">
-                    🎉 Sponsor Spotlight Activated!
+                    🎉 Sponsor Spotlight Submitted for Review!
                   </h4>
                   <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-1 max-w-md mx-auto">
-                    <strong>{successDetails?.companyName || companyName}</strong> is now live in Findely's rotating live spotlight marquee for the next 30 days.
+                    Your sponsor placement request for <strong>{successDetails?.companyName || companyName}</strong> has been received. Our team verifies PayPal transactions and creatives within <strong>1 business day (usually under 24 hours)</strong>.
                   </p>
                 </div>
 
-                {/* Receipt Card */}
-                <div className="p-4 rounded-3xl bg-black/5 dark:bg-white/5 border border-[#C8D2A6] dark:border-[#3D543A] max-w-md mx-auto text-left text-xs space-y-1.5">
+                {/* Receipt & Verification Card */}
+                <div className="p-4 rounded-3xl bg-black/5 dark:bg-white/5 border border-[#C8D2A6] dark:border-[#3D543A] max-w-md mx-auto text-left text-xs space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Selected Plan:</span>
+                    <strong className="text-[#1D2E1B] dark:text-white">{successDetails?.tier || selectedPlan.name}</strong>
+                  </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Duration:</span>
-                    <strong className="text-[#1D2E1B] dark:text-white">{successDetails?.durationDays || 30} Days</strong>
+                    <strong className="text-[#1D2E1B] dark:text-white">{successDetails?.durationDays || selectedPlan.durationDays} Days</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Cost:</span>
-                    <strong className="text-[#A9C632] font-black">$29.00 USD</strong>
+                    <span className="text-gray-400">Total Price:</span>
+                    <strong className="text-[#A9C632] font-black">{successDetails?.amountFormatted || `$${selectedPlan.priceUsd}.00 USD`}</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Payment:</span>
-                    <strong className="text-[#0070BA] dark:text-[#45a2e5] font-bold">PayPal (paypal.me/Sagar1502)</strong>
+                    <span className="text-gray-400">Payment Channel:</span>
+                    <strong className="text-[#0070BA] dark:text-[#45a2e5] font-bold">PayPal ({successDetails?.paymentId || "paypal.me/Sagar1502"})</strong>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center pt-1 border-t border-[#C8D2A6]/40 dark:border-white/10">
                     <span className="text-gray-400">Status:</span>
-                    <span className="font-mono text-xs font-bold text-[#A9C632]">Active on Live Ticker ⚡</span>
+                    <span className="font-mono text-[11px] font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-md">
+                      ⏳ Pending Approval (Within 1 Day)
+                    </span>
                   </div>
                 </div>
 
-                <div className="pt-4 flex justify-center gap-3">
+                <div className="p-3 rounded-2xl bg-[#0070BA]/10 border border-[#0070BA]/30 max-w-md mx-auto text-left text-[11.5px] text-[#546E50] dark:text-[#C8D2A6] flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#0070BA] shrink-0" />
+                  <span>Once verified by admin, your spotlight immediately goes live on the global map marquee. Confirmation will be sent to <strong>{contactEmail}</strong>.</span>
+                </div>
+
+                <div className="pt-2 flex justify-center gap-3">
                   <button
                     onClick={resetAndClose}
                     className="px-8 py-3 rounded-2xl bg-[#A9C632] text-[#1D2E1B] text-xs font-black shadow-xl hover:brightness-105 active:scale-95 transition-all cursor-pointer"
                   >
-                    View Spotlight on Live Map 🛸
+                    Done & Return to Map 🛸
                   </button>
                 </div>
               </div>
