@@ -303,10 +303,6 @@ export default function LandingPage({
 
   const handleLaunchClick = (e?: React.MouseEvent | string) => {
     playTapSound();
-    if (!user) {
-      openAuthModal();
-      return;
-    }
     if (typeof e === "string") {
       onLaunchWorkspace(e);
     } else {
@@ -357,7 +353,7 @@ export default function LandingPage({
           </div>
 
           <span className="text-[11.5px] font-semibold text-white/90 dark:text-[#1D2E1B]/90">
-            We are actively expanding global data collection & scrapers daily. <strong>All founders are warmly welcome to add their company — 100% Free!</strong>
+            We are actively expanding global data collection & tech hub coverage daily. <strong>All founders are warmly welcome to add their company — 100% Free!</strong>
           </span>
 
           <div className="flex items-center gap-2">
@@ -961,7 +957,7 @@ export default function LandingPage({
                 </h3>
 
                 <p className="text-xs sm:text-sm text-[#C8D2A6] font-medium leading-relaxed">
-                  Findely is currently in <strong>Public Beta</strong>! We are actively upgrading our universal scraping engine and verified ATS integrations daily. All founders, CEOs, and engineering leaders are warmly welcome to submit their startup, offices, and open jobs — mapped directly on our 2.5D GPU globe at zero cost.
+                  Findely is currently in <strong>Public Beta</strong>! We are actively upgrading our verified ATS pipelines and tech hub integrations daily. All founders, CEOs, and engineering leaders are warmly welcome to submit their startup, offices, and open jobs — mapped directly on our 2.5D GPU globe at zero cost.
                 </p>
               </div>
 
@@ -1136,11 +1132,11 @@ export default function LandingPage({
                 </div>
 
                 <h3 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#1D2E1B] dark:text-white tracking-tight leading-[1.15]">
-                  Support Server & Scraping Infrastructure
+                  Support Server & Data Infrastructure
                 </h3>
 
                 <p className="text-sm sm:text-base text-[#546E50] dark:text-[#C8D2A6] leading-relaxed font-semibold">
-                  Findely will always remain 100% free for job seekers. If this platform helped you discover a cool team or land an interview, consider helping fuel our database, geocoding servers, and scraping pipeline.
+                  Findely will always remain 100% free for job seekers. If this platform helped you discover a cool team or land an interview, consider helping fuel our database, geocoding servers, and live data pipeline.
                 </p>
 
                 {/* Micro Value Props */}

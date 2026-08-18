@@ -59,15 +59,6 @@ export default function FindersApp({
     }
   }, [isDarkMode]);
 
-  // Mandatory Login Gate: Enter workspace ONLY when user is verified
-  useEffect(() => {
-    if (user) {
-      setShowLandingPage(false);
-    } else {
-      setShowLandingPage(true);
-    }
-  }, [user]);
-
   // ── Multi-Window Floating Portals State (Max 4-5) ─────────────
   const [openPortals, setOpenPortals] = useState<OpenPortal[]>([]);
 

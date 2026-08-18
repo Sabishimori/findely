@@ -10,7 +10,7 @@ import {
   Palette,
   Coffee,
   Heart,
-  LogOut
+  Home
 } from "lucide-react";
 import { NavTab } from "./Navigation";
 import BuilderSupportModal from "./BuilderSupportModal";
@@ -162,21 +162,18 @@ export default function SideNavRail({
             <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-[#A9C632] border-2 border-white dark:border-[#1D2E1B] shadow-xs" />
           </button>
 
-          {/* Sign Out / Back to Landing Page */}
+          {/* Return to Landing / Overview */}
           <button
             onClick={() => {
-              if (user) {
-                logout();
-              }
               if (onOpenLandingPage) {
                 onOpenLandingPage();
               }
             }}
-            aria-label={user ? "Sign Out" : "Exit to Landing Page"}
-            className="w-10 h-10 apple-squircle flex items-center justify-center text-red-500/80 hover:text-red-500 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/40 transition-all cursor-pointer group"
-            title={user ? "Sign Out" : "Exit to Landing Page"}
+            aria-label="Return to Overview & About"
+            className="w-10 h-10 apple-squircle flex items-center justify-center text-[#546E50] hover:text-[#1D2E1B] dark:text-[#C8D2A6] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 border border-[#C8D2A6]/40 dark:border-white/10 transition-all cursor-pointer group"
+            title="Return to Overview & About"
           >
-            <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            <Home className="w-4 h-4 group-hover:scale-110 transition-transform" />
           </button>
         </div>
       </aside>
