@@ -52,6 +52,7 @@ export default function AdOnboardingModal({
   const [location, setLocation] = useState("Global");
   const [tier, setTier] = useState<AdTier>("growth_14d");
   const [contactEmail, setContactEmail] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"paypal" | "card">("paypal");
 
   // Payment Form State
   const [cardNumber, setCardNumber] = useState("");
@@ -644,54 +645,129 @@ export default function AdOnboardingModal({
                   />
                 </div>
 
-                {/* Credit Card Input Suite */}
+                {/* Payment Method Selector (PayPal & Card) */}
                 <div>
-                  <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6] flex items-center justify-between">
-                    <span>Card Information</span>
-                    <span className="text-[10px] font-mono text-gray-400 flex items-center gap-1">
-                      <Lock className="w-3 h-3 text-[#A9C632]" /> 256-bit Encrypted
-                    </span>
+                  <label className="block text-xs font-extrabold uppercase tracking-wider mb-2 text-[#546E50] dark:text-[#C8D2A6]">
+                    Select Payment Method
                   </label>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("paypal")}
+                      className={`p-3 rounded-2xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
+                        paymentMethod === "paypal"
+                          ? "bg-[#003087]/10 dark:bg-[#00457C]/30 border-[#0079C1] shadow-md ring-2 ring-[#0079C1]/30 font-bold"
+                          : "border-[#C8D2A6]/60 dark:border-[#3D543A] hover:bg-black/5 dark:hover:bg-white/5"
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-[#003087] text-white flex items-center justify-center font-black text-sm italic shadow-xs">
+                        P
+                      </div>
+                      <div>
+                        <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white">PayPal</div>
+                        <div className="text-[10px] text-[#0079C1] font-bold">@Sagar1502 • 1-Click</div>
+                      </div>
+                    </button>
 
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <CreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        maxLength={19}
-                        value={cardNumber}
-                        onChange={(e) => setCardNumber(e.target.value)}
-                        placeholder="4242 •••• •••• 4242"
-                        className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-mono font-bold outline-none focus:border-[#A9C632]"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <input
-                        type="text"
-                        maxLength={5}
-                        value={cardExpiry}
-                        onChange={(e) => setCardExpiry(e.target.value)}
-                        placeholder="MM / YY"
-                        className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-mono font-bold outline-none focus:border-[#A9C632]"
-                      />
-                      <input
-                        type="text"
-                        maxLength={4}
-                        value={cardCvc}
-                        onChange={(e) => setCardCvc(e.target.value)}
-                        placeholder="CVC / CVV"
-                        className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-mono font-bold outline-none focus:border-[#A9C632]"
-                      />
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("card")}
+                      className={`p-3 rounded-2xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
+                        paymentMethod === "card"
+                          ? "bg-[#1D2E1B] text-white dark:bg-[#A9C632] dark:text-[#1D2E1B] border-[#A9C632] shadow-md ring-2 ring-[#A9C632]/40 font-bold"
+                          : "border-[#C8D2A6]/60 dark:border-[#3D543A] hover:bg-black/5 dark:hover:bg-white/5"
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-[#A9C632] text-[#1D2E1B] flex items-center justify-center font-black shadow-xs">
+                        <CreditCard className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white">Credit Card</div>
+                        <div className="text-[10px] opacity-70">Visa, MC, Amex</div>
+                      </div>
+                    </button>
                   </div>
                 </div>
+
+                {/* PayPal Direct Action Box */}
+                {paymentMethod === "paypal" ? (
+                  <div className="p-4 rounded-3xl bg-[#003087]/5 dark:bg-[#00457C]/20 border border-[#0079C1]/40 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#0079C1] animate-pulse" />
+                        <span className="text-xs font-extrabold text-[#1D2E1B] dark:text-white">
+                          Direct PayPal Account: <span className="font-mono text-[#0079C1]">paypal.me/Sagar1502</span>
+                        </span>
+                      </div>
+                      <span className="text-xs font-black text-[#A9C632]">{currentPricing.price} USD</span>
+                    </div>
+
+                    <p className="text-[11.5px] text-[#546E50] dark:text-[#C8D2A6]">
+                      Clicking below opens your direct PayPal payment portal to transfer <strong>{currentPricing.price}</strong> directly to <strong>@Sagar1502</strong>. Once completed, your ad will go live in the live ticker immediately.
+                    </p>
+
+                    <div className="pt-1 flex items-center gap-2">
+                      <a
+                        href={`https://paypal.me/Sagar1502/${currentPricing.rawPrice}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 py-2.5 px-4 rounded-2xl bg-[#0079C1] hover:bg-[#00457C] text-white text-xs font-black text-center shadow-lg transition-all flex items-center justify-center gap-2"
+                      >
+                        <span>Open PayPal & Pay {currentPricing.price}</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  /* Credit Card Input Suite */
+                  <div>
+                    <label className="block text-xs font-extrabold uppercase tracking-wider mb-1.5 text-[#546E50] dark:text-[#C8D2A6] flex items-center justify-between">
+                      <span>Card Information</span>
+                      <span className="text-[10px] font-mono text-gray-400 flex items-center gap-1">
+                        <Lock className="w-3 h-3 text-[#A9C632]" /> 256-bit Encrypted
+                      </span>
+                    </label>
+
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <CreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          maxLength={19}
+                          value={cardNumber}
+                          onChange={(e) => setCardNumber(e.target.value)}
+                          placeholder="4242 •••• •••• 4242"
+                          className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-mono font-bold outline-none focus:border-[#A9C632]"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          maxLength={5}
+                          value={cardExpiry}
+                          onChange={(e) => setCardExpiry(e.target.value)}
+                          placeholder="MM / YY"
+                          className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-mono font-bold outline-none focus:border-[#A9C632]"
+                        />
+                        <input
+                          type="text"
+                          maxLength={4}
+                          value={cardCvc}
+                          onChange={(e) => setCardCvc(e.target.value)}
+                          placeholder="CVC / CVV"
+                          className="w-full px-4 py-2.5 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-transparent text-sm font-mono font-bold outline-none focus:border-[#A9C632]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Security Trust Badges */}
                 <div className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-[#C8D2A6]/40 dark:border-[#3D543A] flex items-center justify-between text-[11px] text-gray-500">
                   <div className="flex items-center gap-1.5">
                     <ShieldCheck className="w-4 h-4 text-[#A9C632]" />
-                    <span>PCI-DSS Level 1 Secure</span>
+                    <span>PayPal & Bank Protected</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-4 h-4 text-[#A9C632]" />
@@ -723,7 +799,7 @@ export default function AdOnboardingModal({
                     ) : (
                       <>
                         <Lock className="w-3.5 h-3.5 fill-current" />
-                        <span>Pay {currentPricing.price} & Go Live 🚀</span>
+                        <span>Confirm & Go Live 🚀</span>
                       </>
                     )}
                   </button>
