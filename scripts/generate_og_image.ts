@@ -2,26 +2,27 @@ import sharp from "sharp";
 import fs from "fs";
 import path from "path";
 
-async function processNewScreenshot() {
+async function makeExactFindelyOgImage() {
   const publicDir = path.join(process.cwd(), "public");
-  const rawScreenshotPath = path.join(publicDir, "og-raw.png");
+  // The authentic Findely hero screenshot
+  const heroScreenshot = "C:/Users/ASUS/.gemini/antigravity/brain/c68b73c7-efab-454a-9861-b07fffd1e8ba/.user_uploaded/media_1787110114286.png";
 
-  if (!fs.existsSync(rawScreenshotPath)) {
-    console.error("Raw screenshot not found at:", rawScreenshotPath);
+  if (!fs.existsSync(heroScreenshot)) {
+    console.error("Hero screenshot not found at:", heroScreenshot);
     return;
   }
 
-  console.log("📸 Processing fresh live screenshot into high-res OpenGraph assets...");
+  console.log("📸 Generating official Findely OpenGraph preview from authentic hero screenshot...");
 
-  const image = sharp(rawScreenshotPath);
+  const image = sharp(heroScreenshot);
   const metadata = await image.metadata();
-  console.log(`Live capture dimensions: ${metadata.width}x${metadata.height}`);
+  console.log(`Original dimensions: ${metadata.width}x${metadata.height}`);
 
-  // Resize and optimize to exact 1200x630
-  const ogBuffer = await sharp(rawScreenshotPath)
+  // Create clean, crisp 1200x630 banner with Findely background color
+  const ogBuffer = await sharp(heroScreenshot)
     .resize(1200, 630, {
-      fit: "cover",
-      position: "top",
+      fit: "contain",
+      background: { r: 247, g: 249, b: 242, alpha: 1 }, // Findely canvas color #F7F9F2
     })
     .png({ quality: 95 })
     .toBuffer();
@@ -39,12 +40,7 @@ async function processNewScreenshot() {
     .jpeg({ quality: 92 })
     .toFile(ogJpgPath);
 
-  // Clean up raw temp file
-  try {
-    fs.unlinkSync(rawScreenshotPath);
-  } catch (e) {}
-
-  console.log("✨ Updated all OpenGraph preview assets from fresh live screenshot!");
+  console.log("✨ SUCCESS: Generated authentic Findely OpenGraph preview assets (1200x630)!");
 }
 
-processNewScreenshot().catch(console.error);
+makeExactFindelyOgImage().catch(console.error);
