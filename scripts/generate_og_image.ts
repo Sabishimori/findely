@@ -2,52 +2,49 @@ import sharp from "sharp";
 import fs from "fs";
 import path from "path";
 
-async function makeOgImage() {
-  const inputPath = "C:/Users/ASUS/.gemini/antigravity/brain/c68b73c7-efab-454a-9861-b07fffd1e8ba/.user_uploaded/media_1787110114286.png";
+async function processNewScreenshot() {
   const publicDir = path.join(process.cwd(), "public");
+  const rawScreenshotPath = path.join(publicDir, "og-raw.png");
 
-  if (!fs.existsSync(inputPath)) {
-    console.error("Input image not found:", inputPath);
+  if (!fs.existsSync(rawScreenshotPath)) {
+    console.error("Raw screenshot not found at:", rawScreenshotPath);
     return;
   }
 
-  console.log("📸 Processing hero screenshot into 1200x630 standard OpenGraph banner...");
+  console.log("📸 Processing fresh live screenshot into high-res OpenGraph assets...");
 
-  // Create 1200x630 OG banner with high quality
-  const image = sharp(inputPath);
+  const image = sharp(rawScreenshotPath);
   const metadata = await image.metadata();
+  console.log(`Live capture dimensions: ${metadata.width}x${metadata.height}`);
 
-  console.log(`Original dimensions: ${metadata.width}x${metadata.height}`);
-
-  // Resize and fit to 1200x630 with high quality
-  const ogBuffer = await sharp(inputPath)
+  // Resize and optimize to exact 1200x630
+  const ogBuffer = await sharp(rawScreenshotPath)
     .resize(1200, 630, {
-      fit: "contain",
-      background: { r: 247, g: 249, b: 242, alpha: 1 }, // Findely soft canvas background
+      fit: "cover",
+      position: "top",
     })
     .png({ quality: 95 })
     .toBuffer();
 
   const ogPngPath = path.join(publicDir, "og-image.png");
-  const ogJpgPath = path.join(publicDir, "og-image.jpg");
   const twitterPngPath = path.join(publicDir, "twitter-image.png");
   const openGraphPath = path.join(publicDir, "opengraph-image.png");
+  const ogJpgPath = path.join(publicDir, "og-image.jpg");
 
   fs.writeFileSync(ogPngPath, ogBuffer);
-  console.log("✓ Saved:", ogPngPath);
-
   fs.writeFileSync(twitterPngPath, ogBuffer);
-  console.log("✓ Saved:", twitterPngPath);
-
   fs.writeFileSync(openGraphPath, ogBuffer);
-  console.log("✓ Saved:", openGraphPath);
 
   await sharp(ogBuffer)
     .jpeg({ quality: 92 })
     .toFile(ogJpgPath);
-  console.log("✓ Saved:", ogJpgPath);
 
-  console.log("✨ All OpenGraph social preview assets generated successfully!");
+  // Clean up raw temp file
+  try {
+    fs.unlinkSync(rawScreenshotPath);
+  } catch (e) {}
+
+  console.log("✨ Updated all OpenGraph preview assets from fresh live screenshot!");
 }
 
-makeOgImage().catch(console.error);
+processNewScreenshot().catch(console.error);
