@@ -4,15 +4,15 @@ import path from "path";
 
 async function makeExactFindelyOgImage() {
   const publicDir = path.join(process.cwd(), "public");
-  // The authentic Findely hero screenshot
-  const heroScreenshot = "C:/Users/ASUS/.gemini/antigravity/brain/c68b73c7-efab-454a-9861-b07fffd1e8ba/.user_uploaded/media_1787110114286.png";
+  // The newly uploaded pristine Findely full hero screenshot
+  const heroScreenshot = "C:/Users/ASUS/.gemini/antigravity/brain/c68b73c7-efab-454a-9861-b07fffd1e8ba/.user_uploaded/media_1787115011862.png";
 
   if (!fs.existsSync(heroScreenshot)) {
     console.error("Hero screenshot not found at:", heroScreenshot);
     return;
   }
 
-  console.log("📸 Generating official Findely OpenGraph preview from authentic hero screenshot...");
+  console.log("📸 Generating official Findely OpenGraph preview from user uploaded screenshot...");
 
   const image = sharp(heroScreenshot);
   const metadata = await image.metadata();
@@ -40,7 +40,7 @@ async function makeExactFindelyOgImage() {
     .jpeg({ quality: 92 })
     .toFile(ogJpgPath);
 
-  console.log("✨ SUCCESS: Generated authentic Findely OpenGraph preview assets (1200x630)!");
+  console.log("✨ SUCCESS: Updated all OpenGraph & Twitter preview assets (1200x630) from your uploaded image!");
 }
 
 makeExactFindelyOgImage().catch(console.error);
