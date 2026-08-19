@@ -234,17 +234,18 @@ function WarpSpearIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
-// ── Main Responsive Landing Page Component ─────────────────────────
 export default function LandingPage({
   onLaunchWorkspace,
-  totalJobsCount = 3466,
-  totalCompaniesCount = 850,
+  totalJobsCount = 3930,
+  totalCompaniesCount = 94,
+  startupsTodayCount = 24,
   isDarkMode = false,
   onToggleDarkMode,
 }: {
   onLaunchWorkspace: (companyName?: string) => void;
   totalJobsCount?: number;
   totalCompaniesCount?: number;
+  startupsTodayCount?: number;
   isDarkMode?: boolean;
   onToggleDarkMode?: () => void;
 }) {
@@ -493,21 +494,30 @@ export default function LandingPage({
         style={{ y: heroY, opacity: heroOpacity }}
         className="relative pt-16 pb-14 px-4 sm:px-6 max-w-6xl mx-auto text-center overflow-visible"
       >
-        {/* Draggable Floater 1: Anthropic SF (Left Flank) */}
+        {/* Draggable & Drifting Floater 1: Anthropic SF (Left Flank) */}
         <motion.div
           drag
           dragConstraints={heroSectionRef}
           dragElastic={0.15}
           dragMomentum={true}
-          whileHover={{ scale: 1.05 }}
-          whileDrag={{ scale: 1.1, zIndex: 60, cursor: "grabbing" }}
-          animate={{ y: [0, -10, 0], rotate: [-0.5, 0.5, -0.5] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          whileHover={{ scale: 1.08 }}
+          whileDrag={{ scale: 1.12, zIndex: 60, cursor: "grabbing" }}
+          animate={{ 
+            x: [0, 22, -18, 0], 
+            y: [0, -28, 16, 0], 
+            rotate: [-1.5, 2, -1, -1.5] 
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
           className="hidden xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 dark:bg-[#1D2E1B]/95 border border-[#C8D2A6] dark:border-[#3D543A] shadow-xl absolute top-36 -left-12 z-20 text-left cursor-grab select-none backdrop-blur-md group"
           title="✋ Click & Drag me anywhere!"
         >
-          <div className="w-8 h-8 rounded-xl bg-[#A9C632]/20 flex items-center justify-center font-black text-xs text-[#1D2E1B] dark:text-[#A9C632] shrink-0">
-            SF
+          <div className="w-8 h-8 rounded-xl bg-amber-500/15 p-1 flex items-center justify-center shrink-0 border border-amber-500/30">
+            <img 
+              src="https://www.google.com/s2/favicons?domain=anthropic.com&sz=128" 
+              alt="Anthropic" 
+              className="w-5 h-5 object-contain rounded-md"
+              onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+            />
           </div>
           <div>
             <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white flex items-center gap-1.5">
@@ -518,21 +528,30 @@ export default function LandingPage({
           </div>
         </motion.div>
 
-        {/* Draggable Floater 2: Postman BLR (Right Flank) */}
+        {/* Draggable & Drifting Floater 2: Postman BLR (Right Flank) */}
         <motion.div
           drag
           dragConstraints={heroSectionRef}
           dragElastic={0.15}
           dragMomentum={true}
-          whileHover={{ scale: 1.05 }}
-          whileDrag={{ scale: 1.1, zIndex: 60, cursor: "grabbing" }}
-          animate={{ y: [0, 10, 0], rotate: [0.5, -0.5, 0.5] }}
-          transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+          whileHover={{ scale: 1.08 }}
+          whileDrag={{ scale: 1.12, zIndex: 60, cursor: "grabbing" }}
+          animate={{ 
+            x: [0, -24, 18, 0], 
+            y: [0, 26, -22, 0], 
+            rotate: [2, -2.5, 1, 2] 
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
           className="hidden xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 dark:bg-[#1D2E1B]/95 border border-[#C8D2A6] dark:border-[#3D543A] shadow-xl absolute top-36 -right-12 z-20 text-left cursor-grab select-none backdrop-blur-md group"
           title="✋ Click & Drag me anywhere!"
         >
-          <div className="w-8 h-8 rounded-xl bg-orange-500/20 flex items-center justify-center font-black text-xs text-orange-500 shrink-0">
-            IN
+          <div className="w-8 h-8 rounded-xl bg-orange-500/15 p-1 flex items-center justify-center shrink-0 border border-orange-500/30">
+            <img 
+              src="https://www.google.com/s2/favicons?domain=postman.com&sz=128" 
+              alt="Postman" 
+              className="w-5 h-5 object-contain rounded-md"
+              onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+            />
           </div>
           <div>
             <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white flex items-center gap-1.5">
@@ -543,21 +562,30 @@ export default function LandingPage({
           </div>
         </motion.div>
 
-        {/* Draggable Floater 3: Stripe NYC (Lower Left Flank) */}
+        {/* Draggable & Drifting Floater 3: Stripe NYC (Lower Left Flank) */}
         <motion.div
           drag
           dragConstraints={heroSectionRef}
           dragElastic={0.15}
           dragMomentum={true}
-          whileHover={{ scale: 1.05 }}
-          whileDrag={{ scale: 1.1, zIndex: 60, cursor: "grabbing" }}
-          animate={{ y: [0, -8, 0], x: [0, 5, 0] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+          whileHover={{ scale: 1.08 }}
+          whileDrag={{ scale: 1.12, zIndex: 60, cursor: "grabbing" }}
+          animate={{ 
+            x: [0, 20, -22, 0], 
+            y: [0, -20, 24, 0], 
+            rotate: [-1.5, 2, -2, -1.5] 
+          }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
           className="hidden 2xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 dark:bg-[#1D2E1B]/95 border border-[#C8D2A6] dark:border-[#3D543A] shadow-xl absolute bottom-24 -left-16 z-20 text-left cursor-grab select-none backdrop-blur-md group"
           title="✋ Click & Drag me anywhere!"
         >
-          <div className="w-8 h-8 rounded-xl bg-[#635BFF]/20 flex items-center justify-center font-black text-xs text-[#635BFF] shrink-0">
-            NY
+          <div className="w-8 h-8 rounded-xl bg-[#635BFF]/15 p-1 flex items-center justify-center shrink-0 border border-[#635BFF]/30">
+            <img 
+              src="https://www.google.com/s2/favicons?domain=stripe.com&sz=128" 
+              alt="Stripe" 
+              className="w-5 h-5 object-contain rounded-md"
+              onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+            />
           </div>
           <div>
             <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white flex items-center gap-1.5">
@@ -568,21 +596,30 @@ export default function LandingPage({
           </div>
         </motion.div>
 
-        {/* Draggable Floater 4: Linear (Lower Right Flank) */}
+        {/* Draggable & Drifting Floater 4: Linear (Lower Right Flank) */}
         <motion.div
           drag
           dragConstraints={heroSectionRef}
           dragElastic={0.15}
           dragMomentum={true}
-          whileHover={{ scale: 1.05 }}
-          whileDrag={{ scale: 1.1, zIndex: 60, cursor: "grabbing" }}
-          animate={{ y: [0, 8, 0], x: [0, -5, 0] }}
-          transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut" }}
+          whileHover={{ scale: 1.08 }}
+          whileDrag={{ scale: 1.12, zIndex: 60, cursor: "grabbing" }}
+          animate={{ 
+            x: [0, -22, 18, 0], 
+            y: [0, 24, -20, 0], 
+            rotate: [2, -1.5, 1.5, 2] 
+          }}
+          transition={{ duration: 19, repeat: Infinity, ease: "easeInOut" }}
           className="hidden 2xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 dark:bg-[#1D2E1B]/95 border border-[#C8D2A6] dark:border-[#3D543A] shadow-xl absolute bottom-24 -right-16 z-20 text-left cursor-grab select-none backdrop-blur-md group"
           title="✋ Click & Drag me anywhere!"
         >
-          <div className="w-8 h-8 rounded-xl bg-[#5E6AD2]/20 flex items-center justify-center font-black text-xs text-[#5E6AD2] shrink-0">
-            LN
+          <div className="w-8 h-8 rounded-xl bg-[#5E6AD2]/15 p-1 flex items-center justify-center shrink-0 border border-[#5E6AD2]/30">
+            <img 
+              src="https://www.google.com/s2/favicons?domain=linear.app&sz=128" 
+              alt="Linear" 
+              className="w-5 h-5 object-contain rounded-md"
+              onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+            />
           </div>
           <div>
             <div className="text-xs font-extrabold text-[#1D2E1B] dark:text-white flex items-center gap-1.5">
@@ -628,7 +665,7 @@ export default function LandingPage({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A9C632] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#A9C632]"></span>
             </span>
-            <span><strong className="text-[#1D2E1B] dark:text-[#A9C632] font-black">+24 Startups</strong> Found Today</span>
+            <span><strong className="text-[#1D2E1B] dark:text-[#A9C632] font-black">+{startupsTodayCount || 24} Startups</strong> Found Today</span>
             <span className="text-[#C8D2A6] dark:text-[#3D543A]">•</span>
             <span className="font-mono text-[11px] text-[#546E50] dark:text-[#C8D2A6]">Next Sync: <strong className="text-[#A9C632]">{countdown}</strong></span>
           </motion.div>
@@ -658,51 +695,36 @@ export default function LandingPage({
           Stop doomscrolling 40-page job boards full of ghost roles that expired two months ago. Teleport directly into tech hubs across SF, NYC, London, Tokyo & Bengaluru — click a pin, inspect their stack, and apply straight on their ATS.
         </motion.p>
 
-        {/* Hero CTA & Pointer Arrow */}
+        {/* Hero CTA & Aligned Pointer Arrow */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
           className="mt-9 flex flex-col items-center justify-center gap-3.5 relative"
         >
-          <div className="hidden md:flex items-center gap-2 absolute -left-32 top-3 text-[#A9C632]">
-            <span className="font-extrabold text-xs tracking-tight text-[#546E50] dark:text-[#A9C632] italic rotate-[-6deg]">
-              Click to teleport 🚀
-            </span>
-            <HandDrawnArrow className="text-[#A9C632]" />
-          </div>
+          <div className="relative inline-flex items-center justify-center">
+            {/* Aligned Hand-Drawn Annotation pointing directly to CTA */}
+            <div className="hidden sm:flex items-center gap-1.5 absolute -left-28 -top-7 text-[#A9C632] pointer-events-none select-none z-10">
+              <span className="font-extrabold text-xs tracking-tight text-[#546E50] dark:text-[#A9C632] italic rotate-[-8deg] drop-shadow-xs">
+                Click to teleport 🚀
+              </span>
+              <HandDrawnArrow className="w-12 h-10 text-[#A9C632] rotate-[18deg] translate-y-3" />
+            </div>
 
-          <Magnetic strength={0.25}>
-            <button
-              onClick={handleLaunchClick}
-              className="group w-full sm:w-auto px-10 py-4 rounded-2xl font-black text-base sm:text-lg shadow-2xl transition-all hover:scale-104 flex items-center justify-center gap-3 cursor-pointer bg-[#1D2E1B] text-white hover:bg-[#2D442A] dark:bg-[#A9C632] dark:text-[#1D2E1B] dark:hover:bg-[#96B228]"
-            >
-              <span>{user ? "Open Live Map Workspace" : "Explore the 2.5D Map — It's Free"}</span>
-              <WarpSpearIcon className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform" />
-            </button>
-          </Magnetic>
+            <Magnetic strength={0.25}>
+              <button
+                onClick={handleLaunchClick}
+                className="group w-full sm:w-auto px-10 py-4 rounded-2xl font-black text-base sm:text-lg shadow-2xl transition-all hover:scale-104 flex items-center justify-center gap-3 cursor-pointer bg-[#1D2E1B] text-white hover:bg-[#2D442A] dark:bg-[#A9C632] dark:text-[#1D2E1B] dark:hover:bg-[#96B228]"
+              >
+                <span>{user ? "Open Live Map Workspace" : "Explore the 2.5D Map — It's Free"}</span>
+                <WarpSpearIcon className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform" />
+              </button>
+            </Magnetic>
+          </div>
 
           <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#546E50] dark:text-[#C8D2A6] bg-black/[0.03] dark:bg-white/[0.04] px-5 py-2 rounded-full border border-black/5 dark:border-white/5">
             <ShieldCheck className="w-4 h-4 text-[#A9C632]" />
             <span>Zero paywalls · Verified Gmail login · No recruiters spamming your inbox</span>
-          </div>
-
-          {/* Product Hunt Review Badge */}
-          <div className="pt-2 flex justify-center">
-            <a 
-              href="https://www.producthunt.com/products/findely/reviews/new?utm_source=badge-product_review&utm_medium=badge&utm_source=badge-findely" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-transform hover:scale-105 active:scale-95 shadow-md rounded-xl overflow-hidden inline-block"
-            >
-              <img 
-                src={isDarkMode ? "https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1294519&theme=dark" : "https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1294519&theme=light"} 
-                alt="Findely - Find where real tech is built. 2.5D map with 0 ghost jobs | Product Hunt" 
-                style={{ width: "250px", height: "54px" }} 
-                width="250" 
-                height="54" 
-              />
-            </a>
           </div>
         </motion.div>
 
