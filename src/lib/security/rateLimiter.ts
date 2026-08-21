@@ -71,3 +71,33 @@ export function checkRateLimit(
     resetSeconds,
   };
 }
+
+/**
+ * Safely extracts client IP address from Next.js Headers instance or Request object.
+ */
+export function getClientIp(headersList?: { get: (name: string) => string | null } | Headers | null): string {
+  if (!headersList) return "127.0.0.1";
+  
+  const forwardedFor = headersList.get("x-forwarded-for");
+  if (forwardedFor) {
+    const ips = forwardedFor.split(",").map((ip) => ip.trim());
+    if (ips[0]) return ips[0];
+  }
+
+  const realIp = headersList.get("x-real-ip");
+  if (realIp) return realIp.trim();
+
+  const cfIp = headersList.get("cf-connecting-ip");
+  if (cfIp) return cfIp.trim();
+
+  return "127.0.0.1";
+}
+
+export const RATE_LIMIT_PRESETS = {
+  OTP_SEND: { limit: 3, windowMs: 60000 },      // 3 per minute
+  OTP_VERIFY: { limit: 5, windowMs: 60000 },    // 5 per minute
+  AUTH_ATTEMPT: { limit: 10, windowMs: 60000 }, // 10 per minute
+  ADMIN_API: { limit: 60, windowMs: 60000 },    // 60 per minute
+  MUTATION_API: { limit: 30, windowMs: 60000 }, // 30 per minute
+};
+

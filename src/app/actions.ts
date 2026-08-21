@@ -1,5 +1,7 @@
 "use server";
 
+import { randomInt } from "node:crypto";
+import { headers } from "next/headers";
 import { db } from "@/db";
 import { users, profiles, companies, jobs, scrape_sources, applications, company_requests, company_reports, otp_sessions } from "@/db/schema";
 import { eq, and, or, isNull, desc, gt, sql } from "drizzle-orm";
@@ -10,6 +12,11 @@ import { resolveExactJobApplyUrl, resolveFounderLinkedinUrl } from "@/lib/applyU
 import { sendOtpEmail } from "@/lib/emailService";
 import { geocodeLocation } from "@/lib/scraper/geocoder";
 import { validateJobApplyUrl } from "@/lib/scraper/validator";
+import { checkRateLimit, getClientIp, RATE_LIMIT_PRESETS } from "@/lib/security/rateLimiter";
+import { verifyAdminRequest } from "@/lib/security/adminAuth";
+
+// Track failed verification attempts per OTP session ID to prevent brute force
+const failedOtpAttemptsMap = new Map<string, number>();
 
 // ── Real Email OTP Verification Actions ──────────────────────────────────
 
@@ -24,11 +31,31 @@ export async function sendEmailOtp(data: { email: string; name?: string }) {
       return { success: false, error: "Temporary and disposable emails are blocked. Please use a verified Gmail or company email." };
     }
 
-    // Generate cryptographically random 6-digit code
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    // 1. Enforce IP and Email Rate Limits
+    const reqHeaders = await headers();
+    const clientIp = getClientIp(reqHeaders);
+
+    const ipLimit = checkRateLimit(`otp_send_ip_${clientIp}`, RATE_LIMIT_PRESETS.OTP_SEND.limit, RATE_LIMIT_PRESETS.OTP_SEND.windowMs);
+    if (!ipLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many verification requests from this network. Please wait ${ipLimit.resetSeconds}s before requesting a new code.`,
+      };
+    }
+
+    const emailLimit = checkRateLimit(`otp_send_email_${cleanEmail}`, RATE_LIMIT_PRESETS.OTP_SEND.limit, RATE_LIMIT_PRESETS.OTP_SEND.windowMs);
+    if (!emailLimit.allowed) {
+      return {
+        success: false,
+        error: `A code was recently requested for this email. Please wait ${emailLimit.resetSeconds}s before requesting another.`,
+      };
+    }
+
+    // 2. Generate Cryptographically Secure 6-Digit Code
+    const otpCode = randomInt(100000, 1000000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
 
-    // Save session in Turso database
+    // 3. Save session in Turso database
     await db.insert(otp_sessions).values({
       email: cleanEmail,
       otp_code: otpCode,
@@ -37,7 +64,7 @@ export async function sendEmailOtp(data: { email: string; name?: string }) {
       verified: false,
     }).run();
 
-    // Dispatch real email via Nodemailer
+    // 4. Dispatch real email via Nodemailer
     const emailResult = await sendOtpEmail({
       to: cleanEmail,
       name: data.name,
@@ -71,7 +98,19 @@ export async function verifyEmailOtp(data: { email: string; otpCode: string; nam
       return { success: false, error: "Please enter the full 6-digit verification code sent to your email." };
     }
 
-    // Find the latest pending OTP session for this email
+    // 1. Enforce Verification Attempt Rate Limits
+    const reqHeaders = await headers();
+    const clientIp = getClientIp(reqHeaders);
+
+    const verifyLimit = checkRateLimit(`otp_verify_ip_${clientIp}`, RATE_LIMIT_PRESETS.OTP_VERIFY.limit, RATE_LIMIT_PRESETS.OTP_VERIFY.windowMs);
+    if (!verifyLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many invalid attempts. Please wait ${verifyLimit.resetSeconds}s before trying again.`,
+      };
+    }
+
+    // 2. Find the latest pending OTP session for this email
     const sessions = await db
       .select()
       .from(otp_sessions)
@@ -84,24 +123,48 @@ export async function verifyEmailOtp(data: { email: string; otpCode: string; nam
       return { success: false, error: "No pending verification code found for this email. Please request a new code." };
     }
 
-    // Check expiry
+    // 3. Check expiry
     if (new Date() > latestSession.expires_at) {
       return { success: false, error: "Your verification code has expired. Please request a new code." };
     }
 
-    // Strict code equality check
+    // 4. Strict code equality check with brute-force attempt lockout
     if (latestSession.otp_code.trim() !== cleanCode) {
-      return { success: false, error: "Invalid verification code. Please check your Gmail inbox and enter the 6-digit code received." };
+      const currentAttempts = (failedOtpAttemptsMap.get(latestSession.id) || 0) + 1;
+      failedOtpAttemptsMap.set(latestSession.id, currentAttempts);
+
+      if (currentAttempts >= 5) {
+        // Invalidate session immediately to prevent further brute-force
+        await db
+          .update(otp_sessions)
+          .set({ expires_at: new Date(0) })
+          .where(eq(otp_sessions.id, latestSession.id))
+          .run();
+        failedOtpAttemptsMap.delete(latestSession.id);
+        return {
+          success: false,
+          error: "Too many failed attempts. This verification code has been locked for security. Please request a new code.",
+        };
+      }
+
+      const remainingAttempts = 5 - currentAttempts;
+      return {
+        success: false,
+        error: `Invalid verification code. ${remainingAttempts} attempt${remainingAttempts === 1 ? "" : "s"} remaining before lockout.`,
+      };
     }
 
-    // Mark as verified
+    // Code is valid: clear failed attempt tracker
+    failedOtpAttemptsMap.delete(latestSession.id);
+
+    // 5. Mark as verified
     await db
       .update(otp_sessions)
       .set({ verified: true })
       .where(eq(otp_sessions.id, latestSession.id))
       .run();
 
-    // Register or login the user
+    // 6. Register or login the user
     const userName = data.name?.trim() || latestSession.name || cleanEmail.split("@")[0];
     const authResult = await registerOrLoginUser({
       email: cleanEmail,
@@ -120,7 +183,7 @@ export async function verifyEmailOtp(data: { email: string; otpCode: string; nam
         email: cleanEmail,
         name: userName,
         avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(userName)}&backgroundColor=1D2E1B&textColor=A9C632`,
-        authProvider: "work_email",
+        authProvider: "email_otp" as const,
         companyDomain: cleanEmail.split("@")[1] || "gmail.com",
         verified: true,
         role: "Verified Candidate Member",
@@ -1200,6 +1263,12 @@ export async function submitCompanyReport(data: {
 
 export async function getCompanyReports() {
   try {
+    const adminCheck = await verifyAdminRequest();
+    if (!adminCheck.authorized) {
+      console.warn("[getCompanyReports] Unauthorized inspection attempt blocked.");
+      return [];
+    }
+
     return await db
       .select()
       .from(company_reports)
@@ -1212,6 +1281,11 @@ export async function getCompanyReports() {
 
 export async function resolveCompanyReport(reportId: string, status: "resolved" | "dismissed") {
   try {
+    const adminCheck = await verifyAdminRequest();
+    if (!adminCheck.authorized) {
+      return { success: false, error: "Unauthorized: Administrator privileges required to resolve audit reports." };
+    }
+
     await db
       .update(company_reports)
       .set({ status })

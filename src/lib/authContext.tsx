@@ -9,7 +9,7 @@ export interface AuthUser {
   name: string;
   email: string;
   avatar?: string;
-  authProvider: "google" | "work_email";
+  authProvider: "google" | "work_email" | "email_otp";
   companyDomain?: string;
   verified: boolean;
   role?: string;

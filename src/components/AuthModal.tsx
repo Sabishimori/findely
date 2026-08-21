@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   X, 
@@ -12,12 +12,16 @@ import {
   Building2, 
   Lock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  KeyRound,
+  RotateCcw,
+  Edit2
 } from "lucide-react";
 import { useAuth } from "@/lib/authContext";
 import { playTapSound } from "@/lib/soundFx";
 import { signIn } from "next-auth/react";
 import { isDisposableEmail } from "@/lib/disposableEmailBlocker";
+import { sendEmailOtp, verifyEmailOtp } from "@/app/actions";
 
 function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -49,13 +53,25 @@ export default function AuthModal({
   isDarkMode?: boolean;
   onSuccess?: () => void;
 }) {
-  const { isAuthModalOpen, closeAuthModal, loginWithWorkEmail } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, setVerifiedUser } = useAuth();
   
+  const [step, setStep] = useState<"credentials" | "otp">("credentials");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  // Handle Resend Cooldown Timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   if (!isAuthModalOpen) return null;
 
@@ -79,11 +95,11 @@ export default function AuthModal({
     }
   };
 
-  // 2. Direct Passwordless Login with Name & Gmail
-  const handleDirectLogin = async (e?: React.FormEvent) => {
+  // 2. Request OTP Code for Email
+  const handleRequestOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!cleanEmail || !cleanEmail.includes("@")) {
-      setErrorMsg("Please enter a valid Gmail or email address.");
+      setErrorMsg("Please enter a valid Gmail or work email address.");
       return;
     }
 
@@ -94,22 +110,65 @@ export default function AuthModal({
 
     setIsLoading(true);
     setErrorMsg("");
+    setSuccessMsg("");
     playTapSound();
 
     try {
       const displayName = cleanName || cleanEmail.split("@")[0];
-      setSuccessMsg(`Welcome, ${displayName}! Logging into Findely...`);
-      playTapSound();
+      const res = await sendEmailOtp({ email: cleanEmail, name: displayName });
 
-      await loginWithWorkEmail(displayName, cleanEmail);
-
-      setTimeout(() => {
-        if (onSuccess) onSuccess();
-        closeAuthModal();
-      }, 400);
+      if (res.success) {
+        setSuccessMsg(`A 6-digit code was sent to ${cleanEmail}.`);
+        setStep("otp");
+        setResendCooldown(60); // 60s cooldown
+      } else {
+        setErrorMsg(res.error || "Failed to dispatch verification code.");
+      }
     } catch (err: any) {
-      console.error("Login error:", err);
-      setErrorMsg("Failed to complete login. Please try again.");
+      console.error("OTP send error:", err);
+      setErrorMsg("Failed to dispatch verification code. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 3. Verify OTP Code and Log In
+  const handleVerifyOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanCode = otpCode.trim().replace(/\D/g, "");
+
+    if (cleanCode.length < 6) {
+      setErrorMsg("Please enter the complete 6-digit verification code.");
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMsg("");
+    playTapSound();
+
+    try {
+      const displayName = cleanName || cleanEmail.split("@")[0];
+      const res = await verifyEmailOtp({
+        email: cleanEmail,
+        otpCode: cleanCode,
+        name: displayName,
+      });
+
+      if (res.success && res.user) {
+        setSuccessMsg(`Welcome, ${res.user.name}! Authentication verified.`);
+        playTapSound();
+        setVerifiedUser(res.user);
+
+        setTimeout(() => {
+          if (onSuccess) onSuccess();
+          closeAuthModal();
+        }, 500);
+      } else {
+        setErrorMsg(res.error || "Invalid verification code. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("OTP verify error:", err);
+      setErrorMsg("Failed to verify code. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -156,7 +215,9 @@ export default function AuthModal({
 
             <div>
               <h2 className="text-2xl font-black tracking-tight text-[#1D2E1B] dark:text-white min-h-[32px] flex items-center justify-center gap-1.5 transition-all">
-                {cleanName ? (
+                {step === "otp" ? (
+                  <span>Verify Email Code</span>
+                ) : cleanName ? (
                   <span>
                     Welcome, <span className="text-[#A9C632]">{cleanName}</span>
                   </span>
@@ -166,56 +227,171 @@ export default function AuthModal({
               </h2>
 
               <p className="text-xs text-[#546E50] dark:text-[#C8D2A6] mt-1 font-semibold">
-                Enter your username & Gmail to instantly access 2.5D startup maps & candidate tools.
+                {step === "otp"
+                  ? `Enter the 6-digit security code sent to ${cleanEmail}.`
+                  : "Enter your username & Gmail to instantly access 2.5D startup maps & candidate tools."}
               </p>
             </div>
           </div>
 
-          {/* 1-Click Google Action */}
-          <div className="space-y-4">
-            <button
-              type="button"
-              onClick={handleGoogleOAuth}
-              disabled={isLoading}
-              aria-label="Continue with Google"
-              className="w-full py-3 px-4 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-white dark:bg-white/5 hover:bg-[#A9C632]/10 hover:border-[#A9C632] text-xs font-bold text-[#1D2E1B] dark:text-white flex items-center justify-center gap-3 transition-all shadow-xs hover:scale-101 cursor-pointer disabled:opacity-50"
-            >
-              <GoogleIcon className="w-4 h-4" />
-              <span>{isLoading ? "Connecting to Google..." : "Continue with Google (1-Click)"}</span>
-            </button>
+          {step === "credentials" ? (
+            /* ── Step 1: Credentials / 1-Click Google ── */
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={handleGoogleOAuth}
+                disabled={isLoading}
+                aria-label="Continue with Google"
+                className="w-full py-3 px-4 rounded-2xl border border-[#C8D2A6] dark:border-[#3D543A] bg-white dark:bg-white/5 hover:bg-[#A9C632]/10 hover:border-[#A9C632] text-xs font-bold text-[#1D2E1B] dark:text-white flex items-center justify-center gap-3 transition-all shadow-xs hover:scale-101 cursor-pointer disabled:opacity-50"
+              >
+                <GoogleIcon className="w-4 h-4" />
+                <span>{isLoading ? "Connecting to Google..." : "Continue with Google (1-Click)"}</span>
+              </button>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-black/[0.08] dark:bg-white/[0.08]" />
-              <span className="text-[11px] font-bold text-[#546E50] dark:text-[#C8D2A6] uppercase tracking-wider">
-                Or Enter Username & Gmail
-              </span>
-              <div className="flex-1 h-px bg-black/[0.08] dark:bg-white/[0.08]" />
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-black/[0.08] dark:bg-white/[0.08]" />
+                <span className="text-[11px] font-bold text-[#546E50] dark:text-[#C8D2A6] uppercase tracking-wider">
+                  Or Send Verified Email OTP
+                </span>
+                <div className="flex-1 h-px bg-black/[0.08] dark:bg-white/[0.08]" />
+              </div>
+
+              {/* Email Form */}
+              <form onSubmit={handleRequestOtp} className="space-y-3.5">
+                {/* Full Name / Username */}
+                <div className="space-y-1">
+                  <label htmlFor="auth-name-input" className="text-[11px] font-bold text-[#1D2E1B] dark:text-white flex items-center justify-between">
+                    <span>Your Username / Name</span>
+                    {cleanName && (
+                      <span className="text-[10px] text-[#A9C632] font-bold flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-[#A9C632]" />
+                        <span>Live Profile</span>
+                      </span>
+                    )}
+                  </label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-[#546E50] dark:text-[#C8D2A6] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      id="auth-name-input"
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g. Sagar Sharma"
+                      className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-2xl border transition-all focus:outline-none focus:border-[#A9C632] ${
+                        isDarkMode
+                          ? "bg-[#243822] border-[#3D543A] text-white placeholder:text-[#A0B28C]"
+                          : "bg-[#F7F9F2] border-[#C8D2A6] text-[#1D2E1B] placeholder:text-[#546E50]"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                {/* Email Input */}
+                <div className="space-y-1">
+                  <label htmlFor="auth-email-input" className="text-[11px] font-bold text-[#1D2E1B] dark:text-white flex items-center justify-between">
+                    <span>Gmail or Work Email Address</span>
+                    {isDisposableEmail(email) ? (
+                      <span className="text-[10px] text-red-500 font-bold flex items-center gap-1">
+                        <X className="w-3 h-3 text-red-500" />
+                        <span>Burner Email Blocked</span>
+                      </span>
+                    ) : isGmail ? (
+                      <span className="text-[10px] text-[#A9C632] font-bold flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-[#A9C632]" />
+                        <span>Verified Google Account</span>
+                      </span>
+                    ) : isCompanyEmail ? (
+                      <span className="text-[10px] text-[#A9C632] font-bold flex items-center gap-1">
+                        <Building2 className="w-3 h-3 text-[#A9C632]" />
+                        <span>@{domain}</span>
+                      </span>
+                    ) : null}
+                  </label>
+                  <div className="relative">
+                    <Mail className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${isDisposableEmail(email) ? "text-red-500" : "text-[#546E50] dark:text-[#C8D2A6]"}`} />
+                    <input
+                      id="auth-email-input"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (errorMsg) setErrorMsg("");
+                      }}
+                      placeholder="you@gmail.com"
+                      className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-2xl border transition-all focus:outline-none ${
+                        isDisposableEmail(email)
+                          ? "border-red-500/80 bg-red-500/10 text-red-600 dark:text-red-400 focus:border-red-500"
+                          : isDarkMode
+                          ? "bg-[#243822] border-[#3D543A] text-white placeholder:text-[#A0B28C] focus:border-[#A9C632]"
+                          : "bg-[#F7F9F2] border-[#C8D2A6] text-[#1D2E1B] placeholder:text-[#546E50] focus:border-[#A9C632]"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                {errorMsg && (
+                  <p className="text-xs text-red-500 font-semibold text-center bg-red-500/10 p-2.5 rounded-xl border border-red-500/20">
+                    {errorMsg}
+                  </p>
+                )}
+
+                {/* Submit Action */}
+                <button
+                  type="submit"
+                  disabled={isLoading || !email.includes("@") || isDisposableEmail(email)}
+                  aria-label="Send 6-digit verification code"
+                  className="w-full py-3.5 px-4 rounded-2xl font-bold text-xs shadow-md transition-all hover:scale-101 flex items-center justify-center gap-2 cursor-pointer bg-[#1D2E1B] text-white hover:bg-[#2D442A] dark:bg-[#A9C632] dark:text-[#1D2E1B] dark:hover:bg-[#96B228] disabled:opacity-50 mt-4"
+                >
+                  <span>{isLoading ? "Sending 6-Digit Code..." : "Send Verification Code ✉️"}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </form>
             </div>
+          ) : (
+            /* ── Step 2: 6-Digit OTP Verification ── */
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <div className="p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-[#C8D2A6] dark:border-[#3D543A] flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-[#546E50] dark:text-[#C8D2A6] font-medium">
+                  <Mail className="w-4 h-4 text-[#A9C632]" />
+                  <span className="font-bold text-[#1D2E1B] dark:text-white truncate max-w-[200px]">{cleanEmail}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep("credentials");
+                    setErrorMsg("");
+                    setSuccessMsg("");
+                  }}
+                  className="text-[11px] font-bold text-[#A9C632] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Edit2 className="w-3 h-3" />
+                  <span>Change</span>
+                </button>
+              </div>
 
-            {/* Direct Passwordless Form */}
-            <form onSubmit={handleDirectLogin} className="space-y-3.5">
-              {/* Full Name / Username */}
-              <div className="space-y-1">
-                <label htmlFor="auth-name-input" className="text-[11px] font-bold text-[#1D2E1B] dark:text-white flex items-center justify-between">
-                  <span>Your Username / Name</span>
-                  {cleanName && (
-                    <span className="text-[10px] text-[#A9C632] font-bold flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-[#A9C632]" />
-                      <span>Live Profile</span>
-                    </span>
-                  )}
+              <div className="space-y-1.5 text-left">
+                <label htmlFor="auth-otp-input" className="text-[11px] font-bold text-[#1D2E1B] dark:text-white flex items-center justify-between">
+                  <span>6-Digit Verification Code</span>
+                  <span className="text-[10px] text-[#A9C632] font-mono">10 min expiry</span>
                 </label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-[#546E50] dark:text-[#C8D2A6] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <KeyRound className="w-4 h-4 text-[#546E50] dark:text-[#C8D2A6] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
-                    id="auth-name-input"
+                    id="auth-otp-input"
                     type="text"
                     required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Sagar Sharma"
-                    className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-2xl border transition-all focus:outline-none focus:border-[#A9C632] ${
+                    maxLength={6}
+                    autoFocus
+                    value={otpCode}
+                    onChange={(e) => {
+                      setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6));
+                      if (errorMsg) setErrorMsg("");
+                    }}
+                    placeholder="123456"
+                    className={`w-full pl-10 pr-4 py-3 text-center tracking-[0.35em] text-lg font-black rounded-2xl border transition-all focus:outline-none focus:border-[#A9C632] ${
                       isDarkMode
                         ? "bg-[#243822] border-[#3D543A] text-white placeholder:text-[#A0B28C]"
                         : "bg-[#F7F9F2] border-[#C8D2A6] text-[#1D2E1B] placeholder:text-[#546E50]"
@@ -223,57 +399,6 @@ export default function AuthModal({
                   />
                 </div>
               </div>
-
-              {/* Email Input */}
-              <div className="space-y-1">
-                <label htmlFor="auth-email-input" className="text-[11px] font-bold text-[#1D2E1B] dark:text-white flex items-center justify-between">
-                  <span>Gmail or Work Email Address</span>
-                  {isDisposableEmail(email) ? (
-                    <span className="text-[10px] text-red-500 font-bold flex items-center gap-1">
-                      <X className="w-3 h-3 text-red-500" />
-                      <span>Burner Email Blocked</span>
-                    </span>
-                  ) : isGmail ? (
-                    <span className="text-[10px] text-[#A9C632] font-bold flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-[#A9C632]" />
-                      <span>Verified Google Account</span>
-                    </span>
-                  ) : isCompanyEmail ? (
-                    <span className="text-[10px] text-[#A9C632] font-bold flex items-center gap-1">
-                      <Building2 className="w-3 h-3 text-[#A9C632]" />
-                      <span>@{domain}</span>
-                    </span>
-                  ) : null}
-                </label>
-                <div className="relative">
-                  <Mail className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${isDisposableEmail(email) ? "text-red-500" : "text-[#546E50] dark:text-[#C8D2A6]"}`} />
-                  <input
-                    id="auth-email-input"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      if (errorMsg) setErrorMsg("");
-                    }}
-                    placeholder="you@gmail.com"
-                    className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-2xl border transition-all focus:outline-none ${
-                      isDisposableEmail(email)
-                        ? "border-red-500/80 bg-red-500/10 text-red-600 dark:text-red-400 focus:border-red-500"
-                        : isDarkMode
-                        ? "bg-[#243822] border-[#3D543A] text-white placeholder:text-[#A0B28C] focus:border-[#A9C632]"
-                        : "bg-[#F7F9F2] border-[#C8D2A6] text-[#1D2E1B] placeholder:text-[#546E50] focus:border-[#A9C632]"
-                    }`}
-                  />
-                </div>
-              </div>
-
-              {isDisposableEmail(email) && (
-                <p className="text-[11px] text-red-500 font-bold text-center bg-red-500/10 p-2 rounded-xl border border-red-500/30 flex items-center justify-center gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  <span>Temporary/disposable emails are blocked. Please enter a genuine Gmail or company address.</span>
-                </p>
-              )}
 
               {errorMsg && (
                 <p className="text-xs text-red-500 font-semibold text-center bg-red-500/10 p-2.5 rounded-xl border border-red-500/20">
@@ -288,28 +413,41 @@ export default function AuthModal({
                 </p>
               )}
 
-              {/* Direct Submit Action */}
+              {/* Verify & Enter Button */}
               <button
                 type="submit"
-                disabled={isLoading || !email.includes("@") || isDisposableEmail(email)}
-                aria-label="Continue to Findely"
-                className="w-full py-3.5 px-4 rounded-2xl font-bold text-xs shadow-md transition-all hover:scale-101 flex items-center justify-center gap-2 cursor-pointer bg-[#1D2E1B] text-white hover:bg-[#2D442A] dark:bg-[#A9C632] dark:text-[#1D2E1B] dark:hover:bg-[#96B228] disabled:opacity-50 mt-4"
+                disabled={isLoading || otpCode.length < 6}
+                aria-label="Verify and Enter Findely"
+                className="w-full py-3.5 px-4 rounded-2xl font-bold text-xs shadow-md transition-all hover:scale-101 flex items-center justify-center gap-2 cursor-pointer bg-[#1D2E1B] text-white hover:bg-[#2D442A] dark:bg-[#A9C632] dark:text-[#1D2E1B] dark:hover:bg-[#96B228] disabled:opacity-50"
               >
-                <span>{isLoading ? "Signing in..." : "Continue to Findely"}</span>
+                <span>{isLoading ? "Verifying Security Code..." : "Verify & Enter Findely 🚀"}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+
+              {/* Resend Code Button */}
+              <div className="text-center pt-1">
+                <button
+                  type="button"
+                  disabled={isLoading || resendCooldown > 0}
+                  onClick={handleRequestOtp}
+                  className="text-xs font-bold text-[#546E50] dark:text-[#C8D2A6] hover:text-[#A9C632] transition-colors disabled:opacity-50 cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>{resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : "Resend 6-Digit Code"}</span>
+                </button>
+              </div>
             </form>
-          </div>
+          )}
 
           {/* Footer Security Signals */}
           <div className="mt-6 pt-4 border-t border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between text-[10px] text-[#546E50] dark:text-[#C8D2A6] font-medium">
             <div className="flex items-center gap-1">
               <Lock className="w-3 h-3 text-[#A9C632]" />
-              <span>Passwordless Instant Access</span>
+              <span>Cryptographic Email OTP</span>
             </div>
             <div className="flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-[#A9C632]" />
-              <span>Zero Spam Guarantee</span>
+              <span>Anti-Brute Force Guard</span>
             </div>
           </div>
         </motion.div>
